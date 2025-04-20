@@ -1,0 +1,11 @@
+[project]
+name = "bd-perf-dashboard"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10.16"
+dependencies = [
+    "argparse>=1.4.0",
+    "faker",
+    "pytz>=2025.2",
+]
