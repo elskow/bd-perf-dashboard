@@ -10,6 +10,8 @@ import time
 import csv
 import os
 from collections import defaultdict
+import locale
+from babel.numbers import format_currency
 
 # Configure logging
 logging.basicConfig(
@@ -18,6 +20,22 @@ logging.basicConfig(
     handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger(__name__)
+
+# Try to set Indonesian locale
+try:
+    locale.setlocale(locale.LC_ALL, 'id_ID.UTF-8')
+except:
+    try:
+        locale.setlocale(locale.LC_ALL, 'id_ID')
+    except:
+        logger.warning("Could not set Indonesian locale, using default")
+
+# Function to format IDR currency
+def format_idr(amount):
+    try:
+        return format_currency(amount, 'IDR', locale='id_ID')
+    except:
+        return f"Rp {amount:,.0f},-"
 
 def connect_to_odoo(url, db, username, password, max_retries=5):
     """Establish connection to Odoo instance with retries"""
@@ -167,18 +185,18 @@ def setup_user_roles(uid, models, db, password, team_ids):
         if len(existing_users) <= 1:
             sales_roles = [
                 # Format: (name, login, team_name, is_manager)
-                ("Alex Director", "sales.director@example.com", None, False),  # Sales Director
-                ("Morgan Manager", "enterprise.manager@example.com", "Enterprise Sales", True),
-                ("Sam Enterprise", "sam.enterprise@example.com", "Enterprise Sales", False),
-                ("Taylor Enterprise", "taylor.enterprise@example.com", "Enterprise Sales", False),
-                ("Jordan Manager", "smb.manager@example.com", "SMB Sales", True),
-                ("Casey SMB", "casey.smb@example.com", "SMB Sales", False),
-                ("Riley SMB", "riley.smb@example.com", "SMB Sales", False),
-                ("Quinn Manager", "inside.manager@example.com", "Inside Sales", True),
-                ("Harper Inside", "harper.inside@example.com", "Inside Sales", False),
-                ("Cameron Inside", "cameron.inside@example.com", "Inside Sales", False),
-                ("Tyler Manager", "partner.manager@example.com", "Partner Channel", True),
-                ("Pat Partner", "pat.partner@example.com", "Partner Channel", False),
+                ("Budi Santoso", "sales.director@example.com", None, False),  # Sales Director
+                ("Ahmad Wijaya", "enterprise.manager@example.com", "Enterprise Sales", True),
+                ("Dewi Lestari", "sam.enterprise@example.com", "Enterprise Sales", False),
+                ("Bambang Suparno", "taylor.enterprise@example.com", "Enterprise Sales", False),
+                ("Siti Rahma", "smb.manager@example.com", "SMB Sales", True),
+                ("Agus Setiawan", "casey.smb@example.com", "SMB Sales", False),
+                ("Ratna Sari", "riley.smb@example.com", "SMB Sales", False),
+                ("Joko Widodo", "inside.manager@example.com", "Inside Sales", True),
+                ("Rina Putri", "harper.inside@example.com", "Inside Sales", False),
+                ("Dimas Pratama", "cameron.inside@example.com", "Inside Sales", False),
+                ("Aditya Nugraha", "partner.manager@example.com", "Partner Channel", True),
+                ("Indah Permata", "pat.partner@example.com", "Partner Channel", False),
             ]
 
             user_mapping = {}
@@ -466,9 +484,9 @@ def generate_dummy_leads(uid, models, db, password, count=100):
                     while random_date.weekday() >= 5:
                         random_date -= timedelta(days=1)
 
-            # Set to business hours (9am-5pm)
-            business_start = dt_time(9, 0, 0)
-            business_end = dt_time(17, 0, 0)
+            # Set to business hours (using 24-hour format)
+            business_start = dt_time(8, 0, 0)  # 8:00 (start earlier for Indonesian business hours)
+            business_end = dt_time(17, 0, 0)   # 17:00
 
             # Random time during business hours
             random_hour = random.randint(business_start.hour, business_end.hour - 1)
@@ -637,15 +655,15 @@ def generate_dummy_leads(uid, models, db, password, count=100):
                 # Default case
                 probability = random.randint(10, 50)
 
-            # Adjust expected revenue based on team
+            # Adjust expected revenue for IDR (multiply by 14,500 for approximate USD to IDR conversion)
             if team_name == 'Enterprise Sales':
-                base_revenue = random.randint(50000, 500000)
+                base_revenue = random.randint(50000, 500000) * 14500
             elif team_name == 'SMB Sales':
-                base_revenue = random.randint(10000, 75000)
+                base_revenue = random.randint(10000, 75000) * 14500
             elif team_name == 'Partner Channel':
-                base_revenue = random.randint(25000, 250000)
+                base_revenue = random.randint(25000, 250000) * 14500
             else:  # Inside Sales or default
-                base_revenue = random.randint(5000, 50000)
+                base_revenue = random.randint(5000, 50000) * 14500
 
             # Adjust revenue based on stage (later stages have more accurate forecasts)
             stage_to_factor = {
@@ -668,7 +686,7 @@ def generate_dummy_leads(uid, models, db, password, count=100):
                     break
 
             revenue_factor = stage_to_factor.get(best_match, 0.7)
-            expected_revenue = int(base_revenue * revenue_factor / 100) * 100  # Round to nearest 100
+            expected_revenue = int(base_revenue * revenue_factor / 1000) * 1000
 
             return {
                 'stage_id': stage_id,
@@ -676,6 +694,7 @@ def generate_dummy_leads(uid, models, db, password, count=100):
                 'probability': probability,
                 'expected_revenue': expected_revenue
             }
+
 
         def create_realistic_lead_history_improved(lead_id, lead_data, stage_sequence, users_dict, date_created, current_stage_id):
             """Create a realistic history of stage changes and messages for a lead with proper chronology"""
