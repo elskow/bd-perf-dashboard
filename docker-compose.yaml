@@ -13,7 +13,7 @@ services:
     restart: always
 
   odoo:
-    image: odoo:15.0
+    image: odoo:18.0
     depends_on:
       - db
     ports:
@@ -23,6 +23,7 @@ services:
       - USER=odoo
       - PASSWORD=odoo
       - TZ=Asia/Jakarta
+      - LIST_DB=False
     volumes:
       - odoo-web-data:/var/lib/odoo
       - ./custom-addons:/mnt/extra-addons

@@ -1,9 +1,10 @@
-#!/usr/bin/env python3
 import xmlrpc.client
 import time
 import sys
 import logging
 import argparse
+import base64
+
 
 # Configure logging
 logging.basicConfig(
@@ -160,14 +161,59 @@ def configure_crm_stages(url, db_name, admin_password, uid, models):
         logger.error(f"Error configuring CRM stages: {e}")
         return False
 
+def configure_company_info(db_name, admin_password, uid, models):
+    """Configure company information"""
+    logger.info("Setting up company information...")
+
+    try:
+        # Read the company logo
+        logo_path = "/setup/assets/icon.png"
+        with open(logo_path, 'rb') as f:
+            company_logo = f.read()
+
+        # Company data
+        company_data = {
+            'name': 'HashMicro',
+            'email': 'info@hashmicro.com',
+            'website': 'https://www.hashmicro.com',
+            'phone': '+62 21 5091 7887',
+            'street': 'Jl. Casablanca Raya Kav. 88',
+            'street2': 'Menara Mulia Lt.16 Unit B',
+            'city': 'Jakarta Selatan',
+            'zip': '12870',
+            'country_id': 99,  # ID for Indonesia, may need to be adjusted
+            'logo': base64.b64encode(company_logo).decode('utf-8'),  # Set company logo
+        }
+
+        # Update the main company (ID 1)
+        models.execute_kw(
+            db_name, uid, admin_password,
+            'res.company', 'write',
+            [[1], company_data]
+        )
+
+        # Update web.base.url parameter
+        config_parameter_obj = 'ir.config_parameter'
+        models.execute_kw(
+            db_name, uid, admin_password,
+            config_parameter_obj, 'set_param',
+            ['web.base.url', f'http://localhost:8069']
+        )
+
+        logger.info("Company information updated successfully")
+        return True
+
+    except Exception as e:
+        logger.error(f"Error setting up company information: {e}")
+        return False
+
 def main():
     parser = argparse.ArgumentParser(description='Set up Odoo database and modules')
     parser.add_argument('--url', default='http://localhost:8069', help='Odoo URL')
     parser.add_argument('--db', default='crm_project', help='Database name to create')
     parser.add_argument('--master-password', default='admin', help='Master password')
     parser.add_argument('--admin-password', default='admin', help='Admin user password')
-    parser.add_argument('--modules', default='crm', help='Comma-separated list of modules to install')
-
+    parser.add_argument('--modules', default='crm,code_backend_theme', help='Comma-separated list of modules to install')
     args = parser.parse_args()
 
     # Wait for Odoo to be available
@@ -186,6 +232,10 @@ def main():
     result, uid, models = install_modules(args.url, args.db, args.admin_password, args.modules)
     if not result:
         sys.exit(1)
+
+    # Configure company information
+    if not configure_company_info(args.db, args.admin_password, uid, models):
+        logger.warning("Failed to configure company information")
 
     # Configure custom CRM stages (only if CRM module was installed)
     if 'crm' in args.modules.split(','):
