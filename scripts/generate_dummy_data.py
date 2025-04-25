@@ -426,12 +426,15 @@ class CrmDataGenerator:
         """Create a message for a lead with specific historical date"""
         try:
             note_subtype_id = subtype_id or self.get_note_subtype_id()
+
+            # Get the user partner ID
+            partner_id = self._get_user_partner_id(author_id)
             
             message_vals = {
                 'body': body,
                 'model': 'crm.lead',
                 'res_id': lead_id,
-                'author_id': author_id,
+                'author_id': partner_id,
                 'message_type': 'comment',
                 'subtype_id': note_subtype_id,
                 'date': message_date.strftime('%Y-%m-%d %H:%M:%S')
@@ -447,6 +450,8 @@ class CrmDataGenerator:
                             user_id: int, date: datetime) -> Optional[int]:
         """Add a log note about stage change for analytics with correct historical timestamp"""
         try:
+            user_name = self.users.get(user_id, {}).get('name', "Administrator")
+
             message = f"Stage changed from '{old_stage_name}' to '{new_stage_name}'"
             message_with_tag = f"{message} #stage_change_log#"
 
@@ -455,7 +460,8 @@ class CrmDataGenerator:
                 "old_stage": old_stage_name,
                 "new_stage": new_stage_name,
                 "timestamp": date.strftime('%Y-%m-%d %H:%M:%S'),
-                "user_id": user_id
+                "user_id": user_id,
+                "user_name": user_name,
             }
 
             analytics_message = f"{message_with_tag}\n\n<!-- ANALYTICS_DATA: {str(analytics_data)} -->"
@@ -660,21 +666,35 @@ class CrmDataGenerator:
             'probability': probability,
             'expected_revenue': expected_revenue
         }
+
+    def _get_user_partner_id(self, user_id: int) -> Optional[int]:
+        """Get the partner ID associated with a user"""
+        try:
+            user_data = self.execute_kw('res.users', 'read', [user_id], {'fields': ['partner_id']})
+            if user_data and user_data[0]['partner_id']:
+                return user_data[0]['partner_id'][0]
+        except Exception as e:
+            logger.error(f"Error getting partner ID for user {user_id}: {e}")
+        return None
     
     def create_realistic_lead_history(self, lead_id: int, lead_data: Dict, 
                                      date_created: datetime, current_stage_id: int) -> bool:
         """Create a realistic history of stage changes and messages for a lead"""
         try:
+            assigned_user_id = lead_data.get('user_id', self.uid)
+
+            user_name = self.users.get(assigned_user_id, {}).get('name', "Administrator")
+
             # Add creation message with historical timestamp
-            creation_msg = "<p>Lead/Opportunity created</p>"
-            self.create_lead_message(lead_id, creation_msg, lead_data.get('user_id', self.uid), date_created)
+            creation_msg = "<p>Lead/Opportunity created by {user_name}</p>"
+            self.create_lead_message(lead_id, creation_msg, assigned_user_id, date_created)
 
             # Add customer info message (slightly after creation)
-            customer_msg = f"<p>Customer:<br/>{lead_data.get('partner_name', '')}, {lead_data.get('contact_name', '')}</p>"
+            customer_msg = f"<p>Customer information added by {user_name}<br/>{lead_data.get('partner_name', '')}, {lead_data.get('contact_name', '')}</p>"
             self.create_lead_message(
                 lead_id,
                 customer_msg,
-                lead_data.get('user_id', self.uid),
+                assigned_user_id,
                 date_created + timedelta(minutes=random.randint(1, 5))
             )
 
@@ -742,25 +762,28 @@ class CrmDataGenerator:
                     if 'WON' in from_stage_name or 'LOST' in from_stage_name:
                         continue
 
-                    # Choose appropriate user based on stage
-                    assignee = None
+                    assignee = lead_data.get('user_id', self.uid)
                     if 'FOCUS' in to_stage_name or 'CONTRACT' in to_stage_name:
-                        # More senior reps/managers handle later stages
                         manager_users = [uid for uid, user in self.users.items()
                                        if 'Manager' in user.get('name', '') or 'Director' in user.get('name', '')]
                         if manager_users:
-                            assignee = random.choice(manager_users)
-                        else:
-                            assignee = random.choice(list(self.users.keys()))
-                    else:
-                        assignee = random.choice(list(self.users.keys()))
+                            manager_id = random.choice(manager_users)
+                            manager_message = f"Reviewed the opportunity and approved the stage change to '{to_stage_name}'"
+                            self.create_lead_message(
+                                lead_id,
+                                manager_message,
+                                manager_id,
+                                stage_date + timedelta(hours=random.randint(1, 4))  # After the stage change
+                            )
+                    
+                    stage_change_user = assignee
 
                     # Add stage change logs
                     self.add_stage_change_log(
                         lead_id,
                         self.stage_names[from_stage_id],
                         self.stage_names[to_stage_id],
-                        assignee,
+                        assigned_user_id,
                         stage_date
                     )
 
@@ -768,7 +791,7 @@ class CrmDataGenerator:
                         lead_id,
                         from_stage_id,
                         to_stage_id,
-                        assignee,
+                        assigned_user_id,
                         stage_date + timedelta(seconds=30)
                     )
 
@@ -782,7 +805,7 @@ class CrmDataGenerator:
                             lead_id,
                             {
                                 'stage_id': to_stage_id,
-                                'user_id': assignee
+                                'user_id': assigned_user_id,
                             }
                         ], {'context': context})
 
