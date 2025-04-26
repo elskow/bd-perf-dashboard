@@ -44,7 +44,7 @@ except:
 
 class OdooUtils:
     """Utility class for Odoo connection and common operations"""
-    
+
     @staticmethod
     def format_idr(amount: float) -> str:
         """Format amount as IDR currency"""
@@ -52,7 +52,7 @@ class OdooUtils:
             return format_currency(amount, 'IDR', locale='id_ID')
         except:
             return f"Rp {amount:,.0f},-"
-    
+
     @staticmethod
     def connect_to_odoo(url: str, db: str, username: str, password: str, max_retries: int = MAX_RETRIES) -> Tuple[Optional[int], Optional[xmlrpc.client.ServerProxy]]:
         """Establish connection to Odoo instance with retries"""
@@ -77,7 +77,7 @@ class OdooUtils:
                     time.sleep(RETRY_DELAY)
 
         return None, None
-    
+
     @staticmethod
     @contextmanager
     def odoo_context(tracking_disabled: bool = True):
@@ -93,7 +93,7 @@ class OdooUtils:
 
 class CrmDataGenerator:
     """Main class for generating CRM data in Odoo"""
-    
+
     # Stage mapping constants
     STAGE_WEIGHTS = {
         'NEW': 25,        # 25% new leads
@@ -106,7 +106,7 @@ class CrmDataGenerator:
         'WON': 5,         # 5% won
         'LOST': 5,        # 5% lost
     }
-    
+
     STAGE_TO_REVENUE_FACTOR = {
         'NEW': 0.5,
         'COLD': 0.6,
@@ -118,7 +118,7 @@ class CrmDataGenerator:
         'WON': 1.0,
         'LOST': 0.0
     }
-    
+
     # Lead source constants
     LEAD_SOURCES = {
         'Website': 25,
@@ -131,7 +131,7 @@ class CrmDataGenerator:
         'Paid Search': 5,
         'Organic Search': 5
     }
-    
+
     # Sales team definitions
     SALES_TEAMS = [
         {
@@ -159,7 +159,7 @@ class CrmDataGenerator:
             'invoiced_target': 1200000,
         }
     ]
-    
+
     # Tag categories
     TAG_CATEGORIES = {
         'Industry': [
@@ -178,7 +178,7 @@ class CrmDataGenerator:
             'Maintenance Contract', 'Custom Development'
         ]
     }
-    
+
     # Sales roles
     SALES_ROLES = [
         ("Budi Santoso", "sales.director@example.com", None, False),
@@ -194,7 +194,7 @@ class CrmDataGenerator:
         ("Aditya Nugraha", "partner.manager@example.com", "Partner Channel", True),
         ("Indah Permata", "pat.partner@example.com", "Partner Channel", False),
     ]
-    
+
     def __init__(self, uid: int, models: xmlrpc.client.ServerProxy, db: str, password: str):
         self.uid = uid
         self.models = models
@@ -202,7 +202,7 @@ class CrmDataGenerator:
         self.password = password
         self.fake = Faker()
         self.now = datetime.now()
-        
+
         # Initialize key data structures
         self.team_ids = {}
         self.tag_ids = {}
@@ -212,18 +212,18 @@ class CrmDataGenerator:
         self.stage_names = {}
         self.activity_types = []
         self.companies = []
-        
+
     def execute_kw(self, model: str, method: str, args: List, kwargs: Dict = None) -> Any:
         """Execute Odoo RPC call with error handling"""
         if kwargs is None:
             kwargs = {}
-            
+
         try:
             return self.models.execute_kw(self.db, self.uid, self.password, model, method, args, kwargs)
         except Exception as e:
             logger.error(f"Error executing {model}.{method}: {e}")
             raise
-    
+
     def setup_sales_teams(self) -> Dict[str, int]:
         """Create realistic sales teams structure"""
         try:
@@ -234,7 +234,7 @@ class CrmDataGenerator:
                 # Check if team already exists
                 existing_team = self.execute_kw('crm.team', 'search_read',
                     [[['name', '=', team['name']]]], {'fields': ['id']})
-                
+
                 if existing_team:
                     team_ids[team['name']] = existing_team[0]['id']
                     logger.info(f"Team '{team['name']}' already exists with ID {team_ids[team['name']]}")
@@ -249,7 +249,7 @@ class CrmDataGenerator:
         except Exception as e:
             logger.error(f"Error setting up sales teams: {e}")
             return {}
-    
+
     def setup_crm_tags(self) -> Dict[str, List[int]]:
         """Set up realistic CRM tags for lead categorization"""
         try:
@@ -272,14 +272,14 @@ class CrmDataGenerator:
                         tag_ids[category].append(tag_id)
 
             logger.info(f"Created {sum(len(tags) for tags in tag_ids.values())} tags across {len(tag_ids)} categories")
-            
+
             self.tag_ids = tag_ids
             return tag_ids
 
         except Exception as e:
             logger.error(f"Error setting up CRM tags: {e}")
             return {}
-    
+
     def setup_user_roles(self) -> Dict[int, Dict]:
         """Set up user roles and assign to sales teams"""
         try:
@@ -347,7 +347,7 @@ class CrmDataGenerator:
         except Exception as e:
             logger.error(f"Error setting up user roles: {e}")
             return {}
-    
+
     def load_company_data(self) -> List[Dict]:
         """Load realistic company data or generate it if file not found"""
         companies = []
@@ -391,14 +391,14 @@ class CrmDataGenerator:
 
         self.companies = companies
         return companies
-    
+
     def get_crm_stages(self) -> List[Dict]:
         """Get CRM stages from Odoo"""
         stages = self.execute_kw('crm.stage', 'search_read', [[]], {'fields': ['id', 'name', 'sequence']})
         if not stages:
             logger.error("No CRM stages found. Ensure CRM module is properly installed.")
             return []
-            
+
         # Log the available stages
         stage_names = [stage['name'] for stage in stages]
         logger.info(f"Found {len(stages)} stages: {', '.join(stage_names)}")
@@ -408,16 +408,16 @@ class CrmDataGenerator:
         self.stages = stages
         self.stage_ids = [stage['id'] for stage in stages]
         self.stage_names = {stage['id']: stage['name'] for stage in stages}
-        
+
         return stages
-    
+
     def get_activity_types(self) -> List[Dict]:
         """Get activity types from Odoo"""
         activity_types = self.execute_kw('mail.activity.type', 'search_read', [[]], {'fields': ['id', 'name']})
         logger.info(f"Found {len(activity_types)} activity types")
         self.activity_types = activity_types
         return activity_types
-    
+
     def get_note_subtype_id(self) -> int:
         """Get the note subtype ID for messages"""
         try:
@@ -431,7 +431,7 @@ class CrmDataGenerator:
         except Exception as e:
             logger.warning(f"Error getting note subtype ID: {e}")
             return 1
-    
+
     def generate_business_datetime(self, start_date: datetime, end_date: datetime) -> datetime:
         """Generate a datetime during business hours (9am-5pm) on weekdays only"""
         # Get a random date
@@ -462,7 +462,7 @@ class CrmDataGenerator:
         random_minute = random.choice([0, 15, 30, 45])  # Realistic meeting start times
 
         return random_date.replace(hour=random_hour, minute=random_minute, second=0)
-    
+
     def _get_user_partner_id(self, user_id: int) -> Optional[int]:
         """Get the partner ID associated with a user"""
         try:
@@ -472,8 +472,8 @@ class CrmDataGenerator:
         except Exception as e:
             logger.error(f"Error getting partner ID for user {user_id}: {e}")
         return None
-    
-    def create_lead_message(self, lead_id: int, body: str, author_id: int, 
+
+    def create_lead_message(self, lead_id: int, body: str, author_id: int,
                           message_date: datetime, subtype_id: Optional[int] = None) -> Optional[int]:
         """Create a message for a lead with specific historical date"""
         try:
@@ -481,7 +481,7 @@ class CrmDataGenerator:
 
             # Get the user partner ID
             partner_id = self._get_user_partner_id(author_id)
-            
+
             message_vals = {
                 'body': body,
                 'model': 'crm.lead',
@@ -497,8 +497,8 @@ class CrmDataGenerator:
         except Exception as e:
             logger.error(f"Error creating lead message: {e}")
             return None
-    
-    def add_stage_change_log(self, lead_id: int, old_stage_name: str, new_stage_name: str, 
+
+    def add_stage_change_log(self, lead_id: int, old_stage_name: str, new_stage_name: str,
                             user_id: int, date: datetime) -> Optional[int]:
         """Add a log note about stage change for analytics with correct historical timestamp"""
         try:
@@ -523,8 +523,8 @@ class CrmDataGenerator:
         except Exception as e:
             logger.error(f"Error adding stage change log: {e}")
             return None
-    
-    def create_calendar_event(self, lead_id: int, event_name: str, start_datetime: datetime, 
+
+    def create_calendar_event(self, lead_id: int, event_name: str, start_datetime: datetime,
                              duration_hours: float, user_id: int, partner_id: Optional[int] = None) -> Optional[int]:
         """Create a calendar event with proper historical dates"""
         try:
@@ -571,8 +571,8 @@ class CrmDataGenerator:
         except Exception as e:
             logger.error(f"Error creating calendar event: {e}")
             return None
-    
-    def add_custom_stage_change_message(self, lead_id: int, old_stage_id: int, new_stage_id: int, 
+
+    def add_custom_stage_change_message(self, lead_id: int, old_stage_id: int, new_stage_id: int,
                                        user_id: int, date: datetime) -> Optional[int]:
         """Add a user-friendly stage change message with historical timestamp"""
         try:
@@ -597,7 +597,7 @@ class CrmDataGenerator:
         except Exception as e:
             logger.error(f"Error adding custom stage change message: {e}")
             return None
-    
+
     def get_probability_data(self, date_created: datetime, team_name: Optional[str] = None) -> Dict:
         """Calculate probability and other metrics based on lead age and team"""
         lead_age = (self.now - date_created).days
@@ -692,8 +692,8 @@ class CrmDataGenerator:
             'probability': probability,
             'expected_revenue': expected_revenue
         }
-    
-    def create_realistic_lead_history(self, lead_id: int, lead_data: Dict, 
+
+    def create_realistic_lead_history(self, lead_id: int, lead_data: Dict,
                                      date_created: datetime, current_stage_id: int) -> bool:
         """Create a realistic history of stage changes and messages for a lead"""
         try:
@@ -725,8 +725,8 @@ class CrmDataGenerator:
         except Exception as e:
             logger.error(f"Error creating lead history for lead {lead_id}: {e}")
             return False
-    
-    def _create_stage_change_history(self, lead_id: int, lead_data: Dict, date_created: datetime, 
+
+    def _create_stage_change_history(self, lead_id: int, lead_data: Dict, date_created: datetime,
                                     current_stage_index: int) -> None:
         """Create stage change history for a lead"""
         # Generate timestamps for stage transitions
@@ -833,22 +833,22 @@ class CrmDataGenerator:
                         'user_id': assigned_user_id,
                     }
                 ], {'context': context})
-    
-    def create_lead_activities(self, lead_id: int, lead_data: Dict, date_created: datetime, 
+
+    def create_lead_activities(self, lead_id: int, lead_data: Dict, date_created: datetime,
                               partner_id: Optional[int] = None) -> bool:
         """Create activities and meetings for a lead based on its stage"""
         try:
             stage_id = lead_data.get('stage_id')
             if not stage_id or stage_id not in self.stage_names:
                 return False
-                
+
             stage_name = self.stage_names[stage_id].upper()
             user_id = lead_data.get('user_id', self.uid)
-            
+
             # Skip activity creation for WON/LOST deals
             if 'WON' in stage_name or 'LOST' in stage_name:
                 return True
-                
+
             # Define activity sequence based on stage
             activity_sequence = self._get_activity_sequence_for_stage(stage_name)
 
@@ -876,13 +876,13 @@ class CrmDataGenerator:
                     continue
 
                 self._create_single_activity(lead_id, activity, business_datetime, user_id, partner_id)
-                    
+
             return True
-                    
+
         except Exception as e:
             logger.error(f"Error creating activities for lead {lead_id}: {e}")
             return False
-    
+
     def _get_activity_sequence_for_stage(self, stage_name: str) -> List[Dict]:
         """Get appropriate activity sequence for a given stage"""
         if 'NEW' in stage_name or 'COLD' in stage_name:
@@ -924,13 +924,13 @@ class CrmDataGenerator:
             ]
         else:
             return []
-    
-    def _create_single_activity(self, lead_id: int, activity: Dict, business_datetime: datetime, 
+
+    def _create_single_activity(self, lead_id: int, activity: Dict, business_datetime: datetime,
                                 user_id: int, partner_id: Optional[int] = None) -> None:
         """Create a single activity record with proper handling for meetings"""
         try:
             activity_type_id = None
-            
+
             # For meeting activities, create calendar events
             if activity['type'] == 'meeting':
                 # Find meeting activity type
@@ -942,10 +942,10 @@ class CrmDataGenerator:
                 call_email_types = [a for a in self.activity_types if activity['type'] in a['name'].lower()]
                 if call_email_types:
                     activity_type_id = random.choice(call_email_types)['id']
-                    
+
             if not activity_type_id:
                 return
-                
+
             # Create activity record
             activity_values = {
                 'res_id': lead_id,
@@ -963,7 +963,7 @@ class CrmDataGenerator:
 
             # Mark as done if in the past
             if business_datetime < self.now:
-                self._mark_activity_as_done(activity_id, lead_id, activity, activity_values, 
+                self._mark_activity_as_done(activity_id, lead_id, activity, activity_values,
                                           business_datetime, user_id, partner_id)
             elif business_datetime > self.now and business_datetime < self.now + timedelta(days=14):
                 # Create upcoming calendar event for near-future meetings
@@ -976,12 +976,12 @@ class CrmDataGenerator:
                         user_id,
                         partner_id
                     )
-                    
+
         except Exception as e:
             logger.error(f"Error creating activity: {e}")
-            
-    def _mark_activity_as_done(self, activity_id: int, lead_id: int, activity: Dict, 
-                              activity_values: Dict, business_datetime: datetime, 
+
+    def _mark_activity_as_done(self, activity_id: int, lead_id: int, activity: Dict,
+                              activity_values: Dict, business_datetime: datetime,
                               user_id: int, partner_id: Optional[int] = None) -> None:
         """Mark an activity as done with proper history recording"""
         try:
@@ -1018,7 +1018,7 @@ class CrmDataGenerator:
                 self.execute_kw('mail.activity', 'unlink', [activity_id])
             except:
                 pass
-            
+
     def _select_tags_for_lead(self, lead_source: str) -> List[int]:
         """Select appropriate tags for a lead"""
         selected_tags = []
@@ -1045,9 +1045,9 @@ class CrmDataGenerator:
         if 'Product Interest' in self.tag_ids and self.tag_ids['Product Interest'] and random.random() < 0.7:
             product_tag = random.choice(self.tag_ids['Product Interest'])
             selected_tags.append(product_tag)
-            
+
         return selected_tags
-    
+
     def _get_priority_for_stage(self, stage_name: str) -> int:
         """Determine appropriate priority based on stage"""
         if 'FOCUS' in stage_name or 'CONTRACT' in stage_name:
@@ -1058,7 +1058,7 @@ class CrmDataGenerator:
             # Normal distribution for other stages
             priority_weights = [70, 20, 10]  # 0=Normal, 1=Medium, 2=High
             return random.choices([0, 1, 2], weights=priority_weights, k=1)[0]
-    
+
     def _get_country_id(self, company: Dict) -> Optional[int]:
         """Get country ID from company data"""
         country_id = False
@@ -1067,7 +1067,7 @@ class CrmDataGenerator:
             if country_search:
                 country_id = country_search[0]
         return country_id
-    
+
     def _create_partner_for_lead(self, lead_id: int, lead_data: Dict) -> Optional[int]:
         """Create partner record for a lead"""
         try:
@@ -1087,14 +1087,14 @@ class CrmDataGenerator:
 
                 # Link partner to lead
                 self.execute_kw('crm.lead', 'write', [lead_id, {'partner_id': partner_id}], {'context': context})
-                
+
                 return partner_id
-                
+
         except Exception as e:
             logger.warning(f"Could not create partner for lead {lead_id}: {e}")
             return None
-            
-    def _prepare_lead_data(self, company: Dict, user_id: int, team_id: int, 
+
+    def _prepare_lead_data(self, company: Dict, user_id: int, team_id: int,
                           probability_data: Dict, lead_source: str, selected_tags: List[int],
                           date_created: datetime) -> Dict:
         """Prepare lead data dictionary"""
@@ -1111,7 +1111,7 @@ class CrmDataGenerator:
         # Create contact information
         contact_name = self.fake.name()
         email_domain = company['website'].replace('www.', '') if 'website' in company else self.fake.domain_name()
-        
+
         return {
             'name': f"{company.get('name', 'Unknown')} - {self.fake.catch_phrase()} Project",
             'partner_name': company.get('name', self.fake.company()),
@@ -1143,15 +1143,15 @@ class CrmDataGenerator:
             self.load_company_data()
             self.get_crm_stages()
             self.get_activity_types()
-            
+
             if not self.stages:
                 logger.error("No CRM stages found. Cannot generate leads.")
                 return False
-                
+
             # Get lead sources with weighted probabilities
             source_options = list(self.LEAD_SOURCES.keys())
             source_weights = list(self.LEAD_SOURCES.values())
-            
+
             logger.info(f"Generating {count} leads/opportunities...")
             created_count = 0
             all_created_leads = []
@@ -1162,7 +1162,7 @@ class CrmDataGenerator:
                 team_name, team_id = self._select_team_for_company(company)
                 user_id = self._select_user_for_team(team_id)
                 date_created = self._generate_creation_date(i, count)
-                
+
                 # Get probability and related data based on creation date and team
                 probability_data = self.get_probability_data(date_created, team_name)
 
@@ -1174,7 +1174,7 @@ class CrmDataGenerator:
 
                 # Prepare lead data
                 lead_data = self._prepare_lead_data(
-                    company, user_id, team_id, probability_data, 
+                    company, user_id, team_id, probability_data,
                     lead_source, selected_tags, date_created
                 )
 
@@ -1210,7 +1210,7 @@ class CrmDataGenerator:
         except Exception as e:
             logger.error(f"Error generating dummy data: {e}")
             return False
-            
+
     def _select_team_for_company(self, company: Dict) -> Tuple[Optional[str], Optional[int]]:
         """Select appropriate sales team based on company size"""
         team_name = None
@@ -1228,7 +1228,7 @@ class CrmDataGenerator:
 
         team_id = self.team_ids.get(team_name) if team_name else False
         return team_name, team_id
-        
+
     def _select_user_for_team(self, team_id: int) -> int:
         """Select appropriate user from team or fallback"""
         user_id = None
@@ -1243,9 +1243,9 @@ class CrmDataGenerator:
         else:
             # Fallback to admin if no users
             user_id = self.uid
-            
+
         return user_id
-        
+
     def _generate_creation_date(self, index: int, total_count: int) -> datetime:
         """Generate appropriate creation date with weighting toward recency"""
         if index < total_count * 0.1:  # 10% very old leads
