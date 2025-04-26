@@ -152,20 +152,26 @@ class CrmDataGenerator:
     }
 
     # Sales roles
-    SALES_ROLES = [
-        ("Budi Santoso", "sales.director@example.com"),
-        ("Ahmad Wijaya", "enterprise.manager@example.com"),
-        ("Dewi Lestari", "sam.enterprise@example.com"),
-        ("Bambang Suparno", "taylor.enterprise@example.com"),
-        ("Siti Rahma", "smb.manager@example.com"),
-        ("Agus Setiawan", "casey.smb@example.com"),
-        ("Ratna Sari", "riley.smb@example.com"),
-        ("Joko Widodo", "inside.manager@example.com"),
-        ("Rina Putri", "harper.inside@example.com"),
-        ("Dimas Pratama", "cameron.inside@example.com"),
-        ("Aditya Nugraha", "partner.manager@example.com"),
-        ("Indah Permata", "pat.partner@example.com"),
-    ]
+    SALES_ROLES = {
+        'Indonesia': [
+            ("Budi Santoso", "id.sales.director@example.com", "Sales Director Indonesia"),
+            ("Ahmad Wijaya", "id.enterprise.manager@example.com", "Enterprise Manager Indonesia"),
+            ("Dewi Lestari", "id.sam.enterprise@example.com", "Enterprise Sales Indonesia"),
+            ("Bambang Suparno", "id.enterprise.sales@example.com", "Enterprise Sales Indonesia"),
+            ("Siti Rahma", "id.smb.manager@example.com", "SMB Manager Indonesia"),
+            ("Agus Setiawan", "id.smb.sales1@example.com", "SMB Sales Indonesia"),
+            ("Ratna Sari", "id.smb.sales2@example.com", "SMB Sales Indonesia"),
+        ],
+        'Singapore': [
+            ("Michael Tan", "sg.sales.director@example.com", "Sales Director Singapore"),
+            ("Sarah Wong", "sg.enterprise.manager@example.com", "Enterprise Manager Singapore"),
+            ("David Lim", "sg.sam.enterprise@example.com", "Enterprise Sales Singapore"),
+            ("Jennifer Chen", "sg.enterprise.sales@example.com", "Enterprise Sales Singapore"),
+            ("Kenneth Ng", "sg.smb.manager@example.com", "SMB Manager Singapore"),
+            ("Grace Lee", "sg.smb.sales1@example.com", "SMB Sales Singapore"),
+            ("Marcus Goh", "sg.smb.sales2@example.com", "SMB Sales Singapore"),
+        ]
+    }
 
     def __init__(self, uid: int, models: xmlrpc.client.ServerProxy, db: str, password: str):
         self.uid = uid
@@ -226,47 +232,149 @@ class CrmDataGenerator:
             return {}
 
     def setup_user_roles(self) -> Dict[int, Dict]:
-        """Set up user roles"""
+        """Set up user roles with team assignments"""
         try:
             logger.info("Setting up user roles...")
 
-            # Get existing users
-            existing_users = self.execute_kw('res.users', 'search_read',
-                                            [[]], {'fields': ['id', 'name', 'login']})
+            # Set up teams first
+            sales_teams = self.execute_kw('crm.team', 'search_read',
+                                        [[('name', 'in', ['Sales Indonesia', 'Sales Singapore'])]],
+                                        {'fields': ['id', 'name']})
+            team_map = {team['name']: team['id'] for team in sales_teams}
 
-            # If we only have the admin user, create some additional users
-            if len(existing_users) <= 1:
-                for name, login in self.SALES_ROLES:
-                    # Create user
+            # Get the required groups
+            groups = self.execute_kw('res.groups', 'search_read',
+                                [[('name', 'in', [
+                                    'User: Own Documents Only',
+                                    'Sales: User',
+                                    'Contact Creation',
+                                    'Internal User'
+                                ])]],
+                                {'fields': ['id', 'name']})
+            group_ids = [group['id'] for group in groups]
+
+            # Create or update users for each team
+            for team_name, team_members in self.SALES_ROLES.items():
+                team_id = team_map.get(f'Sales {team_name}')
+                if not team_id:
+                    logger.error(f"Could not find team ID for Sales {team_name}")
+                    continue
+
+                for name, login, title in team_members:
+                    # Check if user exists
+                    existing_user = self.execute_kw('res.users', 'search_read',
+                                                [[('login', '=', login)]],
+                                                {'fields': ['id']})
+
                     user_vals = {
                         'name': name,
                         'login': login,
                         'password': 'demo123',
                         'company_id': 1,
                         'email': login,
+                        'sale_team_id': team_id,
+                        'groups_id': [(6, 0, group_ids)],  # Assign all required groups
+                        'share': False,  # Internal user
+                        'notification_type': 'email',
                     }
 
-                    # Check if user exists
-                    existing_user = self.execute_kw('res.users', 'search_read',
-                                                [[['login', '=', login]]], {'fields': ['id']})
+                    try:
+                        if existing_user:
+                            # Update existing user
+                            user_id = existing_user[0]['id']
+                            self.execute_kw('res.users', 'write', [[user_id], user_vals])
+                            logger.info(f"Updated user '{name}' with team {team_name}")
+                        else:
+                            # Create new user
+                            user_id = self.execute_kw('res.users', 'create', [user_vals])
+                            logger.info(f"Created user '{name}' with team {team_name}")
 
-                    if existing_user:
-                        user_id = existing_user[0]['id']
-                        logger.info(f"User '{name}' already exists with ID {user_id}")
-                    else:
-                        user_id = self.execute_kw('res.users', 'create', [user_vals])
-                        logger.info(f"Created user '{name}' with ID {user_id}")
+                        # Get the partner id for this user
+                        user_data = self.execute_kw('res.users', 'read',
+                                                [user_id],
+                                                {'fields': ['partner_id']})
+                        user_partner_id = user_data[0]['partner_id'][0] if user_data and user_data[0]['partner_id'] else False
 
-                # Get updated user list
-                existing_users = self.execute_kw('res.users', 'search_read',
-                                            [[]], {'fields': ['id', 'name', 'login']})
+                        if user_partner_id:
+                            # Check if user is already in the team
+                            existing_member = self.execute_kw('crm.team.member', 'search',
+                                                        [[('crm_team_id', '=', team_id),
+                                                        ('user_id', '=', user_id)]])
 
-            users_dict = {user['id']: user for user in existing_users}
+                            if not existing_member:
+                                # Add user as team member - this is key for team membership!
+                                member_data = {
+                                    'crm_team_id': team_id,
+                                    'user_id': user_id,
+                                    'member_warning': False,
+                                    'create_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                                    'write_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                                }
+                                self.execute_kw('crm.team.member', 'create', [member_data])
+                                logger.info(f"Added user {name} as member of Sales {team_name} team")
+
+                    except Exception as e:
+                        logger.error(f"Error creating/updating user {name}: {e}")
+
+            # Verify team memberships
+            logger.info("\nVerifying team memberships:")
+            for team_name, team_id in team_map.items():
+                team_members = self.execute_kw('crm.team.member', 'search_read',
+                                        [[('crm_team_id', '=', team_id)]],
+                                        {'fields': ['user_id']})
+
+                member_ids = [member['user_id'][0] for member in team_members]
+                member_names = []
+                if member_ids:
+                    users_data = self.execute_kw('res.users', 'read',
+                                            [member_ids],
+                                            {'fields': ['name']})
+                    member_names = [user['name'] for user in users_data]
+
+                logger.info(f"Team '{team_name}' has {len(member_ids)} members: {', '.join(member_names) if member_names else 'None'}")
+
+            # Get final user list with team assignments
+            users = self.execute_kw('res.users', 'search_read',
+                                [[('share', '=', False)]],
+                                {'fields': ['id', 'name', 'login', 'sale_team_id']})
+
+            users_dict = {user['id']: user for user in users}
             self.users = users_dict
             return users_dict
 
         except Exception as e:
             logger.error(f"Error setting up user roles: {e}")
+            return {}
+
+    def setup_sales_teams(self) -> Dict[str, int]:
+        """Set up sales teams for Indonesia and Singapore"""
+        try:
+            logger.info("Setting up sales teams...")
+            team_ids = {}
+
+            for team_name in ['Indonesia', 'Singapore']:
+                full_team_name = f'Sales {team_name}'
+                # Check if team already exists
+                existing_team = self.execute_kw('crm.team', 'search_read',
+                                            [[['name', '=', full_team_name]]],
+                                            {'fields': ['id', 'name']})
+
+                if existing_team:
+                    team_ids[team_name] = existing_team[0]['id']
+                    logger.info(f"Found existing sales team '{full_team_name}' with ID {team_ids[team_name]}")
+                else:
+                    # Create new team
+                    team_vals = {
+                        'name': full_team_name,
+                        'company_id': 1,
+                    }
+                    team_ids[team_name] = self.execute_kw('crm.team', 'create', [team_vals])
+                    logger.info(f"Created sales team '{full_team_name}' with ID {team_ids[team_name]}")
+
+            return team_ids
+
+        except Exception as e:
+            logger.error(f"Error setting up sales teams: {e}")
             return {}
 
     def load_company_data(self) -> List[Dict]:
@@ -287,12 +395,16 @@ class CrmDataGenerator:
                 industries = self.TAG_CATEGORIES['Industry']
                 company_sizes = ['1-10', '11-50', '51-200', '201-500', '501-1000', '1000+']
 
-                for _ in range(100):
+                # Ensure we have a good mix of Indonesian and Singaporean companies
+                countries = ['Indonesia'] * 40 + ['Singapore'] * 40 + [self.fake.country() for _ in range(20)]
+                random.shuffle(countries)
+
+                for country in countries:
                     companies.append({
                         'name': self.fake.company(),
                         'industry': random.choice(industries),
                         'size': random.choice(company_sizes),
-                        'country': self.fake.country(),
+                        'country': country,
                         'website': 'www.' + self.fake.domain_name()
                     })
                 logger.info("Generated 100 fake companies as sample data")
@@ -1007,10 +1119,32 @@ class CrmDataGenerator:
             logger.warning(f"Could not create partner for lead {lead_id}: {e}")
             return None
 
-    def _select_user(self) -> int:
-        """Select a random user or fallback to admin"""
-        if self.users:
-            return random.choice(list(self.users.keys()))
+    def _select_user(self, company: Dict) -> int:
+        """Select a random user based on company's country"""
+        if not self.users:
+            logger.warning("No users found in the system")
+            return self.uid
+
+        # Determine team name based on country
+        country = company.get('country', '').lower()
+        if 'indonesia' in country or 'id' in country:
+            team_name = 'Sales Indonesia'
+        elif 'singapore' in country or 'sg' in country:
+            team_name = 'Sales Singapore'
+        else:
+            team_name = random.choice(['Sales Indonesia', 'Sales Singapore'])
+
+        # Get users for the team directly from Odoo
+        team_users = self.execute_kw('res.users', 'search_read',
+                                    [[('sale_team_id.name', '=', team_name)]],
+                                    {'fields': ['id', 'name']})
+
+        if team_users:
+            selected_user = random.choice(team_users)
+            logger.info(f"Selected user {selected_user['name']} from team {team_name}")
+            return selected_user['id']
+
+        logger.warning(f"No users found for team {team_name}, falling back to admin user")
         return self.uid
 
     def _prepare_lead_data(self, company: Dict, user_id: int,
@@ -1031,7 +1165,30 @@ class CrmDataGenerator:
         contact_name = self.fake.name()
         email_domain = company['website'].replace('www.', '') if 'website' in company else self.fake.domain_name()
 
-        return {
+        # Determine team based on country
+        country = company.get('country', '').lower()
+        if 'indonesia' in country or 'id' in country:
+            team_search = self.execute_kw('crm.team', 'search_read',
+                                        [[['name', '=', 'Sales Indonesia']]],
+                                        {'fields': ['id']})
+            team_id = team_search[0]['id'] if team_search else False
+        elif 'singapore' in country or 'sg' in country:
+            team_search = self.execute_kw('crm.team', 'search_read',
+                                        [[['name', '=', 'Sales Singapore']]],
+                                        {'fields': ['id']})
+            team_id = team_search[0]['id'] if team_search else False
+        else:
+            # Randomly assign to either team if country is not clearly identifiable
+            team_name = random.choice(['Sales Indonesia', 'Sales Singapore'])
+            team_search = self.execute_kw('crm.team', 'search_read',
+                                        [[['name', '=', team_name]]],
+                                        {'fields': ['id']})
+            team_id = team_search[0]['id'] if team_search else False
+
+        # Add debugging log
+        logger.info(f"Assigning lead for {company.get('name')} ({company.get('country')}) to team ID {team_id}")
+
+        lead_data = {
             'name': f"{company.get('name', 'Unknown')} - {self.fake.catch_phrase()} Project",
             'partner_name': company.get('name', self.fake.company()),
             'contact_name': contact_name,
@@ -1039,6 +1196,7 @@ class CrmDataGenerator:
             'email_from': f"{contact_name.split()[0].lower()}.{contact_name.split()[-1].lower()}@{email_domain}",
             'phone': self.fake.phone_number(),
             'user_id': user_id,
+            'team_id': team_id,
             'stage_id': probability_data['stage_id'],
             'type': lead_type,
             'probability': probability_data['probability'],
@@ -1051,10 +1209,21 @@ class CrmDataGenerator:
             'country_id': country_id,
         }
 
+        return lead_data
+
     def generate_leads(self, count: int = 100) -> bool:
         """Generate realistic dummy leads/opportunities"""
         try:
             # Setup required data structures
+            logger.info("Setting up initial data structures...")
+
+            # First set up teams
+            team_ids = self.setup_sales_teams()
+            if not team_ids:
+                logger.error("Failed to set up sales teams")
+                return False
+
+            # Then set up other required data
             self.setup_crm_tags()
             self.setup_user_roles()
             self.load_company_data()
@@ -1063,6 +1232,11 @@ class CrmDataGenerator:
 
             if not self.stages:
                 logger.error("No CRM stages found. Cannot generate leads.")
+                return False
+
+            # Check if we have teams and users properly set up
+            if not self.users:
+                logger.error("No users found. Cannot generate leads.")
                 return False
 
             # Get lead sources with weighted probabilities
@@ -1076,7 +1250,7 @@ class CrmDataGenerator:
             for i in range(count):
                 # Choose a company and assign user
                 company = random.choice(self.companies)
-                user_id = self._select_user()
+                user_id = self._select_user(company)
                 date_created = self._generate_creation_date(i, count)
 
                 # Get probability and related data based on creation date
