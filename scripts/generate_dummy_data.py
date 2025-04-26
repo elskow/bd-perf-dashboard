@@ -140,7 +140,7 @@ class CrmDataGenerator:
             'Transportation', 'Media', 'Professional Services', 'Government', 'Non-profit'
         ],
         'Source': [
-            'Website', 'Event', 'Referral', 'Cold Call', 'Email Campaign',
+            'SME', 'SEO', 'Referral', 'Cold Call', 'Email Campaign',
             'Social Media', 'Webinar', 'Content Download', 'Partner', 'Paid Search',
             'Organic Search', 'Trade Show', 'Direct Mail'
         ],
