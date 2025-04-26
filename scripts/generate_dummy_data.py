@@ -132,34 +132,6 @@ class CrmDataGenerator:
         'Organic Search': 5
     }
 
-    # Sales team definitions
-    SALES_TEAMS = [
-        {
-            'name': 'Enterprise Sales',
-            'description': 'Large enterprises and key accounts',
-            'alias_name': 'enterprise',
-            'invoiced_target': 1500000,
-        },
-        {
-            'name': 'SMB Sales',
-            'description': 'Small and medium businesses',
-            'alias_name': 'smb',
-            'invoiced_target': 800000,
-        },
-        {
-            'name': 'Inside Sales',
-            'description': 'Inbound leads and qualification',
-            'alias_name': 'inside',
-            'invoiced_target': 500000,
-        },
-        {
-            'name': 'Partner Channel',
-            'description': 'Partner-sourced opportunities',
-            'alias_name': 'partners',
-            'invoiced_target': 1200000,
-        }
-    ]
-
     # Tag categories
     TAG_CATEGORIES = {
         'Industry': [
@@ -181,18 +153,18 @@ class CrmDataGenerator:
 
     # Sales roles
     SALES_ROLES = [
-        ("Budi Santoso", "sales.director@example.com", None, False),
-        ("Ahmad Wijaya", "enterprise.manager@example.com", "Enterprise Sales", True),
-        ("Dewi Lestari", "sam.enterprise@example.com", "Enterprise Sales", False),
-        ("Bambang Suparno", "taylor.enterprise@example.com", "Enterprise Sales", False),
-        ("Siti Rahma", "smb.manager@example.com", "SMB Sales", True),
-        ("Agus Setiawan", "casey.smb@example.com", "SMB Sales", False),
-        ("Ratna Sari", "riley.smb@example.com", "SMB Sales", False),
-        ("Joko Widodo", "inside.manager@example.com", "Inside Sales", True),
-        ("Rina Putri", "harper.inside@example.com", "Inside Sales", False),
-        ("Dimas Pratama", "cameron.inside@example.com", "Inside Sales", False),
-        ("Aditya Nugraha", "partner.manager@example.com", "Partner Channel", True),
-        ("Indah Permata", "pat.partner@example.com", "Partner Channel", False),
+        ("Budi Santoso", "sales.director@example.com"),
+        ("Ahmad Wijaya", "enterprise.manager@example.com"),
+        ("Dewi Lestari", "sam.enterprise@example.com"),
+        ("Bambang Suparno", "taylor.enterprise@example.com"),
+        ("Siti Rahma", "smb.manager@example.com"),
+        ("Agus Setiawan", "casey.smb@example.com"),
+        ("Ratna Sari", "riley.smb@example.com"),
+        ("Joko Widodo", "inside.manager@example.com"),
+        ("Rina Putri", "harper.inside@example.com"),
+        ("Dimas Pratama", "cameron.inside@example.com"),
+        ("Aditya Nugraha", "partner.manager@example.com"),
+        ("Indah Permata", "pat.partner@example.com"),
     ]
 
     def __init__(self, uid: int, models: xmlrpc.client.ServerProxy, db: str, password: str):
@@ -204,7 +176,6 @@ class CrmDataGenerator:
         self.now = datetime.now()
 
         # Initialize key data structures
-        self.team_ids = {}
         self.tag_ids = {}
         self.users = {}
         self.stages = []
@@ -223,32 +194,6 @@ class CrmDataGenerator:
         except Exception as e:
             logger.error(f"Error executing {model}.{method}: {e}")
             raise
-
-    def setup_sales_teams(self) -> Dict[str, int]:
-        """Create realistic sales teams structure"""
-        try:
-            logger.info("Setting up sales teams...")
-
-            team_ids = {}
-            for team in self.SALES_TEAMS:
-                # Check if team already exists
-                existing_team = self.execute_kw('crm.team', 'search_read',
-                    [[['name', '=', team['name']]]], {'fields': ['id']})
-
-                if existing_team:
-                    team_ids[team['name']] = existing_team[0]['id']
-                    logger.info(f"Team '{team['name']}' already exists with ID {team_ids[team['name']]}")
-                else:
-                    team_id = self.execute_kw('crm.team', 'create', [team])
-                    team_ids[team['name']] = team_id
-                    logger.info(f"Created team '{team['name']}' with ID {team_id}")
-
-            self.team_ids = team_ids
-            return team_ids
-
-        except Exception as e:
-            logger.error(f"Error setting up sales teams: {e}")
-            return {}
 
     def setup_crm_tags(self) -> Dict[str, List[int]]:
         """Set up realistic CRM tags for lead categorization"""
@@ -281,7 +226,7 @@ class CrmDataGenerator:
             return {}
 
     def setup_user_roles(self) -> Dict[int, Dict]:
-        """Set up user roles and assign to sales teams"""
+        """Set up user roles"""
         try:
             logger.info("Setting up user roles...")
 
@@ -291,8 +236,7 @@ class CrmDataGenerator:
 
             # If we only have the admin user, create some additional users
             if len(existing_users) <= 1:
-                user_mapping = {}
-                for name, login, team_name, is_manager in self.SALES_ROLES:
+                for name, login in self.SALES_ROLES:
                     # Create user
                     user_vals = {
                         'name': name,
@@ -313,32 +257,9 @@ class CrmDataGenerator:
                         user_id = self.execute_kw('res.users', 'create', [user_vals])
                         logger.info(f"Created user '{name}' with ID {user_id}")
 
-                    user_mapping[login] = {
-                        'id': user_id,
-                        'name': name,
-                        'team': team_name,
-                        'is_manager': is_manager
-                    }
-
-                # Assign users to teams
-                for login, user_data in user_mapping.items():
-                    if user_data['team'] and user_data['team'] in self.team_ids:
-                        # Update team members
-                        team_values = {'member_ids': [(4, user_data['id'])]}
-
-                        # Set team leader if is_manager
-                        if user_data['is_manager']:
-                            team_values['user_id'] = user_data['id']
-
-                        self.execute_kw('crm.team', 'write', [
-                            self.team_ids[user_data['team']], team_values
-                        ])
-
-                        logger.info(f"Added user '{user_data['name']}' to team '{user_data['team']}'")
-
                 # Get updated user list
                 existing_users = self.execute_kw('res.users', 'search_read',
-                                              [[]], {'fields': ['id', 'name', 'login']})
+                                            [[]], {'fields': ['id', 'name', 'login']})
 
             users_dict = {user['id']: user for user in existing_users}
             self.users = users_dict
@@ -598,8 +519,8 @@ class CrmDataGenerator:
             logger.error(f"Error adding custom stage change message: {e}")
             return None
 
-    def get_probability_data(self, date_created: datetime, team_name: Optional[str] = None) -> Dict:
-        """Calculate probability and other metrics based on lead age and team"""
+    def get_probability_data(self, date_created: datetime) -> Dict:
+        """Calculate probability and other metrics based on lead age"""
         lead_age = (self.now - date_created).days
 
         # Define stage weights for distribution
@@ -665,16 +586,8 @@ class CrmDataGenerator:
         else:
             probability = random.randint(10, 50)
 
-        # Adjust expected revenue (IDR conversion factor ~14,500)
-        IDR_CONVERSION = 14500
-        if team_name == 'Enterprise Sales':
-            base_revenue = random.randint(50000, 500000) * IDR_CONVERSION
-        elif team_name == 'SMB Sales':
-            base_revenue = random.randint(10000, 75000) * IDR_CONVERSION
-        elif team_name == 'Partner Channel':
-            base_revenue = random.randint(25000, 250000) * IDR_CONVERSION
-        else:  # Inside Sales or default
-            base_revenue = random.randint(5000, 50000) * IDR_CONVERSION
+        IDR_CONVERSION = 1000
+        base_revenue = random.randint(5000, 500000) * IDR_CONVERSION
 
         # Find the best matching stage factor
         best_match = None
@@ -1094,11 +1007,17 @@ class CrmDataGenerator:
             logger.warning(f"Could not create partner for lead {lead_id}: {e}")
             return None
 
-    def _prepare_lead_data(self, company: Dict, user_id: int, team_id: int,
-                          probability_data: Dict, lead_source: str, selected_tags: List[int],
-                          date_created: datetime) -> Dict:
+    def _select_user(self) -> int:
+        """Select a random user or fallback to admin"""
+        if self.users:
+            return random.choice(list(self.users.keys()))
+        return self.uid
+
+    def _prepare_lead_data(self, company: Dict, user_id: int,
+                        probability_data: Dict, lead_source: str,
+                        selected_tags: List[int],
+                        date_created: datetime) -> Dict:
         """Prepare lead data dictionary"""
-        # Determine lead type based on stage
         stage_name = self.stage_names[probability_data['stage_id']].upper()
         lead_type = 'lead' if 'NEW' in stage_name or 'COLD' in stage_name else 'opportunity'
 
@@ -1120,7 +1039,6 @@ class CrmDataGenerator:
             'email_from': f"{contact_name.split()[0].lower()}.{contact_name.split()[-1].lower()}@{email_domain}",
             'phone': self.fake.phone_number(),
             'user_id': user_id,
-            'team_id': team_id,
             'stage_id': probability_data['stage_id'],
             'type': lead_type,
             'probability': probability_data['probability'],
@@ -1137,7 +1055,6 @@ class CrmDataGenerator:
         """Generate realistic dummy leads/opportunities"""
         try:
             # Setup required data structures
-            self.setup_sales_teams()
             self.setup_crm_tags()
             self.setup_user_roles()
             self.load_company_data()
@@ -1157,14 +1074,13 @@ class CrmDataGenerator:
             all_created_leads = []
 
             for i in range(count):
-                # Choose a company and assign team based on company size
+                # Choose a company and assign user
                 company = random.choice(self.companies)
-                team_name, team_id = self._select_team_for_company(company)
-                user_id = self._select_user_for_team(team_id)
+                user_id = self._select_user()
                 date_created = self._generate_creation_date(i, count)
 
-                # Get probability and related data based on creation date and team
-                probability_data = self.get_probability_data(date_created, team_name)
+                # Get probability and related data based on creation date
+                probability_data = self.get_probability_data(date_created)
 
                 # Determine lead source with weighted random selection
                 lead_source = random.choices(source_options, weights=source_weights, k=1)[0]
@@ -1174,7 +1090,7 @@ class CrmDataGenerator:
 
                 # Prepare lead data
                 lead_data = self._prepare_lead_data(
-                    company, user_id, team_id, probability_data,
+                    company, user_id, probability_data,
                     lead_source, selected_tags, date_created
                 )
 
@@ -1210,41 +1126,6 @@ class CrmDataGenerator:
         except Exception as e:
             logger.error(f"Error generating dummy data: {e}")
             return False
-
-    def _select_team_for_company(self, company: Dict) -> Tuple[Optional[str], Optional[int]]:
-        """Select appropriate sales team based on company size"""
-        team_name = None
-        if 'size' in company:
-            if company['size'] in ['501-1000', '1000+']:
-                team_name = 'Enterprise Sales'
-            elif company['size'] in ['51-200', '201-500']:
-                team_name = 'SMB Sales' if random.random() < 0.7 else 'Partner Channel'
-            else:  # Small companies
-                team_name = 'Inside Sales' if random.random() < 0.8 else 'SMB Sales'
-
-        # Fallback if team name wasn't assigned or team doesn't exist
-        if not team_name or team_name not in self.team_ids:
-            team_name = random.choice(list(self.team_ids.keys())) if self.team_ids else None
-
-        team_id = self.team_ids.get(team_name) if team_name else False
-        return team_name, team_id
-
-    def _select_user_for_team(self, team_id: int) -> int:
-        """Select appropriate user from team or fallback"""
-        user_id = None
-        if team_id:
-            team_read = self.execute_kw('crm.team', 'read', [team_id], {'fields': ['member_ids']})
-            if team_read and team_read[0]['member_ids']:
-                user_id = random.choice(team_read[0]['member_ids'])
-
-        # Fallback to any user if no team members
-        if not user_id and self.users:
-            user_id = random.choice(list(self.users.keys()))
-        else:
-            # Fallback to admin if no users
-            user_id = self.uid
-
-        return user_id
 
     def _generate_creation_date(self, index: int, total_count: int) -> datetime:
         """Generate appropriate creation date with weighting toward recency"""
