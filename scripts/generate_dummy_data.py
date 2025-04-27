@@ -31,6 +31,7 @@ DEFAULT_LOCALE = 'id_ID.UTF-8'
 FALLBACK_LOCALE = 'id_ID'
 MAX_RETRIES = 5
 RETRY_DELAY = 5  # seconds
+SIMULATION_YEAR = 2025  # Use current year only
 
 # Set Indonesian locale
 for loc in [DEFAULT_LOCALE, FALLBACK_LOCALE]:
@@ -131,6 +132,19 @@ class CrmDataGenerator:
         'Organic Search': 5
     }
 
+    # Meeting types by stage
+    MEETING_TYPES = {
+        'NEW': ['Initial Contact', 'Introduction Call'],
+        'COLD': ['Introduction Call', 'Preliminary Assessment'],
+        'POTENTIAL': ['Needs Assessment', 'Discovery Call', 'Initial Demo'],
+        'PUSH TO WARM': ['Product Overview', 'Solution Discussion', 'Client Requirements'],
+        'WARM': ['Product Demo', 'Technical Overview', 'Feature Presentation', 'Client Needs Assessment'],
+        'FOCUS': ['Solution Presentation', 'Technical Deep Dive', 'Stakeholder Meeting', 'Decision Maker Meeting'],
+        'CONTRACT': ['Proposal Review', 'Contract Discussion', 'Final Negotiation', 'Agreement Review', 'Terms Discussion'],
+        'WON': ['Kickoff Meeting', 'Implementation Planning', 'Success Review', 'Project Initiation'],
+        'LOST': ['Feedback Discussion']
+    }
+
     # Product list
     PRODUCT_LIST = [
         'SIAP + HRM',
@@ -192,7 +206,12 @@ class CrmDataGenerator:
         self.db = db
         self.password = password
         self.fake = Faker()
+
+        # Current actual date and time
         self.now = datetime.now()
+
+        # Simulation date for 2025
+        self.simulation_date = datetime.now().replace(year=SIMULATION_YEAR)
 
         # Initialize data structures
         self.tag_ids = {}
@@ -202,6 +221,9 @@ class CrmDataGenerator:
         self.stage_names = {}
         self.activity_types = []
         self.companies = []
+
+        # Initialize meeting tracking
+        self.meeting_tracker = {}
 
     def execute_kw(self, model: str, method: str, args: List, kwargs: Dict = None) -> Any:
         """Execute Odoo RPC call with error handling."""
@@ -213,6 +235,59 @@ class CrmDataGenerator:
         except Exception as e:
             logger.error(f"Error executing {model}.{method}: {e}")
             raise
+
+    def _initialize_meeting_tracker(self):
+        """Initialize tracking structure for meetings per salesperson per week."""
+        self.meeting_tracker = {}
+        year_start = datetime(SIMULATION_YEAR, 1, 1)
+
+        # Create entry for each user
+        for user_id in self.users.keys():
+            self.meeting_tracker[user_id] = {}
+
+            # Create entries for each week
+            for week in range(1, 53):  # 52 weeks in a year
+                week_key = f"{SIMULATION_YEAR}-W{week:02d}"
+                self.meeting_tracker[user_id][week_key] = 0
+
+        logger.info("Initialized meeting tracker for all users")
+
+    def _is_meeting_limit_reached(self, user_id: int, meeting_date: datetime, is_won_opportunity: bool = False) -> bool:
+        """Check if user has reached their meeting limit for the week, with special handling for won opportunities."""
+        week_key = f"{meeting_date.year}-W{meeting_date.isocalendar()[1]:02d}"
+
+        if user_id not in self.meeting_tracker:
+            self.meeting_tracker[user_id] = {}
+
+        if week_key not in self.meeting_tracker[user_id]:
+            self.meeting_tracker[user_id][week_key] = 0
+
+        # Get the user's role
+        user_name = self.users.get(user_id, {}).get('name', '')
+        is_manager = 'Manager' in user_name or 'Director' in user_name
+
+        # Higher capacity for managers/directors
+        base_max_meetings = 20 if is_manager else 15
+
+        # For won opportunities, we allow exceeding the limit by 30%
+        if is_won_opportunity:
+            max_meetings = int(base_max_meetings * 1.3)
+        else:
+            max_meetings = base_max_meetings
+
+        return self.meeting_tracker[user_id][week_key] >= max_meetings
+
+    def _increment_meeting_count(self, user_id: int, meeting_date: datetime) -> None:
+        """Increment the meeting count for a user in a specific week."""
+        week_key = f"{meeting_date.year}-W{meeting_date.isocalendar()[1]:02d}"
+
+        if user_id not in self.meeting_tracker:
+            self.meeting_tracker[user_id] = {}
+
+        if week_key not in self.meeting_tracker[user_id]:
+            self.meeting_tracker[user_id][week_key] = 0
+
+        self.meeting_tracker[user_id][week_key] += 1
 
     def setup_crm_tags(self) -> Dict[str, List[int]]:
         """Set up CRM tags for lead categorization."""
@@ -524,9 +599,10 @@ class CrmDataGenerator:
             logger.error(f"Error adding stage change log: {e}")
             return None
 
-    def create_calendar_event(self, lead_id: int, event_name: str, start_datetime: datetime,
-                            duration_hours: float, user_id: int, partner_id: Optional[int] = None) -> Optional[int]:
-        """Create a calendar event with proper historical dates."""
+    def create_calendar_event(self, lead_id, event_name, start_datetime,
+                            duration_hours, user_id, partner_id=None,
+                            force_historical=False):
+        """Create calendar event with properly sequenced historical logs."""
         try:
             end_datetime = start_datetime + timedelta(hours=duration_hours)
 
@@ -545,26 +621,52 @@ class CrmDataGenerator:
                 event_vals['partner_ids'] = [(4, partner_id)]
 
             with OdooUtils.odoo_context() as context:
+                # Set additional context to prevent automatic message generation
+                context.update({
+                    'mail_create_nosubscribe': True,
+                    'mail_create_nolog': True,
+                    'mail_notrack': True,
+                    'tracking_disable': True,
+                    'no_message_post': True
+                })
+
                 event_id = self.execute_kw('calendar.event', 'create', [event_vals], {'context': context})
 
-                if start_datetime < self.now:
-                    # Get user name for the message
-                    user_name = self.users.get(user_id, {}).get('name', "Administrator")
+                # Track this meeting
+                self._increment_meeting_count(user_id, start_datetime)
 
-                    # Calendar message with meeting details
-                    message_body = f"<p>Meeting scheduled at '{start_datetime.strftime('%Y-%m-%d %H:%M:%S')}'<br/>Subject: {event_name}<br/>Duration: {duration_hours} hours</p>"
+                # Add a message about the meeting with historically correct timing
+                user_name = self.users.get(user_id, {}).get('name', "Administrator")
 
-                    # Create message with historical timestamp
+                # Create the notification message 1-3 days BEFORE the meeting date
+                notification_date = start_datetime - timedelta(days=random.randint(1, 3))
+
+                # For historical meetings that already happened, add a summary message after
+                if force_historical or start_datetime < self.simulation_date:
+                    # Add pre-meeting notification
+                    message_body = f"<p>Meeting scheduled: {event_name}<br/>Date: {start_datetime.strftime('%Y-%m-%d %H:%M')}<br/>Attendee: {user_name}</p>"
                     self.create_lead_message(
                         lead_id,
                         message_body,
                         user_id,
-                        start_datetime - timedelta(days=random.randint(1, 5))  # Schedule a few days before
+                        notification_date
                     )
 
+                    # Add post-meeting summary for meetings in the past
+                    if random.random() < 0.7:  # 70% chance of adding summary
+                        summary_date = start_datetime + timedelta(hours=duration_hours, days=random.randint(0, 1))
+                        summary_body = f"<p>Meeting summary: {event_name}<br/>Key points discussed:<br/>- {self.fake.sentence()}<br/>- {self.fake.sentence()}<br/>Next steps: {self.fake.sentence()}</p>"
+                        self.create_lead_message(
+                            lead_id,
+                            summary_body,
+                            user_id,
+                            summary_date
+                        )
+
                 return event_id
+
         except Exception as e:
-            logger.error(f"Error creating calendar event: {e}")
+            logger.error(f"Error creating calendar event with historical logs: {e}")
             return None
 
     def add_custom_stage_change_message(self, lead_id: int, old_stage_id: int, new_stage_id: int,
@@ -591,7 +693,7 @@ class CrmDataGenerator:
 
     def get_probability_data(self, date_created: datetime) -> Dict:
         """Calculate probability and other metrics based on lead age."""
-        lead_age = (self.now - date_created).days
+        lead_age = (self.simulation_date - date_created).days
 
         # Define stage weights for distribution
         stage_weights = {}
@@ -733,9 +835,9 @@ class CrmDataGenerator:
             current_date = max(current_date + timedelta(days=days_to_add),
                              stage_dates[-1] + timedelta(days=1) if stage_dates else current_date)
 
-            # Don't exceed current date
-            if current_date > self.now:
-                current_date = self.now - timedelta(hours=random.randint(1, 48))
+            # Don't exceed simulation date
+            if current_date > self.simulation_date:
+                current_date = self.simulation_date - timedelta(hours=random.randint(1, 48))
 
             stage_dates.append(current_date)
 
@@ -857,15 +959,294 @@ class CrmDataGenerator:
                 )
 
                 # Skip if too far in the future
-                if business_datetime > self.now + timedelta(days=30):
+                if business_datetime > self.simulation_date + timedelta(days=30):
                     continue
 
                 self._create_single_activity(lead_id, activity, business_datetime, user_id, partner_id)
+
+            # Create realistic meetings
+            self._create_realistic_meetings_for_lead(lead_id, lead_data, date_created, stage_name, partner_id)
 
             return True
         except Exception as e:
             logger.error(f"Error creating activities for lead {lead_id}: {e}")
             return False
+
+    def _create_realistic_meetings_for_lead(self, lead_id: int, lead_data: Dict,
+                                        date_created: datetime, stage_name: str,
+                                        partner_id: Optional[int] = None) -> None:
+        """Create a realistic set of meetings for a lead based on its stage."""
+        try:
+            user_id = lead_data.get('user_id', self.uid)
+
+            # Determine how many meetings to create based on stage
+            if 'WON' in stage_name:
+                # Won leads MUST have meetings - higher minimum
+                min_meetings = 4  # Increased from 3
+                max_meetings = 8  # Increased from 7
+            elif 'CONTRACT' in stage_name:
+                # Contract stage usually has many meetings
+                min_meetings = 3  # Increased from 2
+                max_meetings = 6  # Increased from 5
+            elif 'FOCUS' in stage_name:
+                # Focus stage has several meetings
+                min_meetings = 2
+                max_meetings = 5  # Increased from 4
+            elif 'WARM' in stage_name or 'PUSH TO WARM' in stage_name:
+                # Warm stage has some meetings
+                min_meetings = 2  # Increased from 1
+                max_meetings = 4  # Increased from 3
+            elif 'POTENTIAL' in stage_name:
+                # Potential stage may have 1-2 meetings
+                min_meetings = 1
+                max_meetings = 3  # Increased from 2
+            elif 'NEW' in stage_name or 'COLD' in stage_name:
+                # New/Cold may have 0-1 meetings
+                min_meetings = 1  # Changed from 0 to ensure at least one meeting
+                max_meetings = 2  # Increased from 1
+            else:
+                min_meetings = 1
+                max_meetings = 3
+
+            # Random number of meetings within range
+            num_meetings = random.randint(min_meetings, max_meetings)
+
+            # Get appropriate meeting types for this stage
+            meeting_types = self._get_meeting_types_for_stage(stage_name)
+
+            # Create meeting dates with appropriate spacing
+            meeting_dates = self._generate_meeting_dates(date_created, num_meetings)
+
+            # Track created meetings
+            created_meetings = 0
+
+            # Create each meeting
+            for i, meeting_date in enumerate(meeting_dates):
+                # Select a meeting type appropriate for the stage
+                meeting_name = random.choice(meeting_types)
+
+                # Determine duration based on meeting type
+                if any(keyword in meeting_name.lower() for keyword in ['kickoff', 'negotiation', 'final', 'deep dive']):
+                    duration = random.choice([1.5, 2.0])
+                else:
+                    duration = random.choice([0.5, 1.0])
+
+                # Ensure the assigned salesperson is the one who creates the meeting
+                # Only try alternate users if the primary salesperson is truly overloaded
+                meeting_user_id = user_id
+
+                # Check if primary user is at meeting limit
+                if self._is_meeting_limit_reached(user_id, meeting_date):
+                    # Try to find a team member who can take this meeting
+                    alternate_user = self._find_least_busy_team_member(user_id, meeting_date)
+                    if alternate_user:
+                        meeting_user_id = alternate_user
+                        logger.info(f"Reassigned meeting to team member (ID: {meeting_user_id}) due to meeting limit")
+                    else:
+                        # If no team member available, increase the limit for this user temporarily
+                        # This ensures won opportunities will always have meetings
+                        logger.info(f"Increasing meeting capacity for user {user_id} to ensure meeting creation")
+                        meeting_user_id = user_id  # Keep original user
+
+                # Create calendar event
+                product_name = lead_data.get('description', '').split('\n')[0].replace('Product: ', '') if lead_data.get('description') else ''
+                if product_name:
+                    meeting_title = f"{meeting_name} - {product_name}"
+                else:
+                    meeting_title = meeting_name
+
+                event_id = self.create_calendar_event(
+                    lead_id,
+                    meeting_title,
+                    meeting_date,
+                    duration,
+                    meeting_user_id,
+                    partner_id
+                )
+
+                if event_id:
+                    created_meetings += 1
+
+            # Verify won opportunities have meetings
+            if 'WON' in stage_name and created_meetings == 0:
+                logger.warning(f"Won opportunity (ID: {lead_id}) has no meetings. Creating required meetings.")
+                # Force create at least one meeting for won opportunities
+                self._create_mandatory_won_meeting(lead_id, lead_data, date_created, partner_id)
+
+        except Exception as e:
+            logger.error(f"Error creating meetings for lead {lead_id}: {e}")
+
+    def _find_least_busy_team_member(self, user_id: int, meeting_date: datetime) -> Optional[int]:
+        """Find the least busy team member who can take a meeting."""
+        try:
+            # Get user's team
+            user_data = self.users.get(user_id, {})
+            team_id = None
+            if 'sale_team_id' in user_data:
+                if isinstance(user_data['sale_team_id'], list) and len(user_data['sale_team_id']) > 0:
+                    team_id = user_data['sale_team_id'][0]
+                else:
+                    team_id = user_data['sale_team_id']
+
+            if not team_id:
+                return None
+
+            # Find all users in this team
+            team_members = []
+            for uid, udata in self.users.items():
+                user_team_id = None
+                if 'sale_team_id' in udata:
+                    if isinstance(udata['sale_team_id'], list) and len(udata['sale_team_id']) > 0:
+                        user_team_id = udata['sale_team_id'][0]
+                    else:
+                        user_team_id = udata['sale_team_id']
+
+                if user_team_id == team_id and uid != user_id:
+                    team_members.append(uid)
+
+            if not team_members:
+                return None
+
+            # Find the user with the fewest meetings that week
+            week_key = f"{meeting_date.year}-W{meeting_date.isocalendar()[1]:02d}"
+
+            least_busy_user = None
+            lowest_meeting_count = float('inf')
+
+            for uid in team_members:
+                if uid not in self.meeting_tracker:
+                    self.meeting_tracker[uid] = {}
+
+                if week_key not in self.meeting_tracker[uid]:
+                    self.meeting_tracker[uid][week_key] = 0
+
+                meeting_count = self.meeting_tracker[uid][week_key]
+
+                if meeting_count < lowest_meeting_count:
+                    lowest_meeting_count = meeting_count
+                    least_busy_user = uid
+
+            return least_busy_user
+        except Exception as e:
+            logger.error(f"Error finding least busy team member: {e}")
+            return None
+
+    def _create_mandatory_won_meeting(self, lead_id: int, lead_data: Dict, date_created: datetime, partner_id: Optional[int] = None):
+        """Create mandatory meetings for won opportunities that don't have any."""
+        try:
+            user_id = lead_data.get('user_id', self.uid)
+
+            # Create at least 3 essential meetings for won deals
+            essential_meetings = [
+                "Initial Product Discussion",
+                "Solution Presentation",
+                "Contract Signing Meeting"
+            ]
+
+            # Create dates starting from creation date
+            current_date = date_created + timedelta(days=3)
+
+            for meeting_name in essential_meetings:
+                # Create a business datetime for the meeting
+                meeting_datetime = self.generate_business_datetime(
+                    current_date,
+                    current_date + timedelta(days=1)
+                )
+
+                # Create the meeting with the assigned salesperson
+                self.create_calendar_event(
+                    lead_id,
+                    meeting_name,
+                    meeting_datetime,
+                    1.5,  # Standard duration
+                    user_id,
+                    partner_id
+                )
+
+                # Add gap between meetings
+                current_date += timedelta(days=random.randint(7, 14))
+
+            logger.info(f"Created mandatory meetings for won opportunity (ID: {lead_id})")
+        except Exception as e:
+            logger.error(f"Error creating mandatory meetings: {e}")
+
+    def _generate_meeting_dates(self, date_created: datetime, num_meetings: int) -> List[datetime]:
+        """Generate appropriate meeting dates with realistic spacing."""
+        meeting_dates = []
+        current_date = date_created + timedelta(days=random.randint(1, 3))
+
+        for i in range(num_meetings):
+            # Add some days between meetings
+            if i > 0:
+                # More realistic spacing - earlier meetings closer together
+                if i < 3:
+                    current_date += timedelta(days=random.randint(3, 10))
+                else:
+                    current_date += timedelta(days=random.randint(7, 21))
+
+            # Don't exceed simulation date
+            if current_date > self.simulation_date:
+                break
+
+            # Get a business datetime for the meeting
+            meeting_datetime = self.generate_business_datetime(
+                current_date,
+                current_date + timedelta(days=1)
+            )
+
+            meeting_dates.append(meeting_datetime)
+
+        return meeting_dates
+
+    def _initialize_meeting_tracker(self):
+        """Initialize tracking structure for meetings per salesperson per week."""
+        self.meeting_tracker = {}
+        year_start = datetime(SIMULATION_YEAR, 1, 1)
+
+        # Create entry for each user
+        for user_id in self.users.keys():
+            self.meeting_tracker[user_id] = {}
+
+            # Create entries for each week
+            for week in range(1, 53):  # 52 weeks in a year
+                week_key = f"{SIMULATION_YEAR}-W{week:02d}"
+                self.meeting_tracker[user_id][week_key] = 0
+
+        logger.info("Initialized meeting tracker for all users")
+
+    def _is_meeting_limit_reached(self, user_id: int, meeting_date: datetime) -> bool:
+        """Check if user has reached their meeting limit for the week."""
+        week_key = f"{meeting_date.year}-W{meeting_date.isocalendar()[1]:02d}"
+
+        if user_id not in self.meeting_tracker:
+            self.meeting_tracker[user_id] = {}
+
+        if week_key not in self.meeting_tracker[user_id]:
+            self.meeting_tracker[user_id][week_key] = 0
+
+        # Dynamic meeting capacity - higher for managers and directors
+        user_name = self.users.get(user_id, {}).get('name', '')
+        if 'Manager' in user_name or 'Director' in user_name:
+            max_meetings = random.randint(15, 25)  # Higher capacity for managers
+        else:
+            max_meetings = random.randint(12, 20)  # Increased from 10-20
+
+        return self.meeting_tracker[user_id][week_key] >= max_meetings
+
+    def _get_meeting_types_for_stage(self, stage_name: str) -> List[str]:
+        """Get appropriate meeting types for a given stage."""
+        # Check if we have predefined meeting types for this stage
+        for stage_key, meeting_list in self.MEETING_TYPES.items():
+            if stage_key in stage_name:
+                return meeting_list
+
+        # Default meeting types if none match
+        return [
+            'Discovery Call',
+            'Product Discussion',
+            'Solution Overview',
+            'Follow-up Meeting'
+        ]
 
     def _get_activity_sequence_for_stage(self, stage_name: str) -> List[Dict]:
         """Get appropriate activity sequence for a given stage."""
@@ -930,10 +1311,11 @@ class CrmDataGenerator:
             with OdooUtils.odoo_context() as context:
                 activity_id = self.execute_kw('mail.activity', 'create', [activity_values], {'context': context})
 
-            if business_datetime < self.now:
+            if business_datetime < self.simulation_date:
                 self._mark_activity_as_done(activity_id, lead_id, activity, activity_values,
                                           business_datetime, user_id, partner_id)
-            elif business_datetime > self.now and business_datetime < self.now + timedelta(days=14):
+            elif business_datetime > self.simulation_date and business_datetime < self.simulation_date + timedelta(days=14):
+                # For future activities (next 14 days), create meetings for meeting type activities
                 if activity['type'] == 'meeting':
                     self.create_calendar_event(
                         lead_id,
@@ -975,15 +1357,8 @@ class CrmDataGenerator:
                 business_datetime
             )
 
-            if activity['type'] == 'meeting':
-                self.create_calendar_event(
-                    lead_id,
-                    activity['name'],
-                    business_datetime,
-                    activity['duration'],
-                    user_id,
-                    partner_id
-                )
+            # Don't automatically create calendar events for marked activities
+            # as we have a separate method for creating realistic meetings
         except Exception as e:
             logger.error(f"Error marking activity as done: {e}")
             try:
@@ -1329,6 +1704,9 @@ class CrmDataGenerator:
             self.get_crm_stages()
             self.get_activity_types()
 
+            # Initialize the meeting tracker
+            self._initialize_meeting_tracker()
+
             # Validate required data
             if not self.stages:
                 logger.error("No CRM stages found. Cannot generate leads.")
@@ -1342,7 +1720,7 @@ class CrmDataGenerator:
             source_options = list(self.LEAD_SOURCES.keys())
             source_weights = list(self.LEAD_SOURCES.values())
 
-            logger.info(f"Generating {count} leads/opportunities...")
+            logger.info(f"Generating {count} leads/opportunities for {SIMULATION_YEAR}...")
             created_count = 0
             all_created_leads = []
 
@@ -1388,26 +1766,175 @@ class CrmDataGenerator:
                     logger.error(f"Error creating lead {i+1}: {e}")
 
             logger.info(f"Successfully created {created_count} realistic leads/opportunities")
+
+            # Add this new verification step to ensure all won opportunities have meetings
+            logger.info("Verifying meetings for won opportunities...")
+            self._verify_won_opportunities_have_meetings(all_created_leads)
+
+            # Log meeting distribution statistics
+            self._log_meeting_statistics()
+
             return True
 
         except Exception as e:
             logger.error(f"Error generating dummy data: {e}")
             return False
 
+    def _verify_won_opportunities_have_meetings(self, lead_ids):
+        """Ensure all won opportunities have at least the minimum required meetings."""
+        try:
+            # Find all won opportunities
+            for lead_id in lead_ids:
+                lead_data = self.execute_kw('crm.lead', 'read', [lead_id],
+                                        {'fields': ['stage_id', 'name', 'user_id', 'partner_id']})
+                if not lead_data:
+                    continue
+
+                lead = lead_data[0]
+                stage_name = self.stage_names.get(lead['stage_id'][0], "").upper() if lead.get('stage_id') else ""
+
+                if 'WON' in stage_name:
+                    # Check if this lead has any meetings
+                    meetings = self.execute_kw('calendar.event', 'search_count',
+                                            [[('opportunity_id', '=', lead_id)]])
+
+                    if meetings == 0:
+                        logger.warning(f"Won opportunity '{lead['name']}' (ID: {lead_id}) has no meetings. Adding mandatory meetings.")
+
+                        # Use partner_id from lead if available
+                        partner_id = lead.get('partner_id', [False])[0] if isinstance(lead.get('partner_id'), list) else lead.get('partner_id')
+
+                        # If not available, try to find a relevant partner
+                        if not partner_id:
+                            partner_search = self.execute_kw('res.partner', 'search',
+                                                [[('name', 'ilike', lead.get('name', '').split('|')[-1].strip())]])
+                            partner_id = partner_search[0] if partner_search else None
+
+                        # Create multiple mandatory meetings for this won opportunity
+                        date_created = datetime.now().replace(year=SIMULATION_YEAR) - timedelta(days=random.randint(30, 90))
+                        self._create_comprehensive_won_meeting_sequence(lead_id, lead, date_created, partner_id)
+
+            logger.info("Verification of won opportunity meetings completed")
+        except Exception as e:
+            logger.error(f"Error verifying won opportunities: {e}")
+
+    def _create_comprehensive_won_meeting_sequence(self, lead_id, lead_data, date_created, partner_id=None):
+        """Create a comprehensive sequence of meetings for won opportunities."""
+        try:
+            user_id = lead_data.get('user_id')[0] if isinstance(lead_data.get('user_id'), list) else lead_data.get('user_id', self.uid)
+
+            # Essential meeting sequence for a won deal - minimum 5 meetings
+            essential_meetings = [
+                {"name": "Initial Discovery Call", "days_offset": 5, "duration": 1.0},
+                {"name": "Needs Assessment", "days_offset": 15, "duration": 1.5},
+                {"name": "Solution Presentation", "days_offset": 25, "duration": 2.0},
+                {"name": "Proposal Review", "days_offset": 40, "duration": 1.5},
+                {"name": "Contract Signing", "days_offset": 55, "duration": 1.0}
+            ]
+
+            # Sort meetings chronologically
+            essential_meetings.sort(key=lambda x: x["days_offset"])
+
+            # Create each meeting with proper historical sequence
+            for meeting in essential_meetings:
+                meeting_date = date_created + timedelta(days=meeting["days_offset"])
+
+                # Don't create meetings too far in the future
+                if meeting_date > self.simulation_date + timedelta(days=30):
+                    meeting_date = self.simulation_date - timedelta(days=random.randint(5, 20))
+
+                # Ensure it's during business hours
+                meeting_datetime = self.generate_business_datetime(
+                    meeting_date,
+                    meeting_date + timedelta(days=1)
+                )
+
+                # Create the meeting with historical timestamps
+                event_name = f"{meeting['name']} - {lead_data.get('name', 'Opportunity')}"
+
+                # Create the event
+                event_id = self.create_calendar_event(
+                    lead_id,
+                    event_name,
+                    meeting_datetime,
+                    meeting["duration"],
+                    user_id,
+                    partner_id,
+                    force_historical=True
+                )
+
+            logger.info(f"Created comprehensive meeting sequence for won opportunity ID {lead_id}")
+        except Exception as e:
+            logger.error(f"Error creating comprehensive meeting sequence: {e}")
+
+    def _log_meeting_statistics(self):
+        """Log statistics about meeting distribution."""
+        try:
+            total_meetings = 0
+            user_meetings = {}
+
+            # Calculate total meetings per user
+            for user_id, weeks in self.meeting_tracker.items():
+                user_name = self.users.get(user_id, {}).get('name', f"User ID {user_id}")
+                user_total = sum(weeks.values())
+                user_meetings[user_name] = user_total
+                total_meetings += user_total
+
+            # Sort users by number of meetings
+            sorted_users = sorted(user_meetings.items(), key=lambda x: x[1], reverse=True)
+
+            logger.info(f"\nMeeting Statistics for {SIMULATION_YEAR}:")
+            logger.info(f"Total meetings created: {total_meetings}")
+
+            # Log meetings per user
+            logger.info("\nMeetings per user:")
+            for user_name, meeting_count in sorted_users:
+                logger.info(f"  {user_name}: {meeting_count} meetings")
+
+            # Log meetings per week (average across all users)
+            weekly_avg = {}
+            for user_id, weeks in self.meeting_tracker.items():
+                for week, count in weeks.items():
+                    if week not in weekly_avg:
+                        weekly_avg[week] = 0
+                    weekly_avg[week] += count
+
+            logger.info("\nAverage meetings per week (all users):")
+            active_users = len(self.meeting_tracker)
+            for week in sorted(weekly_avg.keys()):
+                logger.info(f"  {week}: {weekly_avg[week]} total ({weekly_avg[week]/active_users:.1f} per user)")
+
+        except Exception as e:
+            logger.error(f"Error logging meeting statistics: {e}")
+
     def _generate_creation_date(self, index: int, total_count: int) -> datetime:
-        """Generate appropriate creation date with weighting toward recency."""
-        if index < total_count * 0.1:  # Oldest 10%
-            return self.fake.date_time_between(start_date='-2y', end_date='-1y')
-        elif index < total_count * 0.3:  # Next 20%
-            return self.fake.date_time_between(start_date='-1y', end_date='-6m')
-        elif index < total_count * 0.7:  # Middle 40%
-            return self.fake.date_time_between(start_date='-6m', end_date='-1m')
-        else:  # Most recent 30%
-            return self.fake.date_time_between(start_date='-1m', end_date='now')
+        """Generate appropriate creation date within the simulation year (2025)."""
+        year_start = datetime(SIMULATION_YEAR, 1, 1)
+        year_end = datetime(SIMULATION_YEAR, 12, 31)
+
+        # Create a distribution of leads throughout the year
+        # with more leads in Q2 and Q3 (typical business cycle)
+        if index < total_count * 0.2:  # First 20% in Q1
+            return self.fake.date_time_between(
+                start_date=datetime(SIMULATION_YEAR, 1, 1),
+                end_date=datetime(SIMULATION_YEAR, 3, 31)
+            )
+        elif index < total_count * 0.6:  # Next 40% in Q2 and Q3 (most leads)
+            return self.fake.date_time_between(
+                start_date=datetime(SIMULATION_YEAR, 4, 1),
+                end_date=datetime(SIMULATION_YEAR, 9, 30)
+            )
+        else:  # Remaining 40% in Q4
+            return self.fake.date_time_between(
+                start_date=datetime(SIMULATION_YEAR, 10, 1),
+                end_date=datetime(SIMULATION_YEAR, 12, 31)
+            )
 
 
 def main():
     """Main entry point for the script."""
+    global SIMULATION_YEAR
+
     parser = argparse.ArgumentParser(description='Generate realistic CRM data in Odoo')
     parser.add_argument('--url', default='http://localhost:8069', help='Odoo URL')
     parser.add_argument('--db', default='crm_project', help='Database name')
@@ -1415,8 +1942,13 @@ def main():
     parser.add_argument('--password', default='admin', help='Password')
     parser.add_argument('--count', type=int, default=100, help='Number of leads to generate')
     parser.add_argument('--csv', help='Path to CSV file with company data')
+    parser.add_argument('--year', type=int, default=SIMULATION_YEAR, help=f'Simulation year (default: {SIMULATION_YEAR})')
 
     args = parser.parse_args()
+
+    if args.year:
+        SIMULATION_YEAR = args.year
+        logger.info(f"Setting simulation year to {SIMULATION_YEAR}")
 
     logger.info(f"Connecting to Odoo at {args.url}")
     uid, models = OdooUtils.connect_to_odoo(args.url, args.db, args.username, args.password)
