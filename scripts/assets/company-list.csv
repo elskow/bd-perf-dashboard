@@ -1,0 +1,1234 @@
+,Company,Valuation ($B),Date Joined,Country,City,Industry
+0,ByteDance,$225,4/7/2017,China,Beijing,Media & Entertainment
+1,SpaceX,$150,12/1/2012,United States,Hawthorne,Industrials
+2,OpenAI,$80,7/22/2019,United States,San Francisco,Enterprise Tech
+3,SHEIN,$66,7/3/2018,Singapore,Singapore City,Consumer & Retail
+4,Stripe,$65,1/23/2014,United States,San Francisco,Financial Services
+5,Databricks,$43,2/5/2019,United States,San Francisco,Enterprise Tech
+6,Canva,$25.4,1/8/2018,Australia,Surry Hills,Enterprise Tech
+7,Revolut,$33,4/26/2018,United Kingdom,London,Financial Services
+8,Epic Games,$22.5,10/26/2018,United States,Cary,Media & Entertainment
+9,Fanatics,$31,6/6/2012,United States,Jacksonville,Consumer & Retail
+10,Chime,$25,3/5/2019,United States,San Francisco,Financial Services
+11,Xiaohongshu,$20,3/31/2016,China,Shanghai,Media & Entertainment
+12,Miro,$17.50,1/5/2022,United States,San Francisco,Enterprise Tech
+13,Anthropic,$16.05,2/3/2023,United States,San Francisco,Enterprise Tech
+14,Yuanfudao,$15.50,5/31/2017,China,Beijing,Consumer & Retail
+15,DJI Innovations,$15,1/23/2015,China,Shenzhen,Industrials
+16,Discord,$15,4/20/2018,United States,San Francisco,Media & Entertainment
+17,Gopuff,$15,10/8/2020,United States,Philadelphia,Consumer & Retail
+18,Yuanqi Senlin,$15,3/1/2020,China,Beijing,Consumer & Retail
+19,Ripple,$15,12/20/2019,United States,San Francisco,Financial Services
+20,Plaid,$13.50,12/11/2018,United States,San Francisco,Financial Services
+21,OpenSea,$13.30,7/20/2021,United States,New York,Media & Entertainment
+22,Celonis,$13,6/26/2018,Germany,Munich,Enterprise Tech
+23,Grammarly,$13,10/10/2019,United States,San Francisco,Media & Entertainment
+24,Devoted Health,$12.90,10/16/2018,United States,Waltham,Healthcare & Life Sciences
+25,Faire,$12.59,10/30/2019,United States,San Francisco,Consumer & Retail
+26,Brex,$12.30,10/5/2018,United States,San Francisco,Enterprise Tech
+27,JUUL Labs,$12,12/20/2017,United States,San Francisco,Consumer & Retail
+28,Bitmain Technologies,$12,7/6/2018,China,Beijing,Enterprise Tech
+29,GoodLeap,$12,10/13/2021,United States,Roseville,Financial Services
+30,Xingsheng Selected,$12,7/22/2020,China,Changsha,Consumer & Retail
+31,Deel,$12,4/21/2021,United States,San Francisco,Enterprise Tech
+32,Airtable,$11.70,11/15/2018,United States,San Francisco,Enterprise Tech
+33,BYJU's,$11.50,7/25/2017,India,Bengaluru,Consumer & Retail
+34,ZongMu Technology,$11.40,6/3/2021,China,Shanghai,Industrials
+35,Rippling,$11.25,8/4/2020,United States,San Francisco,Enterprise Tech
+36,Global Switch,$11.10,12/22/2016,United Kingdom,London,Enterprise Tech
+37,Checkout.com,$11,5/2/2019,United Kingdom,London,Financial Services
+38,Bolt,$11,10/8/2021,United States,San Francisco,Financial Services
+39,Alchemy,$10.20,10/28/2021,United States,San Francisco,Enterprise Tech
+40,Huolala,$10,2/21/2019,China,Guangzhou,Industrials
+41,Wiz,$10,3/17/2021,Israel,Tel Aviv,Enterprise Tech
+42,Gusto,$10,12/18/2015,United States,San Francisco,Financial Services
+43,Chehaoduo,$10,3/12/2016,China,Beijing,Consumer & Retail
+44,Talkdesk,$10,10/3/2018,United States,San Francisco,Enterprise Tech
+45,Notion,$10,4/1/2020,United States,San Francisco,Enterprise Tech
+46,Digital Currency Group,$10,11/1/2021,United States,New York,Financial Services
+47,KuCoin,$10,5/10/2022,Seychelles,Victoria,Financial Services
+48,ServiceTitan,$9.50,11/14/2018,United States,Glendale,Industrials
+49,HEYTEA,$9.28,7/1/2019,China,Shenzhen,Consumer & Retail
+50,N26,$9.23,1/10/2019,Germany,Berlin,Financial Services
+51,Navan,$9.20,11/8/2018,United States,Palo Alto,Enterprise Tech
+52,VAST Data,$9.1,4/16/2020,United States,New York,Enterprise Tech
+53,Northvolt,$9.08,6/12/2019,Sweden,Stockholm,Industrials
+54,Tanium,$9,3/31/2015,United States,Kirkland,Enterprise Tech
+55,Niantic,$9,11/24/2017,United States,San Francisco,Media & Entertainment
+56,OYO Rooms,$9,9/25/2018,India,Gurugram,Consumer & Retail
+57,Getir,$8.80,3/26/2021,Turkey,Istanbul,Consumer & Retail
+58,Rapyd,$8.75,12/3/2019,United Kingdom,London,Financial Services
+59,Kavak,$8.70,10/1/2020,Mexico,Lerma de Villada,Industrials
+60,Nuro,$8.60,2/11/2019,United States,Mountain View,Industrials
+61,Chainalysis,$8.60,11/23/2020,United States,New York,Financial Services
+62,Pony.ai,$8.60,7/11/2018,United States,Fremont,Industrials
+63,Personio,$8.50,1/19/2021,Germany,Munich,Enterprise Tech
+64,Anduril,$8.48,9/11/2019,United States,Irvine,Industrials
+65,SumUp,$8.50,7/16/2019,United Kingdom,London,Financial Services
+66,Bolt,$8.40,5/29/2018,Estonia,Tallinn,Industrials
+67,Lacework,$8.30,1/7/2021,United States,San Jose,Enterprise Tech
+68,Tipalti,$8.30,10/6/2020,United States,San Mateo,Enterprise Tech
+69,Tempus,$8.10,3/21/2018,United States,Chicago,Healthcare & Life Sciences
+70,Swiggy,$8,6/21/2018,India,Bengaluru,Consumer & Retail
+71,Dream11,$8,4/9/2019,India,Mumbai,Media & Entertainment
+72,Fireblocks,$8,7/27/2021,United States,New York,Financial Services
+73,Flexport,$8,4/30/2018,United States,San Francisco,Industrials
+74,FalconX,$8,8/10/2021,United States,San Mateo,Financial Services
+75,Caris,$7.83,5/12/2021,United States,Irving,Healthcare & Life Sciences
+76,Dapper Labs,$7.60,3/30/2021,Canada,Vancouver,Media & Entertainment
+77,Netskope,$7.50,11/13/2018,United States,Santa Clara,Enterprise Tech
+78,Razorpay,$7.50,10/11/2020,India,Bengaluru,Financial Services
+79,Automattic,$7.50,5/27/2013,United States,San Francisco,Media & Entertainment
+80,Carta,$7.40,5/6/2019,United States,San Francisco,Financial Services
+81,Snyk,$7.40,1/21/2020,United States,Boston,Enterprise Tech
+82,Scale AI,$7.30,8/5/2019,United States,San Francisco,Enterprise Tech
+83,Gong,$7.25,8/12/2020,United States,Palo Alto,Enterprise Tech
+84,Gemini,$7.10,11/19/2021,United States,New York,Financial Services
+85,Blockchain.com,$7,2/17/2021,United Kingdom,London,Financial Services
+86,Toss,$7,12/9/2018,South Korea,Seoul,Financial Services
+87,We Doctor,$7,9/22/2015,China,Hangzhou,Healthcare & Life Sciences
+88,Ro,$7,7/27/2020,United States,New York,Healthcare & Life Sciences
+89,ConsenSys,$7,11/17/2021,United States,New York,Enterprise Tech
+90,Automation Anywhere,$6.80,7/2/2018,United States,San Jose,Enterprise Tech
+91,1Password,$6.80,7/8/2021,Canada,Toronto,Enterprise Tech
+92,Klarna,$6.70,12/12/2011,Sweden,Stockholm,Financial Services
+93,Ziroom,$6.60,1/17/2018,China,Beijing,Consumer & Retail
+94,SVOLT,$6.51,6/8/2020,China,Changzhou,Industrials
+95,National Stock Exchange of India,$6.50,7/1/2020,India,Mumbai,Financial Services
+96,Mollie,$6.50,9/8/2020,Netherlands,Amsterdam,Financial Services
+97,Ola,$7.50,10/27/2014,India,Bengaluru,Industrials
+98,Doctolib,$6.40,3/19/2019,France,Paris,Healthcare & Life Sciences
+99,CRED,$6.40,4/6/2021,India,Bengaluru,Financial Services
+100,DataRobot,$6.30,7/29/2019,United States,Boston,Enterprise Tech
+101,Upgrade,$6.28,2/12/2018,United States,San Francisco,Financial Services
+102,Hinge Health,$6.20,1/6/2021,United States,San Francisco,Healthcare & Life Sciences
+103,Black Unicorn Factory,$6.10,5/20/2021,United States,Los Angeles,Enterprise Tech
+104,Benchling,$6.10,4/14/2021,United States,San Francisco,Healthcare & Life Sciences
+105,Applied Intuition,$6,10/22/2020,United States,Sunnyvale,Industrials
+106,Commure,$6,9/16/2021,United States,San Francisco,Healthcare & Life Sciences
+107,Royole Corporation,$6,8/18/2015,China,Shenzhen,Industrials
+108,iCapital Network,$6,7/27/2021,United States,New York,Financial Services
+109,6Sense,$5.20,3/30/2021,United States,San Francisco,Enterprise Tech
+110,Attentive,$5.99,9/23/2020,United States,Hoboken,Enterprise Tech
+111,Easyhome,$5.78,2/12/2018,China,Beijing,Consumer & Retail
+112,Lianjia,$5.77,4/7/2016,China,Beijing,Financial Services
+113,Cityblock Health,$5.70,12/10/2020,United States,Brooklyn,Healthcare & Life Sciences
+114,Workato,$5.70,1/12/2021,United States,Mountain View,Enterprise Tech
+115,Back Market,$5.70,5/18/2021,France,Paris,Consumer & Retail
+116,RELEX,$5.70,2/17/2022,Finland,Helsinki,Consumer & Retail
+117,The Boring Company,$5.70,4/20/2022,United States,Pflugerville,Industrials
+118,Postman,$5.60,6/11/2020,United States,San Francisco,Enterprise Tech
+119,FiveTran,$5.60,6/30/2020,United States,Oakland,Enterprise Tech
+120,ContentSquare,$5.60,5/25/2021,France,Paris,Enterprise Tech
+121,Trade Republic,$5.36,5/20/2021,Germany,Berlin,Financial Services
+122,Rappi,$5.25,8/31/2018,Colombia,Bogota,Consumer & Retail
+123,Collibra,$5.25,1/29/2019,Belgium,Brussels,Enterprise Tech
+124,OneTrust,$4.5,7/11/2019,United States,Atlanta,Enterprise Tech
+125,QuintoAndar,$5.10,9/9/2019,Brazil,Campinas,Financial Services
+126,Monzo,$5.07,10/31/2018,United Kingdom,London,Financial Services
+127,C6 Bank,$5.05,12/2/2020,Brazil,Sao Paulo,Financial Services
+128,Redwood Materials,$5,7/28/2021,United States,Carson City,Industrials
+129,Hello TransTech,$5,6/1/2018,China,Shanghai,Industrials
+130,Airwallex,$5.50,3/25/2019,Australia,Melbourne,Financial Services
+131,Mambu,$5.50,1/6/2021,Netherlands,Amsterdam,Financial Services
+132,Horizon Robotics,$5,2/27/2019,China,Beijing,Industrials
+133,Howden Group Holdings,$5,9/29/2020,United Kingdom,London,Insurance
+134,SambaNova Systems,$5,4/13/2021,United States,Palo Alto,Enterprise Tech
+135,ZEPZ,$5,8/23/2021,United Kingdom,London,Financial Services
+136,OakNorth Bank,$5,10/12/2017,United Kingdom,London,Financial Services
+137,Moon Active,$5,1/26/2020,Israel,Tel Aviv,Media & Entertainment
+138,OfBusiness,$5,7/31/2021,India,Gurgaon,Industrials
+139,Cockroach Labs,$5,1/12/2021,United States,New York,Enterprise Tech
+140,Pine Labs,$5,1/24/2020,India,Noida,Financial Services
+141,Qonto,$5,1/11/2022,France,Paris,Enterprise Tech
+142,Ola Electric Mobility,$5.5,7/2/2019,India,Bengaluru,Industrials
+143,Icertis,$5,7/17/2019,United States,Bellevue,Enterprise Tech
+144,Hopper,$5,3/24/2021,Canada,Montreal,Consumer & Retail
+145,VerSe Innovation,$5,12/22/2020,India,Bengaluru,Media & Entertainment
+146,ShareChat,$5,4/8/2021,India,Bengaluru,Media & Entertainment
+147,Coalition,$5,3/17/2021,United States,San Francisco,Insurance
+148,Grafana Labs,$4.93,3/25/2021,United States,New York,Enterprise Tech
+149,Meesho,$3.5,4/5/2021,India,Bengaluru,Consumer & Retail
+150,Cerebral,$4.80,6/10/2021,United States,San Francisco,Healthcare & Life Sciences
+151,Creditas,$4.80,12/18/2020,Brazil,Sao Paulo,Financial Services
+152,Reify Health,$4.80,8/10/2021,United States,Boston,Healthcare & Life Sciences
+153,Chipone,$4.73,12/16/2021,China,Beijing,Industrials
+154,BetterUp,$4.70,2/25/2021,United States,San Francisco,Enterprise Tech
+155,Pleo,$4.70,7/6/2021,Denmark,Copenhagen,Enterprise Tech
+156,SonarSource,$4.70,4/26/2022,Switzerland,Geneva,Enterprise Tech
+157,Lyra Health,$5.85,8/25/2020,United States,Burlingame,Healthcare & Life Sciences
+158,Ramp,$5.8,3/29/2021,United States,New York,Enterprise Tech
+159,Checkr,$4.60,9/19/2019,United States,San Francisco,Enterprise Tech
+160,Skims,$4,4/9/2021,United States,Los Angeles,Consumer & Retail
+161,Color,$4.60,1/4/2021,United States,Burlingame,Healthcare & Life Sciences
+162,Lendable,$4.58,3/31/2021,United Kingdom,London,Financial Services
+163,Vinted,$4.53,11/27/2019,Lithuania,Vilnius,Consumer & Retail
+164,VIPKid,$4.50,8/4/2016,China,Beijing,Consumer & Retail
+165,Socure,$4.50,3/16/2021,United States,New York,Financial Services
+166,wefox,$4.50,3/5/2019,Germany,Berlin,Insurance
+167,Lenskart,$4.50,12/20/2019,India,Faridabad,Consumer & Retail
+168,Hugging Face,$4.5,5/9/2022,United States,New York,Enterprise Tech
+169,Outreach,$4.40,4/16/2019,United States,Seattle,Enterprise Tech
+170,WeRide,$4.40,12/23/2020,China,Guangzhou,Industrials
+171,Guild Education,$4.40,11/13/2019,United States,Denver,Enterprise Tech
+172,Arctic Wolf Networks,$4.30,10/22/2020,United States,Eden Prairie,Enterprise Tech
+173,OutSystems,$4.30,6/5/2018,United States,Boston,Enterprise Tech
+174,Sorare,$4.30,9/21/2021,France,Paris,Media & Entertainment
+175,Zipline,$4.20,5/20/2019,United States,South San Francisco,Industrials
+176,Relativity,$4.20,11/23/2020,United States,Inglewood,Industrials
+177,Miaoshou Doctor,$4.25,6/27/2019,China,Beijing,Healthcare & Life Sciences
+178,ThoughtSpot,$4.20,5/8/2018,United States,Sunnyvale,Enterprise Tech
+179,Globalization Partners,$4.20,1/24/2022,United States,Boston,Enterprise Tech
+180,dbt Labs,$4.20,6/30/2021,United States,Philadelphia,Enterprise Tech
+181,SSENSE,$4.15,6/8/2021,Canada,Montreal,Consumer & Retail
+182,Dataminr,$4.10,6/4/2018,United States,New York,Enterprise Tech
+183,BitPanda,$4.11,3/16/2021,Austria,Vienna,Financial Services
+184,Weee!,$4.10,3/16/2021,United States,Fremont,Consumer & Retail
+185,Skydance Media,$4,2/11/2020,United States,Santa Monica,Media & Entertainment
+186,Houzz,$4,9/30/2014,United States,Palo Alto,Consumer & Retail
+187,Yello Mobile,$4,11/11/2014,South Korea,Seoul,Consumer & Retail
+188,Inflection AI,$4,5/13/2022,United States,Palo Alto,Enterprise Tech
+189,MEGVII,$4,10/31/2017,China,Beijing,Enterprise Tech
+190,Greensill,$4,7/16/2018,United Kingdom,London,Financial Services
+191,Impossible Foods,$4,5/13/2019,United States,Redwood City,Consumer & Retail
+192,Radiology Partners,$4,2/26/2018,United States,El Segundo,Healthcare & Life Sciences
+193,Next Insurance,$4,10/7/2019,United States,Palo Alto,Insurance
+194,PointClickCare,$4,1/7/2021,Canada,Mississauga,Healthcare & Life Sciences
+195,Zapier,$4,1/14/2021,United States,Sunnyvale,Enterprise Tech
+196,Clubhouse,$4,1/24/2021,United States,San Francisco,Media & Entertainment
+197,BrowserStack,$4,6/16/2021,Ireland,Dublin,Enterprise Tech
+198,Rubrik,$4,4/28/2017,United States,Palo Alto,Enterprise Tech
+199,Melio,$4,1/25/2021,United States,New York,Financial Services
+200,Vuori,$4,10/13/2021,United States,Carlsbad,Consumer & Retail
+201,ClickUp,$4,12/15/2020,United States,San Diego,Enterprise Tech
+202,Cerebras Systems,$4,11/14/2018,United States,Los Altos,Enterprise Tech
+203,Farmers Business Network,$4,8/3/2020,United States,San Carlos,Industrials
+204,Branch,$4,9/10/2018,United States,Redwood City,Enterprise Tech
+205,Aurora Solar,$4,5/24/2021,United States,San Francisco,Industrials
+206,Webflow,$4,1/13/2021,United States,San Francisco,Enterprise Tech
+207,Yuga Labs,$4,3/22/2022,United States,Miami,Media & Entertainment
+208,Digit Insurance,$4,1/15/2021,India,Bengaluru,Insurance
+209,Abnormal Security,$4,5/10/2022,United States,San Francisco,Enterprise Tech
+210,Medlinker,$3.92,7/31/2018,China,Chengdu,Healthcare & Life Sciences
+211,StockX,$3.80,6/26/2019,United States,Detroit,Consumer & Retail
+212,MessageBird,$3.80,10/8/2020,Netherlands,Amsterdam,Enterprise Tech
+213,Articulate,$3.75,7/1/2021,United States,New York,Enterprise Tech
+214,Dutchie,$3.75,3/16/2021,United States,Bend,Consumer & Retail
+215,Cohesity,$3.70,6/11/2018,United States,San Jose,Enterprise Tech
+216,Dataiku,$3.70,12/4/2019,United States,New York,Enterprise Tech
+217,GOAT,$3.70,9/23/2020,United States,Culver City,Consumer & Retail
+218,Noom,$3.70,5/24/2021,United States,New York,Healthcare & Life Sciences
+219,Papaya Global,$3.70,3/4/2021,United States,New York,Enterprise Tech
+220,Abogen,$3.70,11/29/2021,China,Suzhou,Healthcare & Life Sciences
+221,Harness,$3.70,1/14/2021,United States,San Francisco,Enterprise Tech
+222,Whatnot,$3.70,9/16/2021,United States,Marina del Rey,Consumer & Retail
+223,o9 Solutions,$3.7,4/28/2020,United States,Dallas,Enterprise Tech
+224,Autograph,$3.66,1/20/2022,United States,Santa Monica,Media & Entertainment
+225,Relativity,$3.60,3/18/2021,United States,Chicago,Enterprise Tech
+226,Whoop,$3.60,10/28/2020,United States,Boston,Healthcare & Life Sciences
+227,Course Hero,$3.60,2/12/2020,United States,Redwood City,Consumer & Retail
+228,SpotOn,$3.60,5/26/2021,United States,San Francisco,Financial Services
+229,Otto Bock HealthCare,$3.52,6/24/2017,Germany,Duderstadt,Healthcare & Life Sciences
+230,Indigo Ag,$3.50,9/26/2017,United States,Boston,Industrials
+231,eToro,$3.50,3/21/2023,United Kingdom,London,Financial Services
+232,HyalRoute,$3.50,5/26/2020,Singapore,Singapore City,Industrials
+233,Rec Room,$3.50,3/23/2021,United States,Seattle,Media & Entertainment
+234,Mirakl,$3.50,9/22/2020,France,Paris,Consumer & Retail
+235,Tekion,$3.50,10/21/2020,United States,San Ramon,Industrials
+236,GoStudent,$3.50,6/22/2021,Austria,Vienna,Consumer & Retail
+237,Highspot,$3.50,2/22/2021,United States,Seattle,Enterprise Tech
+238,Handshake,$3.50,5/12/2021,United States,San Francisco,Enterprise Tech
+239,ChargeBee Technologies,$3.50,4/20/2021,United States,San Francisco,Financial Services
+240,Flock Safety,$3.50,7/13/2021,United States,Atlanta,Consumer & Retail
+241,Helion Energy,$3.50,11/5/2021,United States,Redmond,Industrials
+242,Acronis,$3.50,9/18/2019,Switzerland,Schaffhausen,Enterprise Tech
+243,Unacademy,$3.44,9/2/2020,India,Bengaluru,Consumer & Retail
+244,Odoo,$3.43,7/29/2021,Belgium,Louvain-la-Neuve,Enterprise Tech
+245,MoonPay,$3.40,11/22/2021,United States,Miami,Financial Services
+246,Upstox,$3.40,11/29/2021,India,Mumbai,Financial Services
+247,Improbable,$3.36,5/11/2017,United Kingdom,London,Media & Entertainment
+248,Youxia Motors,$3.35,4/2/2018,China,Shanghai,Industrials
+249,OwnBackup,$3.35,1/28/2021,United States,Englewood Cliffs,Enterprise Tech
+250,Starburst,$3.35,1/6/2021,United States,Boston,Enterprise Tech
+251,Sila,$3.30,4/16/2019,United States,Alameda,Industrials
+252,Komodo Health,$3.30,5/22/2020,United States,San Francisco,Healthcare & Life Sciences
+253,Kurly,$3.30,7/9/2021,South Korea,Seoul,Consumer & Retail
+254,Cars24,$3.30,11/24/2020,India,Gurgaon,Industrials
+255,BlockDaemon,$3.25,9/21/2021,United States,Los Angeles,Financial Services
+256,Dadi Cinema,$3.24,5/11/2016,China,Shenzhen,Media & Entertainment
+257,Aiven,$3.21,10/18/2021,Finland,Helsinki,Enterprise Tech
+258,Thumbtack,$3.20,9/29/2015,United States,San Francisco,Consumer & Retail
+259,Cedar,$3.20,3/9/2021,United States,New York,Healthcare & Life Sciences
+260,Eruditus Executive Education,$3.20,8/12/2021,India,Mumbai,Enterprise Tech
+261,Blockstream,$3.20,8/24/2021,Canada,Vancouver,Financial Services
+262,Innovaccer,$3.20,2/19/2021,United States,San Francisco,Healthcare & Life Sciences
+263,Ironclad,$3.20,1/18/2022,United States,Sacramento,Enterprise Tech
+264,Eikon Therapeutics,$3.20,1/6/2022,United States,Hayward,Healthcare & Life Sciences
+265,Retool,$3.20,12/22/2021,United States,San Francisco,Enterprise Tech
+266,Verkada,$3.20,1/29/2020,United States,San Mateo,Industrials
+267,PsiQuantum,$3.15,7/27/2021,United States,Palo Alto,Enterprise Tech
+268,HighRadius,$3.10,1/7/2020,United States,Houston,Financial Services
+269,Bilt Rewards,$3.10,10/25/2022,United States,New York,Financial Services
+270,Nuvemshop,$3.10,8/17/2021,Brazil,Sao Paulo,Consumer & Retail
+271,LayerZero Labs,$3,3/30/2022,United States,New York,Enterprise Tech
+272,Nord Security,$3,4/7/2022,Lithuania,Vilnius,Enterprise Tech
+273,Yixia,$3,11/24/2015,China,Beijing,Media & Entertainment
+274,Traveloka,$3,1/1/2017,Indonesia,Jakarta,Consumer & Retail
+275,SouChe Holdings,$3,11/1/2017,China,Hangzhou,Industrials
+276,BGL Group,$3,11/24/2017,United Kingdom,Peterborough,Insurance
+277,Circle,$3,5/15/2018,United States,Boston,Financial Services
+278,Zuoyebang,$3,7/18/2018,China,Beijing,Consumer & Retail
+279,FlixMobility,$3,7/18/2019,Germany,Munich,Industrials
+280,Wildlife Studios,$3,12/5/2019,Brazil,Sao Paulo,Media & Entertainment
+281,ApplyBoard,$3.20,5/5/2020,Canada,Kitchener,Consumer & Retail
+282,Forter,$3,11/19/2020,United States,New York,Enterprise Tech
+283,Calendly,$3,1/26/2021,United States,Atlanta,Enterprise Tech
+284,BlockFi,$3,3/11/2021,United States,Jersey City,Financial Services
+285,ActiveCampaign,$3,4/21/2021,United States,Chicago,Enterprise Tech
+286,CMR Surgical,$3,9/17/2019,United Kingdom,Cambridge,Healthcare & Life Sciences
+287,Lucid Software,$3,6/29/2021,United States,South Jordan,Enterprise Tech
+288,Age of Learning,$3,5/3/2016,United States,Glendale,Consumer & Retail
+289,Carbon Health,$3,7/21/2021,United States,San Francisco,Healthcare & Life Sciences
+290,Contentful,$3,7/28/2021,Germany,Berlin,Enterprise Tech
+291,LaunchDarkly,$3,8/10/2021,United States,Oakland,Enterprise Tech
+292,Seismic,$3,12/18/2018,United States,San Diego,Enterprise Tech
+293,Sky Mavis,$3,10/4/2021,Vietnam,Ho Chi Minh City,Media & Entertainment
+294,Outschool,$3,4/14/2021,United States,San Francisco,Consumer & Retail
+295,TradingView,$3,10/14/2021,United States,Westerville,Financial Services
+296,Groww,$3,4/7/2021,India,Bengaluru,Financial Services
+297,Podium,$3,4/7/2020,United States,Lehi,Consumer & Retail
+298,Via,$3.50,3/30/2020,United States,New York,Industrials
+299,Anchorage Digital,$3,12/15/2021,United States,San Francisco,Financial Services
+300,Inxeption,$3,1/13/2022,United States,San Francisco,Industrials
+301,Lattice,$3,3/23/2021,United States,San Francisco,Enterprise Tech
+302,Flutterwave,$3,3/9/2021,United States,San Francisco,Financial Services
+303,Amber Group,$3,6/21/2021,Singapore,Singapore City,Financial Services
+304,Cross River Bank,$3,2/11/2022,United States,Fort Lee,Financial Services
+305,Remote,$3,7/13/2021,United States,San Francisco,Enterprise Tech
+306,Sentry,$3,2/18/2021,United States,San Francisco,Enterprise Tech
+307,Kraken,$2.92,6/25/2019,United States,San Francisco,Financial Services
+308,Workrise,$2.90,9/30/2019,United States,Austin,Industrials
+309,BharatPe,$2.85,7/30/2021,India,New Delhi,Financial Services
+310,Gokin Solar,$2.88,4/13/2022,China,Zhuhai,Industrials
+311,DriveWealth,$2.85,8/20/2021,United States,Chatham,Financial Services
+312,Alan,$2.85,4/19/2021,France,Paris,Healthcare & Life Sciences
+313,Meicai,$2.80,6/22/2016,China,Beijing,Consumer & Retail
+314,Nutrabolt,$2.79,12/8/2022,United States,Austin,Consumer & Retail
+315,Graphcore,$2.77,12/18/2018,United Kingdom,Bristol,Enterprise Tech
+316,Illumio,$2.75,4/14/2015,United States,Sunnyvale,Enterprise Tech
+317,MasterClass,$2.75,5/13/2021,United States,San Francisco,Media & Entertainment
+318,Dream Games,$2.75,6/30/2021,Turkey,Istanbul,Media & Entertainment
+319,Transmit Security,$2.74,6/22/2021,Israel,Tel Aviv,Enterprise Tech
+320,Hozon Auto,$3.95,2/22/2022,China,Shanghai,Industrials
+321,Tradeshift,$2.70,5/30/2018,United States,San Francisco,Enterprise Tech
+322,Nextiva,$2.70,9/14/2021,United States,Scottsdale,Enterprise Tech
+323,Tridge,$2.70,8/24/2022,South Korea,Seoul,Industrials
+324,Thought Machine,$2.70,11/29/2021,United Kingdom,London,Financial Services
+325,Starling Bank,$2.69,3/8/2021,United Kingdom,London,Financial Services
+326,Figure,$2.68,2/23/2024,United States,Sunnyvale,Industrials
+327,BackBase,$2.66,6/9/2022,Netherlands,Amsterdam,Financial Services
+328,ManoMano,$2.60,7/5/2021,France,Paris,Consumer & Retail
+329,Sourcegraph,$2.62,7/13/2021,United States,San Francisco,Enterprise Tech
+330,Pendo,$2.60,10/17/2019,United States,Raleigh,Enterprise Tech
+331,Plume,$2.60,2/23/2021,United States,Palo Alto,Industrials
+332,Moglix,$2.60,5/17/2021,Singapore,Singapore City,Industrials
+333,Axonius,$2.60,3/1/2021,United States,New York,Enterprise Tech
+334,Xinchao Media,$2,4/9/2018,China,Chengdu,Media & Entertainment
+335,JumpCloud,$2.62,9/13/2021,United States,Louisville,Enterprise Tech
+336,Unico,$2.60,8/3/2021,Brazil,Sao Paulo,Enterprise Tech
+337,Bending Spoons,$2.55,2/15/2024,Italy,Milan,Consumer & Retail
+338,Oura,$2.55,4/5/2022,Finland,Oulu,Healthcare & Life Sciences
+339,JUST Egg,$2.59,11/30/2017,United States,San Francisco,Consumer & Retail
+340,Cribl,$2.50,8/25/2021,United States,San Francisco,Enterprise Tech
+341,Jetti Resources,$2.50,10/24/2022,United States,Boulder,Industrials
+342,ChaBaiDao,$2.52,6/9/2023,China,Chengdu,Consumer & Retail
+343,Claroty,$2.5,6/17/2021,United States,New York,Enterprise Tech
+344,AlphaSense,$2.5,6/15/2022,United States,New York,Enterprise Tech
+345,Moonshot AI,$2.5,2/19/2024,China,Beijing,Consumer & Retail
+346,Vista Global,$2.50,8/23/2017,United Arab Emirates,Dubai,Industrials
+347,BYTON,$2.50,4/20/2018,China,Nanjing,Industrials
+348,Side,$2.50,3/22/2021,United States,San Francisco,Financial Services
+349,Spring Health,$2.50,9/16/2021,United States,New York,Healthcare & Life Sciences
+350,Infra.Market,$2.50,2/25/2021,India,Thane,Industrials
+351,Varo Bank,$2.50,9/9/2021,United States,San Francisco,Financial Services
+352,Cato Networks,$3,11/17/2020,Israel,Tel Aviv,Enterprise Tech
+353,Aura,$2.50,6/9/2021,United States,Burlington,Consumer & Retail
+354,Vercel,$2.50,6/23/2021,United States,San Francisco,Enterprise Tech
+355,Sysdig,$2.50,4/28/2021,United States,San Francisco,Enterprise Tech
+356,Zetwerk,$2.8,8/20/2021,India,Bengaluru,Industrials
+357,Uniphore,$2.50,2/16/2022,United States,Palo Alto,Enterprise Tech
+358,Somatus,$2.50,2/23/2022,United States,McLean,Healthcare & Life Sciences
+359,Immutable,$2.50,3/7/2022,Australia,Sydney,Media & Entertainment
+360,A24 Films,$2.50,3/9/2022,United States,New York,Media & Entertainment
+361,SiFive,$2.50,3/16/2022,United States,San Mateo,Enterprise Tech
+362,Games24x7,$2.50,3/30/2022,India,Mumbai,Media & Entertainment
+363,Fetch,$2.50,3/31/2021,United States,Madison,Consumer & Retail
+364,Coda Payments,$2.50,4/15/2022,Singapore,Singapore City,Financial Services
+365,DriveNets,$2.50,1/27/2021,Israel,Ra'anana,Enterprise Tech
+366,Hibob,$2.45,10/12/2021,Israel,Tel Aviv,Enterprise Tech
+367,Uala,$2.45,8/13/2021,Argentina,Buenos Aires,Financial Services
+368,Mobile Premier League,$2.45,9/15/2021,India,Bengaluru,Media & Entertainment
+369,insitro,$2.44,3/15/2021,United States,South San Francisco,Healthcare & Life Sciences
+370,Cgtz,$2.41,2/21/2017,China,Hangzhou,Financial Services
+371,Star Charge,$2.41,5/19/2021,China,Changzhou,Industrials
+372,Carbon,$2.40,8/20/2015,United States,Redwood City,Industrials
+373,Rokt,$2.40,12/16/2021,United States,New York,Consumer & Retail
+374,Paxos,$2.40,4/29/2021,United States,New York,Financial Services
+375,Exabeam,$2.40,6/1/2021,United States,Foster City,Enterprise Tech
+376,BitSight Technologies,$2.40,9/13/2021,United States,Boston,Enterprise Tech
+377,Trumid,$2.40,7/15/2020,United States,New York,Financial Services
+378,ABL Space Systems,$2.40,3/25/2021,United States,El Segundo,Industrials
+379,HoneyBook,$2.40,5/4/2021,United States,San Francisco,Enterprise Tech
+380,Beta Technologies,$2.40,4/19/2022,United States,South Burlington,Industrials
+381,Project44,$2.62,6/1/2021,United States,Chicago,Enterprise Tech
+382,Freenome,$2.62,8/26/2020,United States,South San Francisco,Healthcare & Life Sciences
+383,ManyPets,$2.35,6/1/2021,United Kingdom,London,Insurance
+384,Jobandtalent,$2.35,12/1/2021,Spain,Madrid,Enterprise Tech
+385,WEMAKEPRICE,$2.34,9/9/2015,South Korea,Seoul,Consumer & Retail
+386,Biren Technology,$2.32,8/18/2020,China,Shanghai,Enterprise Tech
+387,Glean,$2.2,5/18/2022,United States,Palo Alto,Enterprise Tech
+388,Voodoo,$2.31,8/17/2020,France,Paris,Media & Entertainment
+389,Shield AI,$2.80,8/24/2021,United States,San Diego,Industrials
+390,Uptake,$2.30,10/27/2015,United States,Chicago,Industrials
+391,Motive,$2.85,4/23/2019,United States,San Francisco,Industrials
+392,Greenlight,$2.30,9/24/2020,United States,Atlanta,Financial Services
+393,MoMo,$2.27,12/10/2021,Vietnam,Ho Chi Minh City,Financial Services
+394,Algolia,$2.25,7/28/2021,United States,San Francisco,Enterprise Tech
+395,Pattern,$2.25,10/6/2021,United States,Lehi,Consumer & Retail
+396,Newfront Insurance,$2.20,4/12/2022,United States,San Francisco,Insurance
+397,NuCom Group,$2.20,2/22/2018,Germany,Unterfoehring,Consumer & Retail
+398,Skydio,$2.20,2/25/2021,United States,Redwood City,Industrials
+399,MUSINSA,$2.76,11/11/2019,South Korea,Seoul,Consumer & Retail
+400,Current,$2.20,4/27/2021,United States,New York,Financial Services
+401,Bitso,$2.20,5/5/2021,Mexico,Mexico City,Financial Services
+402,Gympass,$2.40,6/12/2019,United States,New York,Healthcare & Life Sciences
+403,Dialpad,$2.20,10/6/2020,United States,San Francisco,Enterprise Tech
+404,G7 Networks,$2.20,2/15/2022,China,Beijing,Industrials
+405,BloomReach,$2.20,2/23/2022,United States,Mountain View,Consumer & Retail
+406,Motif FoodWorks,$2.20,6/16/2021,United States,Boston,Industrials
+407,Accelerant,$2.4,1/12/2022,United Kingdom,Colchester,Insurance
+408,YITU Technology,$2.17,3/8/2018,China,Shanghai,Enterprise Tech
+409,Addepar,$2.17,6/15/2021,United States,Mountain View,Financial Services
+410,Qualia,$2.17,12/21/2020,United States,San Francisco,Financial Services
+411,Neo4j,$2,6/17/2021,United States,San Mateo,Enterprise Tech
+412,CloudWalk,$2.15,9/8/2021,Brazil,Sao Paulo,Financial Services
+413,CoinDCX,$2.15,8/10/2021,India,Maharashtra,Financial Services
+414,Eightfold,$2.10,10/27/2020,United States,Santa Clara,Enterprise Tech
+415,Urban Company,$2.10,4/27/2021,India,Gurgaon,Consumer & Retail
+416,Moveworks,$2.10,6/30/2021,United States,Mountain View,Enterprise Tech
+417,Medable,$2.10,10/26/2021,United States,Palo Alto,Healthcare & Life Sciences
+418,GoCardless,$2.10,2/8/2022,United Kingdom,London,Financial Services
+419,Aledade,$3.5,1/19/2021,United States,Bethesda,Healthcare & Life Sciences
+420,FirstCry,$3.75,2/7/2020,India,Pune,Consumer & Retail
+421,Forto,$2.10,6/21/2021,Germany,Berlin,Industrials
+422,Jeeves,$2.10,3/14/2022,United States,Orlando,Enterprise Tech
+423,Viva Wallet,$2.05,12/17/2022,Greece,Athens,Financial Services
+424,CoreWeave,$2.22,4/20/2023,United States,Roseland,Enterprise Tech
+425,Mistral AI,$2,12/10/2023,France,Paris,Enterprise Tech
+426,Babel Finance,$2,5/25/2022,Hong Kong,Hong Kong,Financial Services
+427,Trendy Group International,$2,2/13/2012,Hong Kong,Kowloon,Consumer & Retail
+428,GrubMarket,$2,9/14/2021,United States,San Francisco,Consumer & Retail
+429,BeZero,$2,11/14/2022,United Kingdom,London,Enterprise Tech
+430,Cohere,$2,5/2/2023,Canada,Toronto,Enterprise Tech
+431,GO1,$2,7/19/2021,Australia,Brisbane,Enterprise Tech
+432,Clear Street,$2,4/29/2022,United States,New York,Financial Services
+433,Drata,$2,11/8/2021,United States,San Diego,Enterprise Tech
+434,Mysten Labs,$2,9/8/2022,United States,San Francisco,Enterprise Tech
+435,Avant,$2,12/17/2012,United States,Chicago,Financial Services
+436,Tubatu.com,$2,3/9/2015,China,Shenzhen,Consumer & Retail
+437,BlaBlaCar,$2,9/16/2015,France,Paris,Consumer & Retail
+438,HuiMin,$2,9/5/2016,China,Beijing,Consumer & Retail
+439,Preferred Networks,$2,5/17/2018,Japan,Tokyo,Industrials
+440,Formlabs,$2,8/1/2018,United States,Somerville,Industrials
+441,Calm,$2,2/6/2019,United States,San Francisco,Healthcare & Life Sciences
+442,Kaseya,$2,3/27/2019,United States,Miami,Enterprise Tech
+443,Mafengwo,$2,5/23/2019,China,Beijing,Consumer & Retail
+444,Druva,$2,6/20/2019,United States,Sunnyvale,Enterprise Tech
+445,Kujiale,$2,10/25/2019,China,Hangzhou,Consumer & Retail
+446,AppsFlyer,$2,1/21/2020,United States,San Francisco,Enterprise Tech
+447,Redis,$2,8/25/2020,United States,Mountain View,Enterprise Tech
+448,Xingyun Group,$2,9/24/2020,China,Shenzhen,Consumer & Retail
+449,Unqork,$2,10/6/2020,United States,New York,Insurance
+450,Virta Health,$2,12/2/2020,United States,San Francisco,Healthcare & Life Sciences
+451,ISN,$2,12/17/2020,United States,Dallas,Industrials
+452,Earnix,$2,2/21/2021,Israel,Giv'atayim,Insurance
+453,Clearco,$2,4/20/2021,Canada,Toronto,Financial Services
+454,Hive,$2,4/21/2021,United States,San Francisco,Enterprise Tech
+455,Kry,$2,4/27/2021,Sweden,Stockholm,Healthcare & Life Sciences
+456,Kajabi,$2,5/4/2021,United States,Irvine,Media & Entertainment
+457,Ethos,$2.70,5/11/2021,United States,San Francisco,Insurance
+458,PayFit,$2.10,1/6/2022,United Kingdom,London,Enterprise Tech
+459,Beisen,$2,5/11/2021,China,Beijing,Enterprise Tech
+460,Pipe,$2,5/19/2021,United States,Miami,Financial Services
+461,Iterable,$2,6/15/2021,United States,San Francisco,Enterprise Tech
+462,Astronergy,$1.82,7/25/2023,China,Haining,Industrials
+463,Helsing,$1.82,9/14/2023,Germany,Munchen,Enterprise Tech
+464,Bunq,$1.8,6/18/2021,Netherlands,Amsterdam,Financial Services
+465,Quest Global,$1.8,8/8/2023,Singapore,Singapore City,Industrials
+466,Clip,$2,6/10/2021,Mexico,Mexico City,Financial Services
+467,Loggi,$2,6/5/2019,Brazil,Sao Paulo,Industrials
+468,MURAL,$2,7/20/2021,United States,San Francisco,Enterprise Tech
+469,OCSiAl,$2,3/4/2019,Luxembourg,Leudelange,Industrials
+470,XtalPi,$2,8/11/2021,China,Shenzhen,Healthcare & Life Sciences
+471,Divvy Homes,$2,8/13/2021,United States,San Francisco,Financial Services
+472,Apeel Sciences,$2,5/26/2020,United States,Goleta,Consumer & Retail
+473,Opay,$2,8/23/2021,Nigeria,Lagos,Financial Services
+474,Aviatrix,$2,9/8/2021,United States,Santa Clara,Enterprise Tech
+475,SmartNews,$2,8/5/2019,Japan,Tokyo,Media & Entertainment
+476,Misfits Market,$2,4/21/2021,United States,Pennsauken,Consumer & Retail
+477,Black Sesame Technologies,$2,9/22/2021,China,Shanghai,Industrials
+478,Advance Intelligence Group,$2,9/23/2021,Singapore,Singapore City,Financial Services
+479,Modern Treasury,$2,10/6/2021,United States,San Francisco,Financial Services
+480,Magic Leap,$2,10/21/2014,United States,Plantation,Enterprise Tech
+481,ClickHouse,$2,10/28/2021,United States,Portola Valley,Enterprise Tech
+482,Everlaw,$2,3/10/2020,United States,Oakland,Enterprise Tech
+483,Zilch,$2,11/10/2021,United Kingdom,London,Financial Services
+484,VerbIT,$2,6/8/2021,United States,New York,Enterprise Tech
+485,StarkWare,$8,11/17/2021,Israel,Netanya,Enterprise Tech
+486,Netlify,$2,11/17/2021,United States,San Francisco,Enterprise Tech
+487,SWORD Health,$2,11/22/2021,United States,New York,Healthcare & Life Sciences
+488,LTK,$2,11/22/2021,United States,Dallas,Media & Entertainment
+489,Trax,$2,7/22/2019,Singapore,Singapore City,Consumer & Retail
+490,Exotec,$2,1/17/2022,France,Croix,Industrials
+491,Dremio,$2,1/6/2021,United States,Santa Clara,Enterprise Tech
+492,Akulaku,$2,2/15/2022,Indonesia,Jakarta,Financial Services
+493,Cloudinary,$2,2/15/2022,United States,Santa Clara,Media & Entertainment
+494,Lunar,$2,7/12/2021,Denmark,Aarhus,Financial Services
+495,UpGrad,$2.25,8/9/2021,India,Mumbai,Consumer & Retail
+496,Salsify,$2,4/13/2022,United States,Boston,Consumer & Retail
+497,CertiK,$2,3/31/2022,United States,New York,Enterprise Tech
+498,ROX Motor,$2,4/29/2022,China,Shanghai,Industrials
+499,Devo Technology,$2,10/26/2021,United States,Cambridge,Enterprise Tech
+500,ShiftKey,$2,1/11/2023,United States,Dallas,Healthcare & Life Sciences
+501,Rimac Automobili,$2,6/1/2022,Croatia,Sveta Nedelja,Industrials
+502,Geek+,$2,11/21/2018,China,Beijing,Industrials
+503,21.co,$2,9/6/2022,United States,New York,Financial Services
+504,Solugen,$2,9/10/2021,United States,Houston,Industrials
+505,ZigBang,$1.93,6/7/2022,South Korea,Seoul,Financial Services
+506,Ankorstore,$1.98,1/10/2022,France,Paris,Consumer & Retail
+507,InVision,$1.90,11/1/2017,United States,New York,Enterprise Tech
+508,eDaili,$1.90,2/1/2019,China,Shanghai,Financial Services
+509,commercetools,$1.90,9/13/2021,Germany,Munich,Enterprise Tech
+510,NinjaOne,$1.90,2/6/2024,United States,Austin,Enterprise Tech
+511,MX,$1.90,1/13/2021,United States,Lehi,Financial Services
+512,CoinSwitch,$1.90,10/6/2021,India,Bangalore,Financial Services
+513,Acorns,$1.90,3/9/2022,United States,Irvine,Financial Services
+514,Fever,$1.96,1/26/2022,United States,New York,Media & Entertainment
+515,Roofstock,$1.94,3/10/2022,United States,Oakland,Financial Services
+516,thatgamecompany,$1.94,3/3/2022,United States,Los Angeles,Media & Entertainment
+517,ConcertAI,$1.90,3/29/2022,United States,Boston,Healthcare & Life Sciences
+518,Material Bank,$1.90,5/6/2022,United States,Boca Raton,Industrials
+519,Volocopter,$1.87,3/4/2022,Germany,Bruchsal,Industrials
+520,ENOVATE,$1.85,4/15/2019,China,Shanghai,Industrials
+521,MEGAZONE,$1.83,8/16/2022,South Korea,Seoul,Enterprise Tech
+522,CFGI,$1.85,9/15/2021,United States,Boston,Financial Services
+523,ZocDoc,$1.80,8/20/2015,United States,New York,Healthcare & Life Sciences
+524,Scroll,$1.80,3/14/2023,Seychelles,Victoria,Financial Services
+525,Diamond Foundry,$1.80,3/29/2021,United States,San Francisco,Industrials
+526,Quantexa,$1.80,4/3/2023,United Kingdom,London,Enterprise Tech
+527,FullStory,$1.80,8/4/2021,United States,Atlanta,Enterprise Tech
+528,Lightricks,$1.80,7/31/2019,Israel,Jerusalem,Media & Entertainment
+529,Opentrons,$1.80,9/23/2021,United States,New York,Healthcare & Life Sciences
+530,Kindbody,$1.80,3/2/2023,United States,Kindbody,Healthcare & Life Sciences
+531,Slice,$1.80,11/28/2021,India,Bengaluru,Financial Services
+532,Cambrian BioPharma,$1.79,10/26/2021,United States,Brooklyn,Healthcare & Life Sciences
+533,AIWAYS,$1.78,4/16/2018,China,Shanghai,Industrials
+534,Trulioo,$1.75,6/7/2021,Canada,Vancouver,Financial Services
+535,BitGo,$1.75,8/16/2023,United States,Palo Alto,Financial Services
+536,Spinny,$1.75,11/24/2021,India,Gurugram,Industrials
+537,Crusoe,$1.75,4/21/2022,United States,Denver,Industrials
+538,Orca Security,$1.80,3/23/2021,United States,Portland,Enterprise Tech
+539,Apus Group,$1.73,1/16/2015,China,Beijing,Consumer & Retail
+540,Razor,$1.7,11/8/2021,Germany,Berlin,Consumer & Retail
+541,Micro Connect,$1.70,8/2/2023,Hong Kong,Hong Kong,Financial Services
+542,DailyPay,$1.70,5/18/2021,United States,New York,Financial Services
+543,Udaan,$1.70,9/4/2018,India,Bengaluru,Consumer & Retail
+544,Harry's,$1.70,2/16/2018,United States,New York,Consumer & Retail
+545,PAX,$1.70,10/22/2018,United States,San Francisco,Consumer & Retail
+546,DispatchHealth,$1.70,3/3/2021,United States,Denver,Healthcare & Life Sciences
+547,Pax8,$1.70,4/11/2022,United States,Greenwood Village,Enterprise Tech
+548,Multiverse,$1.70,6/8/2022,United Kingdom,London,Enterprise Tech
+549,Front,$1.70,6/28/2022,United States,San Francisco,Enterprise Tech
+550,Redesign Health,$1.70,9/13/2022,United States,New York,Healthcare & Life Sciences
+551,Tessera Therapeutics,$1.69,4/19/2022,United States,Cambridge,Healthcare & Life Sciences
+552,Ascend Elements,$1.67,9/6/2023,United States,Westborough,Industrials
+553,Uniswap,$1.66,10/13/2022,United States,New York,Financial Services
+554,Kredivo Holdings,$1.66,8/15/2022,Singapore,Singapore City,Financial Services
+555,Unite Us,$1.60,3/16/2021,United States,New York,Healthcare & Life Sciences
+556,CircleCI,$1.70,5/11/2021,United States,San Francisco,Enterprise Tech
+557,Wave,$1.70,9/7/2021,Senegal,Dakar,Financial Services
+558,Dragos,$1.70,10/28/2021,United States,Hanover,Industrials
+559,Reltio,$1.70,11/4/2021,United States,Redwood City,Enterprise Tech
+560,H2O.ai,$1.70,11/7/2021,United States,Mountain View,Enterprise Tech
+561,ZenBusiness,$1.70,11/9/2021,United States,Austin,Enterprise Tech
+562,Carsome,$1.70,7/12/2021,Malaysia,Selangor,Industrials
+563,Productboard,$1.73,2/2/2022,United States,San Francisco,Enterprise Tech
+564,Spotter,$1.70,2/16/2022,United States,Los Angeles,Financial Services
+565,Optimism,$1.65,3/17/2022,United States,San Francisco,Enterprise Tech
+566,Incredible Health,$1.65,8/17/2022,United States,San Francisco,Healthcare & Life Sciences
+567,Jusfoun Big Data,$1.62,7/9/2018,China,Beijing,Enterprise Tech
+568,Transcarent,$1.62,1/11/2022,United States,San Francisco,Healthcare & Life Sciences
+569,DealShare,$1.70,1/27/2022,India,Bengaluru,Consumer & Retail
+570,Zhubajie,$1.61,6/16/2015,China,Chongqing,Enterprise Tech
+571,Solaris,$1.6,7/13/2021,Germany,Berlin,Financial Services
+572,Apollo,$1.6,8/29/2023,United States,Covina,Enterprise Tech
+573,DataStax,$1.60,5/26/2021,United States,Santa Clara,Enterprise Tech
+574,Infinidat,$1.60,4/29/2015,United States,Waltham,Enterprise Tech
+575,Afiniti,$1.60,4/14/2017,Bermuda,Hamilton,Enterprise Tech
+576,Cao Cao Mobility,$1.60,1/17/2018,China,Hangzhou,Industrials
+577,Clari,$2.60,3/3/2021,United States,Sunnyvale,Enterprise Tech
+578,Clio,$1.60,4/27/2021,Canada,Burnaby,Enterprise Tech
+579,SafetyCulture,$1.76,5/3/2021,Australia,Sydney,Industrials
+580,Monte Carlo,$1.60,5/24/2022,United States,San Francisco,Enterprise Tech
+581,Cresta,$1.60,3/17/2022,United States,San Francisco,Enterprise Tech
+582,Extend,$1.36,5/18/2021,United States,San Francisco,Insurance
+583,Employment Hero,$1.37,10/18/2023,Australia,Sydney,Enterprise Tech
+584,Generate Biomedicines,$1.36,11/18/2021,United States,Cambridge,Healthcare & Life Sciences
+585,Lambda Labs,$1.50,10/5/2023,United States,San Francisco,Enterprise Tech
+586,Cognite,$1.50,5/19/2021,Norway,Lysaker,Industrials
+587,ASAPP,$1.60,5/19/2021,United States,New York,Enterprise Tech
+588,SmartHR,$1.60,6/8/2021,Japan,Tokyo,Enterprise Tech
+589,Mercury,$1.60,7/3/2021,United States,San Francisco,Financial Services
+590,HomeLight,$1.70,9/2/2021,United States,San Francisco,Financial Services
+591,Truepill,$1.60,10/27/2021,United States,Hayward,Healthcare & Life Sciences
+592,ezCater,$1.60,4/2/2019,United States,Boston,Consumer & Retail
+593,Wayflyer,$1.60,2/1/2022,Ireland,Dublin,Financial Services
+594,Capitolis,$1.60,3/22/2022,United States,New York,Financial Services
+595,Vanta,$1.60,6/7/2022,United States,San Francisco,Enterprise Tech
+596,Magic Eden,$1.60,6/21/2022,United States,San Francisco,Media & Entertainment
+597,Pave,$1.60,6/28/2022,United States,San Francisco,Enterprise Tech
+598,Astranis,$1.60,4/14/2021,United States,San Francisco,Industrials
+599,Promasidor Holdings,$1.59,11/8/2016,South Africa,Bryanston,Consumer & Retail
+600,GalaxySpace,$1.58,11/17/2020,China,Beijing,Industrials
+601,Icon,$1.57,2/18/2022,United States,Austin,Industrials
+602,Fresh Life Style Supply Chain Management,$1.57,3/11/2022,China,Chengdu,Consumer & Retail
+603,Alloy,$1.55,9/30/2021,United States,New York,Financial Services
+604,Baiwang,$1.55,3/25/2019,China,Beijing,Enterprise Tech
+605,Iluvatar CoreX,$1.55,3/1/2021,China,Shanghai,Enterprise Tech
+606,Wenheyou,$1.55,4/17/2021,China,Hunan,Consumer & Retail
+607,Kitopi,$1.55,7/1/2021,United Arab Emirates,Dubai,Consumer & Retail
+608,Ximalaya FM,$1.52,9/22/2017,China,Shanghai,Media & Entertainment
+609,Carzone,$1.52,3/1/2019,China,Jiangsu,Industrials
+610,Tabby,$1.50,11/1/2023,United Arab Emirates,Dubai,Financial Services
+611,Runway,$1.50,5/4/2023,United States,New York,Media & Entertainment
+612,OpenWeb,$1.50,11/9/2021,United States,New York,Media & Entertainment
+613,bolttech,$1.50,7/1/2021,Singapore,Singapore City,Insurance
+614,First Mode,$1.50,12/7/2022,United States,Seattle,Industrials
+615,Mu Sigma,$1.50,2/7/2013,United States,Northbrook,Enterprise Tech
+616,Kushki,$1.50,6/7/2022,Ecuador,Quito,Financial Services
+617,Jasper,$1.50,10/17/2022,United States,Austin,Enterprise Tech
+618,Orna Therapeutics,$1.50,8/16/2022,United States,Cambridge,Healthcare & Life Sciences
+619,TuJia,$1.50,6/17/2015,China,Beijing,Consumer & Retail
+620,Mofang Living,$1.50,4/13/2016,China,Shanghai,Consumer & Retail
+621,Gett,$1.50,5/24/2016,United Kingdom,London,Industrials
+622,DT Dream,$1.50,6/8/2017,China,Hangzhou,Enterprise Tech
+623,Changingedu,$1.50,10/30/2017,China,Shanghai,Consumer & Retail
+624,XiaoZhu,$1.50,11/1/2017,China,Beijing,Consumer & Retail
+625,JOLLY Information Technology,$1.50,5/29/2018,China,Hangzhou,Consumer & Retail
+626,Yijiupi,$1.50,9/20/2018,China,Beijing,Consumer & Retail
+627,Cambridge Mobile Telematics,$1.50,12/19/2018,United States,Cambridge,Insurance
+628,Collective Health,$1.50,6/17/2019,United States,San Francisco,Healthcare & Life Sciences
+629,Strava,$1.50,11/16/2020,United States,San Francisco,Healthcare & Life Sciences
+630,Zenoti,$1.50,12/15/2020,United States,Bellevue,Consumer & Retail
+631,K Health,$1.50,1/19/2021,United States,New York,Healthcare & Life Sciences
+632,Uplight,$1.50,3/3/2021,United States,Boulder,Industrials
+633,ID.me,$1.50,3/19/2021,United States,McLean,Consumer & Retail
+634,Snapdocs,$1.50,5/25/2021,United States,San Francisco,Financial Services
+635,Chipper Cash,$2,5/31/2021,United States,San Francisco,Financial Services
+636,SHIFT UP,$1.47,10/27/2023,South Korea,Seoul,Media & Entertainment
+637,Ledger,$1.47,6/10/2021,France,Paris,Financial Services
+638,Next Silicon,$1.50,6/14/2021,Israel,Tel Aviv,Enterprise Tech
+639,YQNlink,$1.50,6/29/2021,China,Shanghai,Industrials
+640,impact.com,$1.50,7/13/2021,United States,Santa Barbara,Enterprise Tech
+641,SmartRecruiters,$1.50,7/20/2021,United States,San Francisco,Enterprise Tech
+642,NotCo,$1.50,7/26/2021,Chile,Santiago,Consumer & Retail
+643,Culture Amp,$1.50,7/29/2021,Australia,Richmond,Enterprise Tech
+644,TaxBit,$1.50,8/4/2021,United States,Draper,Financial Services
+645,Pacaso,$1.50,3/24/2021,United States,Cincinnati,Financial Services
+646,1047 Games,$1.50,9/14/2021,United States,Zephyr Cove,Media & Entertainment
+647,Matillion,$1.50,9/15/2021,United Kingdom,Altrincham,Enterprise Tech
+648,Persona,$1.50,9/15/2021,United States,San Francisco,Enterprise Tech
+649,Ascend Money,$1.50,9/27/2021,Thailand,Bangkok,Financial Services
+650,Andela,$1.50,9/29/2021,United States,New York,Enterprise Tech
+651,Built,$1.50,9/30/2021,United States,Nashville,Financial Services
+652,CoinList,$1.50,10/15/2021,United States,San Francisco,Financial Services
+653,Lusha,$1.50,11/10/2021,United States,New York,Enterprise Tech
+654,cult.fit,$1.50,11/10/2021,India,Bengaluru,Healthcare & Life Sciences
+655,Olist,$1.50,12/15/2021,Brazil,Curitiba,Consumer & Retail
+656,Paradox,$1.50,12/27/2021,United States,Scottsdale,Enterprise Tech
+657,Airbyte,$1.50,12/17/2021,United States,San Francisco,Enterprise Tech
+658,StoreDot,$1.50,1/4/2022,Israel,Herzliya,Industrials
+659,Spendesk,$1.50,1/18/2022,France,Paris,Enterprise Tech
+660,Veriff,$1.50,1/26/2022,Estonia,Tallinn,Enterprise Tech
+661,ElasticRun,$1.50,2/7/2022,India,Pune,Industrials
+662,Veho,$1.50,12/21/2021,United States,Boulder,Consumer & Retail
+663,Temporal,$1.50,2/16/2022,United States,Bellevue,Enterprise Tech
+664,Fabric,$1.50,2/24/2022,United States,Bellevue,Consumer & Retail
+665,Zeta,$1.50,5/24/2021,United States,San Francisco,Financial Services
+666,Boba,$1.50,4/5/2022,United States,San Francisco,Enterprise Tech
+667,Upside,$1.50,4/26/2022,United States,DC,Consumer & Retail
+668,Mashgin,$1.50,5/9/2022,United States,Palo Alto,Consumer & Retail
+669,Dock,$1.50,5/12/2022,Brazil,Sao Paulo,Financial Services
+670,Prometheus,$1.50,9/23/2021,United States,Santa Cruz,Industrials
+671,5ire,$1.50,7/15/2022,United Kingdom,London,Enterprise Tech
+672,Yipin Shengxian,$1.49,3/11/2019,China,Hefei,Consumer & Retail
+673,Bordrin Motors,$1.48,6/3/2019,China,Shanghai,Industrials
+674,Arcadia,$1.48,5/10/2022,United States,DC,Enterprise Tech
+675,VTS,$1.47,5/7/2019,United States,New York,Financial Services
+676,Shukun Technology,$1.46,8/16/2021,China,Beijing,Healthcare & Life Sciences
+677,Huasun,$1.46,1/19/2023,China,Xuancheng,Industrials
+678,Loft,$1.46,1/3/2020,Brazil,Sao Paulo,Financial Services
+679,Coocaa,$1.45,3/16/2018,China,Shenzhen,Media & Entertainment
+680,Juma Peisong,$1.45,11/26/2018,China,Chengdu,Industrials
+681,Ouyeel,$1.45,6/27/2019,China,Shanghai,Industrials
+682,Gymshark,$1.45,8/14/2020,United Kingdom,Solihull,Consumer & Retail
+683,M1,$1.45,7/14/2021,United States,Chicago,Financial Services
+684,Aleo,$1.45,2/7/2022,United States,San Francisco,Enterprise Tech
+685,Einride,$1.44,12/31/2021,Sweden,Stockholm,Industrials
+686,Justworks,$1.43,1/28/2020,United States,New York,Enterprise Tech
+687,Valgen Medtech,$1.43,5/6/2021,China,Hangzhou,Healthcare & Life Sciences
+688,SonderMind,$1.42,7/28/2021,United States,Denver,Healthcare & Life Sciences
+689,Fox Ess,$1.40,5/26/2023,China,Wenzhou,Industrials
+690,Zepto,$1.40,8/25/2023,India,Mumbai,Consumer & Retail
+691,Amagi,$1.40,3/16/2022,India,Bengaluru,Media & Entertainment
+692,Liquid Death,$1.40,3/11/2024,United States,Santa Monica,Consumer & Retail
+693,Papa,$1.40,11/4/2021,United States,Miami,Healthcare & Life Sciences
+694,Xpressbees,$1.40,2/9/2022,India,Pune,Consumer & Retail
+695,Figment,$1.40,12/20/2021,Canada,Toronto,Financial Services
+696,Envoy,$1.40,1/11/2022,United States,San Francisco,Enterprise Tech
+697,Deliverect,$1.40,1/24/2022,Belgium,Ghent,Consumer & Retail
+698,SparkCognition,$1.40,1/25/2022,United States,Austin,Enterprise Tech
+699,Liquidity,$1.40,2/20/2023,Israel,Tel Aviv,Financial Services
+700,Firebolt,$1.40,1/26/2022,Israel,Tel Aviv,Enterprise Tech
+701,AI21 Labs,$1.40,8/30/2023,Israel,Tel Aviv,Enterprise Tech
+702,Koudai,$1.40,10/23/2014,China,Beijing,Consumer & Retail
+703,Symphony,$1.40,5/16/2017,United States,New York,Financial Services
+704,Yidian Zixun,$1.40,10/17/2017,China,Beijing,Media & Entertainment
+705,Cabify,$1.40,1/22/2018,Spain,Madrid,Industrials
+706,Hive Box,$1.40,1/23/2018,China,Shenzhen,Consumer & Retail
+707,Away,$1.40,5/15/2019,United States,New York,Consumer & Retail
+708,Kong,$1.40,12/31/2020,United States,San Francisco,Enterprise Tech
+709,Epidemic Sound,$1.40,3/11/2021,Sweden,Stockholm,Media & Entertainment
+710,Yotpo,$1.40,3/18/2021,United States,New York,Consumer & Retail
+711,Rebel Foods,$1.40,10/7/2021,India,Pune,Consumer & Retail
+712,Coda,$1.40,7/8/2021,United States,Mountain View,Enterprise Tech
+713,Stash,$1.40,2/3/2021,United States,New York,Financial Services
+714,Rad Power Bikes,$1.40,10/28/2021,United States,Seattle,Industrials
+715,Clarify Health,$1.40,4/5/2022,United States,San Francisco,Healthcare & Life Sciences
+716,Bucketplace,$1.40,5/9/2022,South Korea,Seoul,Consumer & Retail
+717,Paddle,$1.40,5/9/2022,United Kingdom,London,Enterprise Tech
+718,OneCard,$1.40,7/13/2022,India,Pune,Financial Services
+719,boAT,$1.40,10/28/2022,India,Mumbai,Consumer & Retail
+720,Phenom People,$1.40,4/7/2021,United States,Ambler,Enterprise Tech
+721,GupShup,$1.40,4/8/2021,United States,San Francisco,Enterprise Tech
+722,Degreed,$1.40,4/13/2021,United States,Pleasanton,Enterprise Tech
+723,Scalable Capital,$1.40,6/8/2021,Germany,Munich,Financial Services
+724,VideoAmp,$1.40,10/21/2021,United States,Los Angeles,Enterprise Tech
+725,Panther Labs,$1.40,12/2/2021,United States,San Francisco,Enterprise Tech
+726,Salt Security,$1.40,2/10/2022,United States,Palo Alto,Enterprise Tech
+727,Tripledot,$1.40,2/14/2022,United Kingdom,London,Media & Entertainment
+728,Nimble Rx,$1.40,6/14/2022,United States,Redwood City,Healthcare & Life Sciences
+729,Veepee,$1.38,7/2/2007,France,La Plaine Saint-Denis,Consumer & Retail
+730,Neon,$1.38,2/14/2022,Brazil,Sao Paulo,Financial Services
+731,Movable Ink,$1.36,4/28/2022,United States,New York,Enterprise Tech
+732,Patreon,$1.35,9/2/2020,United States,San Francisco,Media & Entertainment
+733,DeepBlue Technology,$1.35,4/16/2018,China,Shanghai,Consumer & Retail
+734,Klook,$1.35,8/7/2018,Hong Kong,Central,Consumer & Retail
+735,Epirus,$1.35,2/14/2022,United States,Hawthorne,Industrials
+736,Signifyd,$1.34,4/15/2021,United States,San Jose,Consumer & Retail
+737,Jaguar Microsystems,$1.34,6/23/2022,China,Shenzhen,Industrials
+738,Motorway,$1.33,11/29/2021,United Kingdom,London,Industrials
+739,RIDI,$1.33,1/24/2022,South Korea,Seoul,Media & Entertainment
+740,Lyten,$1.33,9/12/2023,United States,San Jose,Industrials
+741,Flipboard,$1.32,7/22/2015,United States,Palo Alto,Media & Entertainment
+742,GPclub,$1.32,10/22/2018,South Korea,Seoul,Consumer & Retail
+743,Tongdun Technology,$1.32,4/25/2019,China,Hangzhou,Enterprise Tech
+744,Athletic Greens,$1.32,1/25/2022,United States,New York,Healthcare & Life Sciences
+745,Unisound,$1.31,7/19/2018,China,Beijing,Enterprise Tech
+746,Alzheon,$1.31,9/30/2020,United States,Framingham,Healthcare & Life Sciences
+747,MasterControl,$1.30,12/15/2022,United States,Salt Lake City,Healthcare & Life Sciences
+748,eFishery,$1.30,5/25/2023,Indonesia,Bandung,Industrials
+749,Zum,$1.30,01/31/2024,United States,Redwood City,Industrials
+750,HeartFlow,$1.30,12/4/2017,United States,Redwood City,Healthcare & Life Sciences
+751,Shiprocket,$1.23,8/16/2022,India,New Delhi,Consumer & Retail
+752,The Brandtech Group,$1.30,11/19/2019,United States,New York,Enterprise Tech
+753,HashKeyHashKey,$1.30,01/16/2024,Hong Kong,Hong Kong,Financial Services
+754,Insightec,$1.30,3/6/2020,Israel,Tirat Carmel,Healthcare & Life Sciences
+755,Everly Health,$1.30,12/3/2020,United States,Austin,Healthcare & Life Sciences
+756,Manner,$1.30,12/24/2020,China,Shanghai,Consumer & Retail
+757,TalkingData,$1.30,1/6/2021,China,Beijing,Enterprise Tech
+758,DistroKid,$1.30,8/16/2021,United States,New York,Media & Entertainment
+759,Konfio,$1.30,9/29/2021,Mexico,Mexico City,Financial Services
+760,Betterment,$1.30,9/29/2021,United States,New York,Financial Services
+761,Flock Freight,$1.30,10/20/2021,United States,Encinitas,Industrials
+762,YugaByte,$1.30,10/28/2021,United States,Sunnyvale,Enterprise Tech
+763,Lukka,$1.30,1/14/2022,United States,New York,Financial Services
+764,TravelPerk,$1.30,1/12/2022,Spain,Barcelona,Enterprise Tech
+765,iTrustCapital,$1.30,1/11/2022,United States,Long Beach,Financial Services
+766,Domestika,$1.30,1/27/2022,United States,Berkeley,Media & Entertainment
+767,CoinTracker,$1.30,1/27/2022,United States,San Francisco,Financial Services
+768,Loadsmart,$1.30,2/1/2022,United States,New York,Industrials
+769,TUNGEE,$1.30,12/15/2021,China,Guangzhou,Enterprise Tech
+770,Yubi,$1.5,3/7/2022,India,Chennai,Financial Services
+771,LinkTree,$1.30,3/16/2022,Australia,Melbourne,Media & Entertainment
+772,Island,$1.5,3/23/2022,United States,Dallas,Enterprise Tech
+773,Clipboard Health,$1.30,2/1/2022,United States,San Francisco,Healthcare & Life Sciences
+774,Biofourmis,$1.30,4/26/2022,United States,Boston,Healthcare & Life Sciences
+775,STORD,$1.30,9/13/2021,United States,Atlanta,Industrials
+776,Optibus,$1.30,5/16/2022,Israel,Tel Aviv,Industrials
+777,Keyfactor,$1.30,10/24/2023,United States,Independence,Enterprise Tech
+778,Equashield,$1.30,10/6/2022,United States,Port Washington,Healthcare & Life Sciences
+779,Intercom,$1.28,3/27/2018,United States,San Francisco,Enterprise Tech
+780,OVO Energy,$1.28,2/14/2019,United Kingdom,Bristol,Industrials
+781,Huisuanzhang,$1.28,5/24/2021,China,Beijing,Financial Services
+782,WTOIP,$1.27,4/8/2018,China,Guangzhou,Enterprise Tech
+783,PeopleCert,$1.27,6/23/2021,Greece,Athens,Enterprise Tech
+784,Greater Bay Technology,$1.26,4/2/2022,China,Guangzhou,Industrials
+785,JMGO,$1.26,3/15/2022,China,Shenzhen,Industrials
+786,BigID,$1.25,12/16/2020,United States,New York,Enterprise Tech
+787,Polyhedra Network,$1.25,03/14/2024,United States,San Francisco,Enterprise Tech
+788,Kuaikan Manhua,$1.25,12/1/2017,China,Beijing,Media & Entertainment
+789,Marshmallow,$1.25,9/8/2021,United Kingdom,London,Insurance
+790,Honor Technology,$1.25,10/5/2021,United States,San Francisco,Healthcare & Life Sciences
+791,Together AI,$1.25,3/13/2024,United States,San Francisco,Enterprise Tech
+792,QI Tech,$1,10/31/2023,Brazil,Sao Paulo,Financial Services
+793,Mythical Games,$1,11/4/2021,United States,Sherman Oaks,Media & Entertainment
+794,Incode Technologies,$1.25,12/7/2021,United States,San Francisco,Enterprise Tech
+795,Tackle.io,$1.25,12/21/2021,United States,Boise,Enterprise Tech
+796,Flipdish,$1.25,1/13/2022,Ireland,Dublin,Consumer & Retail
+797,CaptivateIQ,$1.25,1/26/2022,United States,San Francisco,Enterprise Tech
+798,Talos,$1.25,5/10/2022,United States,New York,Financial Services
+799,airSlate,$1.25,6/16/2022,United States,Brookline,Enterprise Tech
+800,ClassDojo,$1.25,7/21/2022,United States,San Francisco,Consumer & Retail
+801,BrewDog,$1.24,4/10/2017,United Kingdom,Aberdeen,Consumer & Retail
+802,Enflame,$1.24,1/5/2021,China,Shanghai,Enterprise Tech
+803,Shulan Health,$1.24,3/1/2021,China,Hangzhou,Healthcare & Life Sciences
+804,SeatGeek,$1.24,8/31/2022,United States,New York,Media & Entertainment
+805,Nexii,$1.23,9/8/2021,Canada,Vancouver,Industrials
+806,InDrive,$1.23,2/1/2021,United States,Mountain View,Industrials
+807,Spiber,$1.22,9/8/2021,Japan,Tsuruoka,Industrials
+808,Insider,$2,2/28/2022,Turkey,Istanbul,Enterprise Tech
+809,Kallyope,$1.22,2/15/2022,United States,New York,Healthcare & Life Sciences
+810,Zip,$1.50,5/25/2022,United States,San Francisco,Enterprise Tech
+811,Cart.com,$1.20,6/27/2023,United States,Austin,Consumer & Retail
+812,Replit,$1.05,4/25/2023,United States,San Francisco,Enterprise Tech
+813,Mews,$1.20,3/4/2024,Netherlands,Amsterdam,Enterprise Tech
+814,Our Next Energy,$1.20,2/1/2023,United States,Novi,Industrials
+815,Lightmatter,$1.20,12/19/2023,United States,Mountain View,Enterprise Tech
+816,Castore,$1.20,11/29/2023,United Kingdom,Manchester,Consumer & Retail
+817,Yiguo,$1.20,11/9/2016,China,Shanghai,Consumer & Retail
+818,Glossier,$1.65,3/19/2019,United States,New York,Consumer & Retail
+819,Workhuman,$1.20,6/23/2020,Ireland,Dublin,Enterprise Tech
+820,Qumulo,$1.20,7/16/2020,United States,Seattle,Enterprise Tech
+821,Tealium,$1.20,2/3/2021,United States,San Diego,Enterprise Tech
+822,Public,$1.20,2/17/2021,United States,New York,Financial Services
+823,Pipa Coding,$1.20,3/25/2021,China,Beijing,Consumer & Retail
+824,Pilot,$1.20,3/26/2021,United States,San Francisco,Financial Services
+825,Aibee,$1.20,4/13/2021,China,Beijing,Enterprise Tech
+826,Vectra Networks,$1.20,4/29/2021,United States,San Jose,Enterprise Tech
+827,Ada,$1.20,5/7/2021,Canada,Toronto,Enterprise Tech
+828,SmartMore,$1.20,6/24/2021,China,Shenzhen,Industrials
+829,Rohlik Group,$1.20,7/1/2021,Czech Republic,Prague,Consumer & Retail
+830,FloQast,$1.20,7/21/2021,United States,Los Angeles,Financial Services
+831,MindTickle,$1.20,8/3/2021,United States,San Francisco,Enterprise Tech
+832,Offchain Labs,$1.20,8/31/2021,United States,Princeton,Enterprise Tech
+833,Copado,$1.20,9/13/2021,United States,Chicago,Enterprise Tech
+834,Gem,$1.20,9/28/2021,United States,San Francisco,Enterprise Tech
+835,CarDekho,$1.20,10/13/2021,India,Jaipur,Industrials
+836,The Good Glamm Group,$1.20,11/10/2021,India,Mumbai,Consumer & Retail
+837,AgentSync,$1.20,12/7/2021,United States,Denver,Insurance
+838,Pristyn Care,$1.40,12/7/2021,India,Gurugram,Healthcare & Life Sciences
+839,Merama,$1.20,12/9/2021,Mexico,Mexico City,Consumer & Retail
+840,SeekOut,$1.20,1/12/2022,United States,Bellevue,Enterprise Tech
+841,BigPanda,$1.20,1/12/2022,United States,Mountain View,Enterprise Tech
+842,Phantom,$1.20,1/31/2022,United States,San Francisco,Financial Services
+843,LivSpace,$1.20,2/8/2022,India,Bengaluru,Consumer & Retail
+844,Nova Labs,$1.20,2/22/2022,United States,San Francisco,Enterprise Tech
+845,Choco,$1.20,4/12/2022,Germany,Berlin,Consumer & Retail
+846,Viz.ai,$1.20,4/7/2022,United States,San Francisco,Healthcare & Life Sciences
+847,Unit,$1.20,5/17/2022,United States,New York,Financial Services
+848,stori,$1.20,7/15/2022,Mexico,Juarez,Financial Services
+849,Spectrum Medical,$1.20,7/18/2022,United Kingdom,Gloucester,Healthcare & Life Sciences
+850,Swiftly,$1.20,9/19/2022,United States,Seattle,Consumer & Retail
+851,CloudBees,$1.15,12/9/2021,United States,San Jose,Enterprise Tech
+852,Flink,$1.07,12/1/2021,Germany,Berlin,Consumer & Retail
+853,Colossal,$1.19,1/31/2023,United States,Austin,Healthcare & Life Sciences
+854,L&P Cosmetic,$1.19,1/1/2016,South Korea,Seoul,Consumer & Retail
+855,Mininglamp Technology,$1.19,3/27/2019,China,Beijing,Enterprise Tech
+856,Vestiaire Collective,$1.18,3/1/2021,France,Paris,Consumer & Retail
+857,Luoji Siwei,$1.18,7/20/2017,China,Beijing,Media & Entertainment
+858,Yimidida,$1.17,1/14/2019,China,Shanghai,Industrials
+859,Modern Health,$1.17,2/11/2021,United States,San Francisco,Healthcare & Life Sciences
+860,IRL,$1.17,6/15/2021,United States,San Francisco,Media & Entertainment
+861,Younited,$1.16,12/8/2022,France,Paris,Financial Services
+862,Uzum,$1.16,3/26/2024,Uzbekistan,Tashkent,Financial Services
+863,SOURCE Global,$1.16,4/29/2022,United States,Scottsdale,Industrials
+864,LifeMiles,$1.15,7/13/2015,Colombia,Bogota,Consumer & Retail
+865,Venafi,$1.15,12/10/2020,United States,Salt Lake City,Enterprise Tech
+866,Guideline,$1.15,6/16/2021,United States,San Mateo,Financial Services
+867,Rebellion Defense,$1.15,9/16/2021,United States,Washington DC,Industrials
+868,Elemy,$1.15,10/6/2021,United States,San Francisco,Healthcare & Life Sciences
+869,TELD,$1.12,12/16/2019,China,Qingdao,Industrials
+870,Enable,$1.12,11/07/2023,United States,San Francisco,Enterprise Tech
+871,DANA,$1.13,8/10/2022,Indonesia,Jakarta,Financial Services
+872,At-Bay,$1.12,7/27/2021,United States,Mountain View,Insurance
+873,Visby Medical,$1.12,3/1/2022,United States,San Jose,Healthcare & Life Sciences
+874,Invoca,$1.10,6/14/2022,United States,Santa Barbara,Enterprise Tech
+875,ElevenLabs,$1.10,01/22/2024,United States,New York,Enterprise Tech
+876,Wasabi,$1.10,9/27/2022,United States,Boston,Enterprise Tech
+877,Halan,$1,2/1/2023,Egypt,Cairo,Financial Services
+878,BioCatch,$1,11/20/2023,Israel,Tel Aviv,Enterprise Tech
+879,Baichuan AI,$1,10/17/2023,China,Beijing,Enterprise Tech
+880,Rokid,$1,11/20/2023,United States,Redwood City,Media & Entertainment
+881,Krutrim,$1,01/26/2024,India,Bengaluru,Enterprise Tech
+882,Headway,$1,10/5/2023,United States,Orlando,Healthcare & Life Sciences
+883,Flexe,$1,4/21/2022,United States,Seattle,Industrials
+884,TangoMe,$1.10,3/20/2014,United States,Mountain View,Media & Entertainment
+885,AppDirect,$1.10,10/7/2015,United States,San Francisco,Enterprise Tech
+886,Juanpi,$1.10,4/14/2016,China,Wuhan,Consumer & Retail
+887,OVH,$1.10,8/15/2016,France,Roubaix,Enterprise Tech
+888,GetYourGuide,$2,5/16/2019,Germany,Berlin,Consumer & Retail
+889,Ivalua,$1.10,5/21/2019,United States,Redwood City,Enterprise Tech
+890,Sisense,$1.10,1/9/2020,United States,New York,Enterprise Tech
+891,Pharmapacks,$1.10,11/12/2020,United States,Islandia,Consumer & Retail
+892,Sennder,$1.10,1/14/2021,Germany,Berlin,Industrials
+893,Nexthink,$1.10,2/8/2021,Switzerland,Prilly,Enterprise Tech
+894,Zego,$1.10,3/9/2021,United Kingdom,London,Insurance
+895,Rightway,$1.10,3/30/2021,United States,New York,Healthcare & Life Sciences
+896,Sunbit,$1.10,5/20/2021,United States,Los Angeles,Financial Services
+897,Qingting FM,$1.10,6/2/2021,China,Shanghai,Media & Entertainment
+898,G2,$1.10,6/22/2021,United States,Chicago,Enterprise Tech
+899,Hailo,$1,10/12/2021,Israel,Tel Aviv,Enterprise Tech
+900,Caribou,$1.10,5/23/2022,United States,Denver,Insurance
+901,Nowports,$1.10,5/24/2022,Mexico,Monterrey,Industrials
+902,People.ai,$1.10,8/11/2021,United States,San Francisco,Enterprise Tech
+903,Carousell,$1.10,9/15/2021,Singapore,Singapore City,Consumer & Retail
+904,apna,$1.10,9/15/2021,India,Bengaluru,Enterprise Tech
+905,Karat,$1.10,10/13/2021,United States,Seattle,Enterprise Tech
+906,Enpal,$1.10,10/18/2021,Germany,Berlin,Industrials
+907,Acko General Insurance,$1.10,10/28/2021,India,Bengaluru,Insurance
+908,Daily Harvest,$1.10,11/16/2021,United States,New York,Consumer & Retail
+909,The Bank of London,$1.10,11/30/2021,United Kingdom,London,Financial Services
+910,Fundbox,$1.10,11/30/2021,United States,San Francisco,Financial Services
+911,Turing,$1.10,12/20/2021,United States,Palo Alto,Enterprise Tech
+912,GlobalBees,$1.10,12/28/2021,India,New Delhi,Consumer & Retail
+913,LEAD,$1.10,1/13/2022,India,Andheri,Consumer & Retail
+914,eSentire,$1.10,2/22/2022,Canada,Waterloo,Enterprise Tech
+915,Beyond Identity,$1.10,2/22/2022,United States,New York,Enterprise Tech
+916,Staffbase,$1.10,3/15/2022,Germany,Chemnitz,Enterprise Tech
+917,Chief,$1.10,3/31/2022,United States,New York,Consumer & Retail
+918,IntelyCare,$1.10,4/6/2022,United States,Quincy,Healthcare & Life Sciences
+919,Teleport,$1.10,5/3/2022,United States,Oakland,Enterprise Tech
+920,Imply Data,$1.10,5/17/2022,United States,Burlingame,Enterprise Tech
+921,Material Security,$1.10,5/11/2022,United States,Redwood City,Enterprise Tech
+922,PhysicsWallah,$1.10,6/7/2022,India,Uttar Pradesh,Consumer & Retail
+923,Recover,$1.10,6/9/2022,Spain,Banyeres de Mariola,Industrials
+924,Purplle,$1.10,6/9/2022,India,Mumbai,Consumer & Retail
+925,CAIS,$1.10,1/11/2022,United States,New York,Financial Services
+926,Nxin,$1.08,9/18/2018,China,Beijing,Industrials
+927,UISEE Technology,$1.08,1/25/2021,China,Beijing,Industrials
+928,56PINGTAI,$1.08,1/25/2021,China,Shanghai,Industrials
+929,Cirkul,$1.07,6/13/2022,United States,Sarasota,Consumer & Retail
+930,Radius Payment Solutions,$1.07,11/27/2017,United Kingdom,Crewe,Industrials
+931,InCred,$1.05,11/09/2023,India,Mumbai,Financial Services
+932,0x,$1.05,4/26/2022,United States,San Francisco,Financial Services
+933,Jiuxian,$1.05,7/30/2015,China,Beijing,Consumer & Retail
+934,Instabase,$2,10/21/2019,United States,San Francisco,Enterprise Tech
+935,Sendbird,$1.05,4/6/2021,United States,San Mateo,Enterprise Tech
+936,Density,$1.05,11/10/2021,United States,San Francisco,Enterprise Tech
+937,Mixpanel,$1.05,11/15/2021,United States,San Francisco,Enterprise Tech
+938,Branch,$1.05,3/1/2022,United States,Columbus,Insurance
+939,OrCam Technologies,$1.03,2/20/2018,Israel,Jerusalem,Healthcare & Life Sciences
+940,B&C Chemical,$1.02,4/19/2023,China,Pizhou,Industrials
+941,Ample,$1.02,11/11/2021,United States,San Francisco,Industrials
+942,BlackBuck,$1.02,7/22/2021,India,Bengaluru,Industrials
+943,Wheel,$1.01,1/19/2022,United States,Austin,Healthcare & Life Sciences
+944,Vestwell,$1,12/21/2023,United States,New York,Financial Services
+945,Minute Media,$1,01/30/2024,United States,New York,Media & Entertainment
+946,Perfios,$1,03/13/2024,India,Mumbai,Financial Services
+947,Tamara,$1,12/18/2023,Saudi Arabia,Riyadh,Financial Services
+948,Xreal,$1,01/29/2024,China,Beijing,Media & Entertainment
+949,Silverfort,$1,01/23/2024,Israel,Tel Aviv,Enterprise Tech
+950,IntraBio,$1,03/23/2024,United Kingdom,Oxfordshire,Healthcare & Life Sciences
+951,Andalusia Labs,$1,12/13/2023,United Arab Emirates,Abu Dhabi,Enterprise Tech
+952,EmployerDirect Healthcare,$1,12/19/2023,United States,Dallas,Healthcare & Life Sciences
+953,Electric Hydrogen,$1,10/3/2023,United States,Natick,Industrials
+954,TechMet,$1,12/07/2023,Ireland,Dublin,Industrials
+955,MaintainX,$1,12/06/2023,United States,San Fransisco,Enterprise Tech
+956,01.AI,$1,11/05/2023,China,Beijing,Enterprise Tech
+957,MindMaze,$1,2/17/2022,Switzerland,Lausanne,Health
+958,Avenue One,$1,5/15/2023,United States,New York,Financial Services
+959,DataSnipper,$1,2/1/2024,Netherlands,Amsterdam,Enterprise Tech
+960,Zhipu AI,$1,9/20/2023,China,Beijing ,Enterprise Tech
+961,Flashbots,$1,7/21/2023,Cayman Islands,Grand Cayman,Enterprise Tech
+962,Typeface,$1,6/29/2023,United States,Los Altos,Enterprise Tech
+963,Imbue,$1,9/7/2023,United States,San Francisco,Enterprise Tech
+964,Restaurant365,$1,5/19/2023,United States,Irvine,Consumer & Retail
+965,Kin,$1,9/13/2023,United States,Chicago,Insurance
+966,DeepL,$1,1/11/2023,Germany,Cologne,Enterprise Tech
+967,KoBold Metals,$1,6/20/2023,United States,Berkeley,Industrials
+968,Go,$1,5/24/2023,Japan,Tokyo,Industrials
+969,Percent,$1,11/30/2018,China,Beijing,Enterprise Tech
+970,1Komma5,$1.08,6/23/2023,Germany,Hamburg,Industrials
+971,Gradiant,$1,5/17/2023,United States,Woburn,Industrials
+972,Palmetto,$1,2/24/2022,United States,Charleston,Industrials
+973,Synthesia,$1,6/13/2023,United Kingdom,London,Enterprise Tech
+974,Prove Identity,$1,6/18/2020,United States,New York,Enterprise Tech
+975,Character.AI,$1,3/3/2023,United States,Menlo Park,Media & Entertainment
+976,Atmosphere,$1,2/7/2023,United States,Austin,Media & Entertainment
+977,Adept,$1,3/14/2023,United States,San Francisco,Enterprise Tech
+978,Beamery,$1,12/13/2022,United Kingdom,London,Enterprise Tech
+979,Flow,$1,8/15/2022,United States,New York,Financial Services
+980,Xanadu,$1,11/9/2022,Canada,Toronto,Enterprise Tech
+981,LINE MAN Wongnai,$1,9/26/2022,Thailand,Bangkok,Consumer & Retail
+982,Celestia,$1,10/19/2022,Liechtenstein,Vaduz,Enterprise Tech
+983,Stability AI,$1,10/5/2022,United Kingdom,London,Enterprise Tech
+984,Satispay,$1,9/28/2022,Italy,Milan,Financial Services
+985,Paystand,$1,8/2/2022,United States,Scotts Valley,Financial Services
+986,Turntide Technologies,$1,6/15/2022,United States,Sunnyvale,Industrials
+987,EcoVadis,$1,6/14/2022,France,Paris,Enterprise Tech
+988,TransferMate,$1,5/22/2022,Ireland,Kilkenny,Financial Services
+989,Lookout,$1,10/10/2013,United States,San Francisco,Enterprise Tech
+990,Snapdeal,$1,5/21/2014,India,New Delhi,Consumer & Retail
+991,TechStyle Fashion Group,$1,8/29/2014,United States,El Segundo,Consumer & Retail
+992,Zebec,$1,8/29/2022,United States,San Francisco,Financial Services
+993,InMobi,$1,12/2/2014,India,Bengaluru,Enterprise Tech
+994,LinkSure Network,$1,1/1/2015,China,Shanghai,Industrials
+995,Red Ventures,$1,1/7/2015,United States,Fort Mill,Media & Entertainment
+996,BeiBei,$1,1/22/2015,China,Hangzhou,Consumer & Retail
+997,Lamabang,$1,3/6/2015,China,Shenzhen,Consumer & Retail
+998,Jimu,$1,4/21/2015,China,Beijing,Financial Services
+999,ShareCRM,$1,7/2/2015,China,Beijing,Enterprise Tech
+1000,Mia.com,$1,9/8/2015,China,Beijing,Consumer & Retail
+1001,58 Daojia,$1,10/12/2015,China,Beijing,Consumer & Retail
+1002,Womai,$1,10/12/2015,China,Beijing,Consumer & Retail
+1003,HuJiang,$1,10/29/2015,China,Shanghai,Consumer & Retail
+1004,iTutorGroup,$1,11/18/2015,China,Shanghai,Consumer & Retail
+1005,iCarbonX,$1,4/12/2016,China,Shenzhen,Healthcare & Life Sciences
+1006,Kendra Scott,$1,12/21/2016,United States,Austin,Consumer & Retail
+1007,Mobvoi,$1,4/6/2017,China,Beijing,Consumer & Retail
+1008,Zhuan Zhuan,$1,4/18/2017,China,Beijing,Consumer & Retail
+1009,Modernizing Medicine,$1,5/10/2017,United States,Boca Raton,Healthcare & Life Sciences
+1010,DianRong,$1,8/2/2017,China,Shanghai,Financial Services
+1011,YH Global,$1,9/21/2017,China,Shenzhen,Industrials
+1012,Revolution Precrafted,$1,10/23/2017,Philippines,Manila,Industrials
+1013,WeLab,$1,11/8/2017,Hong Kong,Hong Kong,Financial Services
+1014,Maimai,$1,11/15/2017,China,Beijing,Media & Entertainment
+1015,Dxy.cn,$1,4/10/2018,China,Hangzhou,Healthcare & Life Sciences
+1016,HMD Global,$1,5/21/2018,Finland,Espoo,Industrials
+1017,Huike Group,$1,5/24/2018,China,Beijing,Enterprise Tech
+1018,ChinaC.com,$1,6/11/2018,China,Wuxi,Enterprise Tech
+1019,LinkDoc Technology,$1,7/5/2018,China,Beijing,Healthcare & Life Sciences
+1020,Movile,$1,7/12/2018,Brazil,Sao Paulo,Consumer & Retail
+1021,Pat McGrath Labs,$1,7/16/2018,United States,New York,Consumer & Retail
+1022,Wacai,$1,7/18/2018,China,Hangzhou,Financial Services
+1023,FlashEx,$1,8/27/2018,China,Beijing,Industrials
+1024,Banma Network Technologies,$1,9/13/2018,China,Shanghai,Industrials
+1025,Tresata,$1,10/10/2018,United States,Charlotte,Financial Services
+1026,Momenta,$1,10/17/2018,China,Beijing,Industrials
+1027,Hosjoy,$1,10/18/2018,China,Nanjing,Consumer & Retail
+1028,Omio,$1,10/23/2018,Germany,Berlin,Consumer & Retail
+1029,TERMINUS Technology,$1,10/25/2018,China,Beijing,Industrials
+1030,BitFury,$1,11/6/2018,Netherlands,Amsterdam,Enterprise Tech
+1031,REEF Technology,$1,12/10/2018,United States,Miami,Industrials
+1032,Globality,$1,1/22/2019,United States,Menlo Park,Enterprise Tech
+1033,Ynsect,$1,2/21/2019,France,Evry,Industrials
+1034,Poizon,$1,4/29/2019,China,Shanghai,Consumer & Retail
+1035,SITECH DEV,$1,5/16/2019,China,Guiyang,Industrials
+1036,KnowBox,$1,5/30/2019,China,Beijing,Consumer & Retail
+1037,Yanolja,$1,6/10/2019,South Korea,Seoul,Consumer & Retail
+1038,Meero,$1,6/18/2019,France,Paris,Media & Entertainment
+1039,Ibotta,$1,8/6/2019,United States,Denver,Consumer & Retail
+1040,C2FO,$1,8/7/2019,United States,Leawood,Financial Services
+1041,Numbrs,$1,8/22/2019,Switzerland,Zurich,Financial Services
+1042,EBANX,$1,10/16/2019,Brazil,Curitiba,Financial Services
+1043,KK Group,$3,10/23/2019,China,Dongguan,Consumer & Retail
+1044,Hotmart,$1,3/17/2020,Netherlands,Amsterdam,Consumer & Retail
+1045,Dubizzle Group,$1,4/28/2020,United Arab Emirates,Dubai,Consumer & Retail
+1046,Quizlet,$1,5/13/2020,United States,San Francisco,Consumer & Retail
+1047,Orca Bio,$1,6/17/2020,United States,Menlo Park,Healthcare & Life Sciences
+1048,Infobip,$1,7/30/2020,Croatia,Vodnjan,Enterprise Tech
+1049,Zwift,$1,9/16/2020,United States,Long Beach,Healthcare & Life Sciences
+1050,Playco,$1,9/21/2020,Japan,Tokyo,Media & Entertainment
+1051,Gousto,$1.70,11/3/2020,United Kingdom,London,Consumer & Retail
+1052,Alation,$1.70,6/3/2021,United States,Redwood City,Enterprise Tech
+1053,Boom Supersonic,$1,12/16/2020,United States,Englewood,Industrials
+1054,Quantum Metric,$1,1/7/2021,United States,Colorado Springs,Enterprise Tech
+1055,News Break,$1,1/7/2021,United States,Mountain View,Media & Entertainment
+1056,MadeiraMadeira,$1,1/7/2021,Brazil,Parana,Consumer & Retail
+1057,PPRO,$1,1/19/2021,United Kingdom,London,Financial Services
+1058,Splashtop,$1,1/27/2021,United States,San Jose,Enterprise Tech
+1059,Flash Express,$1,2/1/2021,Thailand,Bangkok,Industrials
+1060,Axiom Space,$1,2/16/2021,United States,Houston,Industrials
+1061,Locus Robotics,$1,2/17/2021,United States,Wilmington,Industrials
+1062,Standard AI,$1,2/17/2021,United States,San Francisco,Consumer & Retail
+1063,Newsela,$1,2/25/2021,United States,New York,Consumer & Retail
+1064,Aqua Security,$1,3/10/2021,Israel,Ramat Gan,Enterprise Tech
+1065,PatSnap,$1,3/16/2021,Singapore,Singapore City,Enterprise Tech
+1066,Evidation,$1,3/22/2021,United States,San Mateo,Healthcare & Life Sciences
+1067,Sidecar Health,$1,1/26/2021,United States,El Segundo,Healthcare & Life Sciences
+1068,Feedzai,$1,3/24/2021,United States,San Mateo,Financial Services
+1069,Yunxuetang,$1,3/29/2021,China,Suzhou,Enterprise Tech
+1070,Cameo,$1,3/30/2021,United States,Chicago,Media & Entertainment
+1071,Hyperchain,$1,4/11/2021,China,Hangzhou,Enterprise Tech
+1072,The Zebra,$1,4/12/2021,United States,Austin,Insurance
+1073,Groq,$1,4/14/2021,United States,Mountain View,Enterprise Tech
+1074,Fiture,$1,4/14/2021,China,Chengdu,Healthcare & Life Sciences
+1075,Injective,$1,4/20/2021,United States,New York,Financial Services
+1076,Sift,$1,4/22/2021,United States,San Francisco,Enterprise Tech
+1077,Teya,$1,4/9/2021,United Kingdom,London,Financial Services
+1078,Capsule,$1,4/28/2021,United States,New York,Healthcare & Life Sciences
+1079,MOLOCO,$1.50,4/29/2021,United States,Redwood City,Enterprise Tech
+1080,Inari,$1.65,5/12/2021,United States,Cambridge,Industrials
+1081,Mux,$1,4/30/2021,United States,San Francisco,Media & Entertainment
+1082,XForcePlus,$1,6/1/2021,China,Shanghai,Enterprise Tech
+1083,Augustinus Bader,$1,11/9/2022,United Kingdom,London,Consumer & Retail
+1084,Shift,$1,5/6/2021,France,Paris,Insurance
+1085,TensTorrent,$1,5/5/2021,Canada,Toronto,Enterprise Tech
+1086,Zihaiguo,$1,5/6/2021,China,Chongqing,Consumer & Retail
+1087,Forte Labs,$1.73,5/12/2021,United States,San Francisco,Media & Entertainment
+1088,Axtria,$1,5/13/2021,United States,Berkeley Heights,Enterprise Tech
+1089,Amount,$1,5/17/2021,United States,Chicago,Financial Services
+1090,Vise,$1,5/18/2021,United States,New York,Financial Services
+1091,Printful,$1,5/24/2021,United States,Charlotte,Consumer & Retail
+1092,Matrixport,$1.05,6/1/2021,Singapore,Singapore City,Financial Services
+1093,Shippo,$1,6/2/2021,United States,San Francisco,Industrials
+1094,Thirty Madison,$1,6/2/2021,United States,New York,Healthcare & Life Sciences
+1095,LetsGetChecked,$1,6/7/2021,Ireland,Dublin,Healthcare & Life Sciences
+1096,EcoFlow,$1,6/10/2021,China,Shenzhen,Industrials
+1097,Carro,$1,6/14/2021,Singapore,Singapore City,Industrials
+1098,Tractable,$1,6/16/2021,United Kingdom,London,Insurance
+1099,Xiaoe Tech,$1,6/15/2021,China,Shenzhen,Enterprise Tech
+1100,Bringg,$1,6/16/2021,Israel,Tel Aviv,Enterprise Tech
+1101,Simply,$1,6/21/2021,Israel,Tel Aviv,Media & Entertainment
+1102,Worldcoin,$1,6/29/2021,United States,San Francisco,Financial Services
+1103,SmartAsset,$1,6/24/2021,United States,New York,Financial Services
+1104,Morning Consult,$1,6/8/2021,United States,Washington DC,Enterprise Tech
+1105,Visier,$1,6/29/2021,Canada,Vancouver,Enterprise Tech
+1106,ShipBob,$1,6/29/2021,United States,Chicago,Consumer & Retail
+1107,MobileCoin,$1.06,7/7/2021,United States,San Francisco,Financial Services
+1108,Amperity,$1,7/13/2021,United States,Seattle,Enterprise Tech
+1109,Pantheon Systems,$1,7/13/2021,United States,San Francisco,Enterprise Tech
+1110,Xiaoice,$1,7/12/2021,China,Beijing,Media & Entertainment
+1111,Caidya,$1,7/12/2021,China,Shanghai,Healthcare & Life Sciences
+1112,Carson Group,$1,7/14/2021,United States,Lincoln,Financial Services
+1113,NIUM,$2,7/13/2021,Singapore,Singapore City,Financial Services
+1114,Human Interest,$1,8/4/2021,United States,San Francisco,Financial Services
+1115,Bluecore,$1,8/5/2021,United States,New York,Consumer & Retail
+1116,Freshbooks,$1,8/10/2021,Canada,Toronto,Enterprise Tech
+1117,Snorkel AI,$1,8/9/2021,United States,Palo Alto,Enterprise Tech
+1118,Gelato,$1,8/16/2021,Norway,Oslo,Consumer & Retail
+1119,Maven,$1,8/17/2021,United States,New York,Healthcare & Life Sciences
+1120,PicsArt,$1,8/26/2021,United States,San Francisco,Media & Entertainment
+1121,1KMXC,$1,8/30/2021,China,Hangzhou,Industrials
+1122,Cider,$1,9/2/2021,Hong Kong,Hong Kong,Consumer & Retail
+1123,Berlin Brands Group,$1,9/1/2021,Germany,Berlin,Consumer & Retail
+1124,Agile Robots,$1,9/9/2021,Germany,Munich,Industrials
+1125,Mammoth Biosciences,$1,9/9/2021,United States,Brisbane,Healthcare & Life Sciences
+1126,Orchard,$1,9/9/2021,United States,New York,Financial Services
+1127,Xendit,$1,9/14/2021,Indonesia,Jakarta,Financial Services
+1128,TrueLayer,$1,9/21/2021,United Kingdom,London,Financial Services
+1129,Assembly,$1,9/21/2021,United States,Culver City,Consumer & Retail
+1130,PandaDoc,$1,9/22/2021,United States,San Francisco,Enterprise Tech
+1131,Keenon Robotics,$1,9/15/2021,China,Shanghai,Industrials
+1132,HAYDON,$1,9/24/2021,China,Shanghai,Consumer & Retail
+1133,Ninja Van,$1,9/27/2021,Singapore,Singapore City,Consumer & Retail
+1134,Vedantu,$1,9/29/2021,India,Bengaluru,Consumer & Retail
+1135,Formation Bio,$1,9/30/2021,United States,New York,Healthcare & Life Sciences
+1136,Ajaib,$1,10/4/2021,Indonesia,Jakarta,Financial Services
+1137,Licious,$1,10/5/2021,India,Bengaluru,Consumer & Retail
+1138,Masterworks,$1,10/5/2021,United States,New York,Financial Services
+1139,Chronosphere,$1,10/7/2021,United States,New York,Enterprise Tech
+1140,Solo.io,$1,10/7/2021,United States,Cambridge,Enterprise Tech
+1141,Savage X Fenty,$1,2/10/2021,United States,El Segundo,Consumer & Retail
+1142,Swile,$1,10/11/2021,France,Montpellier,Enterprise Tech
+1143,MobiKwik,$1,10/13/2021,India,Gurugram,Financial Services
+1144,Weights & Biases,$1.25,10/13/2021,United States,San Francisco,Enterprise Tech
+1145,Zopa,$1,10/19/2021,United Kingdom,London,Financial Services
+1146,Dental Monitoring,$1,10/21/2021,France,Paris,Healthcare & Life Sciences
+1147,CargoX,$1,10/21/2021,Brazil,Sao Paulo,Industrials
+1148,Fabric,$1,10/26/2021,United States,New York,Consumer & Retail
+1149,Augury,$1,10/26/2021,United States,New York,Industrials
+1150,Moka,$1,11/2/2021,China,Beijing,Enterprise Tech
+1151,Tezign,$1,11/2/2021,China,Shanghai,Enterprise Tech
+1152,Vagaro,$1,11/3/2021,United States,Dublin,Consumer & Retail
+1153,IGAWorks,$1,11/8/2021,South Korea,Seoul,Enterprise Tech
+1154,Contrast Security,$1,11/9/2021,United States,Los Altos,Enterprise Tech
+1155,Wrapbook,$1,11/10/2021,United States,New York,Media & Entertainment
+1156,Gaussian Robotics,$1.10,11/10/2021,China,Shanghai,Industrials
+1157,Mensa Brands,$1,11/16/2021,India,Bengaluru,Consumer & Retail
+1158,Heyday,$1,11/16/2021,United States,Chicago,Consumer & Retail
+1159,PLACE,$1,11/17/2021,United States,Bellingham,Financial Services
+1160,Stytch,$1,11/18/2021,United States,San Francisco,Enterprise Tech
+1161,Owkin,$1,11/18/2021,United States,New York,Healthcare & Life Sciences
+1162,Expel,$1,11/18/2021,United States,Herndon,Enterprise Tech
+1163,NoBroker,$1,11/23/2021,India,Bengaluru,Financial Services
+1164,Lessen,$1,11/30/2021,United States,Scottsdale,Financial Services
+1165,Clara,$1,12/6/2021,Mexico,Mexico City,Financial Services
+1166,YipitData,$1,12/6/2021,United States,New York,Enterprise Tech
+1167,Anyscale,$1,12/7/2021,United States,Berkeley,Enterprise Tech
+1168,Iodine Software,$1,12/1/2021,United States,Austin,Healthcare & Life Sciences
+1169,ReliaQuest,$1,12/1/2021,United States,Tampa,Enterprise Tech
+1170,Pet Circle,$1,12/6/2021,Australia,Alexandria,Consumer & Retail
+1171,Nature's Fynd,$1,7/19/2021,United States,Chicago,Consumer & Retail
+1172,Lydia,$1,12/8/2021,France,Paris,Financial Services
+1173,SellerX,$1,12/9/2021,Germany,Berlin,Consumer & Retail
+1174,SnapLogic,$1,12/13/2021,United States,San Mateo,Enterprise Tech
+1175,Cadence,$1,12/14/2021,United States,New York,Healthcare & Life Sciences
+1176,Noname Security,$1,12/15/2021,United States,Palo Alto,Enterprise Tech
+1177,Rothy's,$1,12/21/2021,United States,San Francisco,Consumer & Retail
+1178,VOI,$1,12/21/2021,Sweden,Stockholm,Industrials
+1179,Haomo.AI,$1,12/22/2021,China,Beijing,Industrials
+1180,Kopi Kenangan,$1,12/27/2021,Indonesia,Jakarta,Consumer & Retail
+1181,InFarm,$1,12/16/2021,Germany,Berlin,Industrials
+1182,ONE,$1,12/8/2021,Singapore,Singapore City,Media & Entertainment
+1183,Fractal Analytics,$1,1/5/2022,India,Mumbai,Enterprise Tech
+1184,Assent,$1,1/6/2022,Canada,Ottawa,Industrials
+1185,Placer.ai,$1,1/12/2022,United States,Los Altos,Consumer & Retail
+1186,Pentera,$1,1/11/2022,Israel,Petah Tikva,Enterprise Tech
+1187,Darwinbox,$1,1/25/2022,India,Hyderabad,Enterprise Tech
+1188,Minio,$1,1/26/2022,United States,Palo Alto,Enterprise Tech
+1189,Esusu,$1,1/27/2022,United States,New York,Financial Services
+1190,Betterfly,$1,2/1/2022,Chile,Santiago,Enterprise Tech
+1191,Dune Analytics,$1,2/2/2022,Norway,Oslo,Enterprise Tech
+1192,Scandit,$1,2/9/2022,Switzerland,Zurich,Enterprise Tech
+1193,Payhawk,$1,2/14/2022,United Kingdom,London,Enterprise Tech
+1194,Watershed,$1,2/8/2022,United States,San Francisco,Enterprise Tech
+1195,Axelar,$1,2/15/2022,Canada,Waterloo,Enterprise Tech
+1196,CHEQ,$1,2/22/2022,United States,New York,Enterprise Tech
+1197,Hasura,$1,2/22/2022,India,Bengaluru,Enterprise Tech
+1198,Timescale,$1,2/22/2022,United States,New York,Enterprise Tech
+1199,Scalapay,$1,2/23/2022,Italy,Milan,Financial Services
+1200,Omada Health,$1,2/23/2022,United States,San Francisco,Healthcare & Life Sciences
+1201,BlueVoyant,$1,2/23/2022,United States,New York,Enterprise Tech
+1202,Vendr,$1,2/24/2022,United States,Boston,Enterprise Tech
+1203,Gauntlet Networks,$1,3/7/2022,United States,New York,Financial Services
+1204,Aptos,$1,3/15/2022,United States,Palo Alto,Enterprise Tech
+1205,Glia,$1,3/21/2022,United States,New York,Enterprise Tech
+1206,CommerceIQ,$1,3/21/2022,United States,Palo Alto,Consumer & Retail
+1207,RapidAPI,$1,3/23/2022,United States,San Francisco,Enterprise Tech
+1208,Tarana Wireless,$1,3/23/2022,United States,Milpitas,Industrials
+1209,FLASH,$1,3/16/2022,United States,Austin,Industrials
+1210,Electric,$1,3/29/2022,United States,New York,Enterprise Tech
+1211,BostonGene,$1,4/6/2022,United States,Waltham,Healthcare & Life Sciences
+1212,Grover,$1,4/7/2022,Germany,Berlin,Consumer & Retail
+1213,Genies,$1,4/12/2022,United States,Venice,Media & Entertainment
+1214,Oyster,$1,4/20/2022,United States,Wilmington,Enterprise Tech
+1215,NexHealth,$1,4/21/2022,United States,San Francisco,Healthcare & Life Sciences
+1216,UPSIDE Foods,$1,4/21/2022,United States,Berkeley,Consumer & Retail
+1217,Factorial,$1,10/11/2022,Spain,Barcelona,Enterprise Tech
+1218,Divergent 3D,$1,4/25/2022,United States,Torrance,Industrials
+1219,Taxfix,$1,4/28/2022,Germany,Berlin,Financial Services
+1220,Open,$1,5/2/2022,India,Bengaluru,Financial Services
+1221,Opn,$1,5/9/2022,Japan,Tokyo,Financial Services
+1222,Remarkable,$1,5/10/2022,Norway,Oslo,Consumer & Retail
+1223,Habi,$1,5/11/2022,Colombia,Bogota,Financial Services
+1224,CareBridge,$1,6/8/2022,United States,Nashville,Healthcare & Life Sciences
+1225,Immuta,$1,6/8/2022,United States,Boston,Enterprise Tech
+1226,JupiterOne,$1,6/2/2022,United States,Morrisville,Enterprise Tech
+1227,Vayyar,$1,6/6/2022,Israel,Yehud,Industrials
+1228,LeadSquared,$1,6/21/2022,India,Bengaluru,Enterprise Tech
+1229,FourKites,$1,6/21/2022,United States,Chicago,Enterprise Tech
+1230,VulcanForms,$1,7/5/2022,United States,Burlington,Industrials
+1231,SingleStore,$1,7/12/2022,United States,San Francisco,Enterprise Tech
+1232,Unstoppable Domains,$1,7/27/2022,United States,Las Vegas,Media & Entertainment

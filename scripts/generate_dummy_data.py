@@ -1044,12 +1044,45 @@ class CrmDataGenerator:
             except:
                 pass
 
-    def _select_tags_for_lead(self, lead_source: str) -> List[int]:
-        """Select appropriate tags for a lead"""
+    def _select_tags_for_lead(self, lead_source: str, company_data: Dict) -> List[int]:
+        """Select appropriate tags for a lead based on company data"""
         selected_tags = []
 
-        # Always select an industry tag
-        if 'Industry' in self.tag_ids and self.tag_ids['Industry']:
+        # Select industry tag based on company's industry if available
+        if 'Industry' in self.tag_ids and self.tag_ids['Industry'] and company_data.get('industry'):
+            matching_industry_tags = []
+
+            for tag_id in self.tag_ids['Industry']:
+                tag_name = self.execute_kw('crm.tag', 'read', [tag_id], {'fields': ['name']})[0]['name']
+                # Extract the tag value part (after the colon and space)
+                if ': ' in tag_name:
+                    tag_value = tag_name.split(': ')[1]
+                    # Check if this tag matches the company's industry
+                    if company_data['industry'] in tag_value or tag_value in company_data['industry']:
+                        matching_industry_tags.append(tag_id)
+
+            if matching_industry_tags:
+                # Use the matching industry tag
+                selected_tags.append(matching_industry_tags[0])
+            else:
+                # If no match, create a new tag for this industry
+                try:
+                    tag_name = f"Industry: {company_data['industry']}"
+                    existing_tag = self.execute_kw('crm.tag', 'search_read',
+                                            [[['name', '=', tag_name]]], {'fields': ['id']})
+                    if existing_tag:
+                        new_tag_id = existing_tag[0]['id']
+                    else:
+                        new_tag_id = self.execute_kw('crm.tag', 'create', [{'name': tag_name}])
+                        # Add to our cached tag_ids
+                        self.tag_ids['Industry'].append(new_tag_id)
+                    selected_tags.append(new_tag_id)
+                except Exception as e:
+                    logger.warning(f"Could not create tag for industry {company_data['industry']}: {e}")
+                    # Fallback to random industry tag
+                    selected_tags.append(random.choice(self.tag_ids['Industry']))
+        elif 'Industry' in self.tag_ids and self.tag_ids['Industry']:
+            # Fallback: select a random industry tag if no industry info
             industry_tag = random.choice(self.tag_ids['Industry'])
             selected_tags.append(industry_tag)
 
@@ -1211,7 +1244,193 @@ class CrmDataGenerator:
 
         return lead_data
 
-    def generate_leads(self, count: int = 100) -> bool:
+    def load_company_data_from_csv(self, csv_file_path=None):
+        """Load company data from a CSV file or use default sample"""
+        companies = []
+
+        try:
+            # Try to load from provided CSV file
+            if csv_file_path and os.path.exists(csv_file_path):
+                with open(csv_file_path, 'r') as f:
+                    reader = csv.DictReader(f)
+                    for row in reader:
+                        companies.append({
+                            'name': row.get('Company', '').strip('$'),
+                            'industry': row.get('Industry', ''),
+                            'country': row.get('Country', ''),
+                            'city': row.get('City', ''),
+                            'valuation': row.get('Valuation ($B)', '').strip('$'),
+                            'website': f"www.{row.get('Company', '').lower().replace(' ', '')}.com",
+                        })
+                logger.info(f"Loaded {len(companies)} companies from CSV file")
+            else:
+                # Use sample data embedded in the script
+                sample_data = """
+                ,Company,Valuation ($B),Date Joined,Country,City,Industry
+                0,ByteDance,$225,4/7/2017,China,Beijing,Media & Entertainment
+                1,SpaceX,$150,12/1/2012,United States,Hawthorne,Industrials
+                2,OpenAI,$80,7/22/2019,United States,San Francisco,Enterprise Tech
+                3,SHEIN,$66,7/3/2018,Singapore,Singapore City,Consumer & Retail
+                4,Stripe,$65,1/23/2014,United States,San Francisco,Financial Services
+                5,Databricks,$43,2/5/2019,United States,San Francisco,Enterprise Tech
+                6,Canva,$25.4,1/8/2018,Australia,Surry Hills,Enterprise Tech
+                7,Revolut,$33,4/26/2018,United Kingdom,London,Financial Services
+                8,Epic Games,$22.5,10/26/2018,United States,Cary,Media & Entertainment
+                9,Fanatics,$31,6/6/2012,United States,Jacksonville,Consumer & Retail
+                10,Chime,$25,3/5/2019,United States,San Francisco,Financial Services
+                11,Xiaohongshu,$20,3/31/2016,China,Shanghai,Media & Entertainment
+                12,Miro,$17.50,1/5/2022,United States,San Francisco,Enterprise Tech
+                """
+
+                # Parse the sample data
+                lines = [line.strip() for line in sample_data.strip().split('\n')]
+                reader = csv.DictReader(lines)
+                for row in reader:
+                    companies.append({
+                        'name': row.get('Company', '').strip('$'),
+                        'industry': row.get('Industry', ''),
+                        'country': row.get('Country', ''),
+                        'city': row.get('City', ''),
+                        'valuation': row.get('Valuation ($B)', '').strip('$'),
+                        'website': f"www.{row.get('Company', '').lower().replace(' ', '')}.com",
+                    })
+                logger.info(f"Using {len(companies)} sample companies from embedded data")
+
+        except Exception as e:
+            logger.error(f"Error loading company data: {e}")
+            # Create a minimal set as fallback
+            companies = [
+                {'name': 'ByteDance', 'industry': 'Media & Entertainment', 'country': 'China'},
+                {'name': 'SpaceX', 'industry': 'Industrials', 'country': 'United States'},
+                {'name': 'OpenAI', 'industry': 'Enterprise Tech', 'country': 'United States'},
+                {'name': 'SHEIN', 'industry': 'Consumer & Retail', 'country': 'Singapore'}
+            ]
+
+        self.companies = companies
+        return companies
+
+    def create_company_record(self, company_data):
+        """Create a company record in Odoo on-the-fly"""
+        try:
+            # Check if company already exists to avoid duplicates
+            existing_company = self.execute_kw('res.partner', 'search_read',
+                                            [[['name', '=', company_data['name']],
+                                                ['is_company', '=', True]]],
+                                            {'fields': ['id']})
+
+            if existing_company:
+                return existing_company[0]['id']
+
+            # Get country ID
+            country_id = False
+            if company_data.get('country'):
+                country_search = self.execute_kw('res.country', 'search',
+                                            [[['name', 'ilike', company_data['country']]]])
+                if country_search:
+                    country_id = country_search[0]
+
+            # Find industry ID if available
+            industry_id = False
+            if company_data.get('industry'):
+                # Try to find the industry in Odoo
+                industry_search = self.execute_kw('res.partner.industry', 'search',
+                                                [[['name', 'ilike', company_data['industry']]]])
+                if industry_search:
+                    industry_id = industry_search[0]
+                else:
+                    # Create the industry if it doesn't exist
+                    try:
+                        industry_id = self.execute_kw('res.partner.industry', 'create',
+                                                    [{'name': company_data['industry']}])
+                        logger.info(f"Created new industry: {company_data['industry']}")
+                    except Exception as e:
+                        logger.warning(f"Could not create industry {company_data['industry']}: {e}")
+
+            # Create new company with tracking disabled
+            with OdooUtils.odoo_context() as context:
+                company_vals = {
+                    'name': company_data['name'],
+                    'is_company': True,
+                    'company_type': 'company',
+                    'website': company_data.get('website', ''),
+                    'country_id': country_id,
+                    'industry_id': industry_id,  # Now using the industry from CSV
+                }
+
+                # Add city if available
+                if company_data.get('city'):
+                    company_vals['city'] = company_data['city']
+
+                company_id = self.execute_kw('res.partner', 'create', [company_vals], {'context': context})
+
+                logger.info(f"Created company record for {company_data['name']} with industry: {company_data.get('industry', 'None')}")
+                return company_id
+
+        except Exception as e:
+            logger.error(f"Error creating company record: {e}")
+            return False
+
+    def _prepare_lead_data_with_company(self, company_data, company_id, user_id,
+                                    probability_data, lead_source, selected_tags,
+                                    date_created) -> Dict:
+        """Prepare lead data dictionary using an existing company record"""
+        stage_name = self.stage_names[probability_data['stage_id']].upper()
+        lead_type = 'lead' if 'NEW' in stage_name or 'COLD' in stage_name else 'opportunity'
+
+        # Add priority (star rating)
+        priority = self._get_priority_for_stage(stage_name)
+
+        # Create contact information
+        contact_name = self.fake.name()
+        email_domain = company_data.get('website', self.fake.domain_name()).replace('www.', '')
+
+        # Determine team based on country
+        country = company_data.get('country', '').lower()
+        if 'indonesia' in country or 'id' in country:
+            team_search = self.execute_kw('crm.team', 'search_read',
+                                        [[['name', '=', 'Sales Indonesia']]],
+                                        {'fields': ['id']})
+            team_id = team_search[0]['id'] if team_search else False
+        elif 'singapore' in country or 'sg' in country:
+            team_search = self.execute_kw('crm.team', 'search_read',
+                                        [[['name', '=', 'Sales Singapore']]],
+                                        {'fields': ['id']})
+            team_id = team_search[0]['id'] if team_search else False
+        else:
+            # Randomly assign to either team if country is not clearly identifiable
+            team_name = random.choice(['Sales Indonesia', 'Sales Singapore'])
+            team_search = self.execute_kw('crm.team', 'search_read',
+                                        [[['name', '=', team_name]]],
+                                        {'fields': ['id']})
+            team_id = team_search[0]['id'] if team_search else False
+
+        # Add debugging log
+        logger.info(f"Assigning lead for {company_data.get('name')} ({company_data.get('country')}) to team ID {team_id}")
+
+        lead_data = {
+            'name': f"{company_data.get('name', 'Unknown')} - {self.fake.catch_phrase()} Project",
+            'partner_name': company_data.get('name', self.fake.company()),
+            'contact_name': contact_name,
+            'function': self.fake.job(),
+            'email_from': f"{contact_name.split()[0].lower()}.{contact_name.split()[-1].lower()}@{email_domain}",
+            'phone': self.fake.phone_number(),
+            'user_id': user_id,
+            'team_id': team_id,
+            'stage_id': probability_data['stage_id'],
+            'type': lead_type,
+            'probability': probability_data['probability'],
+            'expected_revenue': probability_data['expected_revenue'],
+            'date_deadline': (date_created + timedelta(days=30)).strftime('%Y-%m-%d'),
+            'description': self.fake.paragraph(nb_sentences=5),
+            'priority': str(priority),
+            'tag_ids': [(6, 0, selected_tags)] if selected_tags else False,
+            'referred': lead_source == 'Referral',
+            'partner_id': company_id,  # Use the created company record
+        }
+
+        return lead_data
+
+    def generate_leads(self, count: int = 100, company_csv=None) -> bool:
         """Generate realistic dummy leads/opportunities"""
         try:
             # Setup required data structures
@@ -1226,7 +1445,7 @@ class CrmDataGenerator:
             # Then set up other required data
             self.setup_crm_tags()
             self.setup_user_roles()
-            self.load_company_data()
+            self.load_company_data_from_csv(company_csv)  # Load from CSV or use sample data
             self.get_crm_stages()
             self.get_activity_types()
 
@@ -1248,9 +1467,14 @@ class CrmDataGenerator:
             all_created_leads = []
 
             for i in range(count):
-                # Choose a company and assign user
-                company = random.choice(self.companies)
-                user_id = self._select_user(company)
+                # Choose a company from our pool
+                company_data = random.choice(self.companies)
+
+                # Create company record on-the-fly
+                company_id = self.create_company_record(company_data)
+
+                # Select user based on company's country
+                user_id = self._select_user(company_data)
                 date_created = self._generate_creation_date(i, count)
 
                 # Get probability and related data based on creation date
@@ -1260,11 +1484,11 @@ class CrmDataGenerator:
                 lead_source = random.choices(source_options, weights=source_weights, k=1)[0]
 
                 # Select tags
-                selected_tags = self._select_tags_for_lead(lead_source)
+                selected_tags = self._select_tags_for_lead(lead_source, company_data)
 
-                # Prepare lead data
-                lead_data = self._prepare_lead_data(
-                    company, user_id, probability_data,
+                # Prepare lead data - now use the created company record
+                lead_data = self._prepare_lead_data_with_company(
+                    company_data, company_id, user_id, probability_data,
                     lead_source, selected_tags, date_created
                 )
 
@@ -1281,7 +1505,7 @@ class CrmDataGenerator:
                     # Create lead history with proper timestamps
                     self.create_realistic_lead_history(lead_id, lead_data, date_created, probability_data['stage_id'])
 
-                    # Create partner record if needed
+                    # Create partner record if needed (for contact)
                     partner_id = self._create_partner_for_lead(lead_id, lead_data)
 
                     # Create activities and meetings
@@ -1300,6 +1524,7 @@ class CrmDataGenerator:
         except Exception as e:
             logger.error(f"Error generating dummy data: {e}")
             return False
+
 
     def _generate_creation_date(self, index: int, total_count: int) -> datetime:
         """Generate appropriate creation date with weighting toward recency"""
@@ -1320,6 +1545,7 @@ def main():
     parser.add_argument('--username', default='admin', help='Username')
     parser.add_argument('--password', default='admin', help='Password')
     parser.add_argument('--count', type=int, default=100, help='Number of leads to generate')
+    parser.add_argument('--csv', help='Path to CSV file with company data')
 
     args = parser.parse_args()
 
@@ -1334,7 +1560,7 @@ def main():
 
     # Generate dummy leads
     generator = CrmDataGenerator(uid, models, args.db, args.password)
-    generator.generate_leads(args.count)
+    generator.generate_leads(args.count, args.csv)
 
 if __name__ == "__main__":
     main()
