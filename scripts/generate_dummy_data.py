@@ -133,6 +133,21 @@ class CrmDataGenerator:
     }
 
     # Tag categories
+    PRODUCT_LIST = [
+        'SIAP + HRM',
+        'SIAP',
+        'CRM sales',
+        'POS sales',
+        'ERP Manufacture',
+        'ERP Construction',
+        'HRM',
+        'Talent Management',
+        'LMS',
+        'HR Recruitment',
+        'SIAP + Asset',
+        'Mining + Asset',
+    ]
+
     TAG_CATEGORIES = {
         'Industry': [
             'Technology', 'Healthcare', 'Finance', 'Manufacturing', 'Retail',
@@ -144,11 +159,7 @@ class CrmDataGenerator:
             'Social Media', 'Webinar', 'Content Download', 'Partner', 'Paid Search',
             'Organic Search', 'Trade Show', 'Direct Mail'
         ],
-        'Product Interest': [
-            'Core Product', 'Enterprise Package', 'Basic Plan', 'Premium Plan',
-            'Add-on Services', 'Integration Services', 'Training', 'Consulting',
-            'Maintenance Contract', 'Custom Development'
-        ]
+        'Product Interest': PRODUCT_LIST
     }
 
     # Sales roles
@@ -817,7 +828,7 @@ class CrmDataGenerator:
             # Add manager review for important stages
             if 'FOCUS' in to_stage_name or 'CONTRACT' in to_stage_name:
                 manager_users = [uid for uid, user in self.users.items()
-                               if 'Manager' in user.get('name', '') or 'Director' in user.get('name', '')]
+                            if 'Manager' in user.get('name', '') or 'Director' in user.get('name', '')]
                 if manager_users:
                     manager_id = random.choice(manager_users)
                     manager_message = f"Reviewed the opportunity and approved the stage change to '{to_stage_name}'"
@@ -825,7 +836,7 @@ class CrmDataGenerator:
                         lead_id,
                         manager_message,
                         manager_id,
-                        stage_date + timedelta(hours=random.randint(1, 4))  # After the stage change
+                        stage_date + timedelta(hours=random.randint(1, 4))
                     )
 
             # Add stage change logs
@@ -845,11 +856,7 @@ class CrmDataGenerator:
                 stage_date + timedelta(seconds=30)
             )
 
-            # Update the lead with the stage change - except for the final transition
-            if i == len(stage_dates) - 1:  # Skip the last one as the lead is already at this stage
-                continue
-
-            # Write the stage change with tracking disabled
+            # Write the stage change with tracking disabled - apply ALL transitions
             with OdooUtils.odoo_context() as context:
                 self.execute_kw('crm.lead', 'write', [
                     lead_id,
@@ -1044,8 +1051,8 @@ class CrmDataGenerator:
             except:
                 pass
 
-    def _select_tags_for_lead(self, lead_source: str, company_data: Dict) -> List[int]:
-        """Select appropriate tags for a lead based on company data"""
+    def _select_tags_for_lead(self, lead_source: str, company_data: Dict, product_name: str = None) -> List[int]:
+        """Select appropriate tags for a lead based on company data and product"""
         selected_tags = []
 
         # Select industry tag based on company's industry if available
@@ -1099,10 +1106,39 @@ class CrmDataGenerator:
             elif self.tag_ids['Source']:
                 selected_tags.append(random.choice(self.tag_ids['Source']))
 
-        # Possibly select product interest (70% chance)
-        if 'Product Interest' in self.tag_ids and self.tag_ids['Product Interest'] and random.random() < 0.7:
-            product_tag = random.choice(self.tag_ids['Product Interest'])
-            selected_tags.append(product_tag)
+        # Select product interest tag - either matching the provided product_name or random
+        if 'Product Interest' in self.tag_ids and self.tag_ids['Product Interest']:
+            if product_name:
+                # Try to find a tag matching the selected product
+                matching_product_tags = []
+                for tag_id in self.tag_ids['Product Interest']:
+                    tag_name = self.execute_kw('crm.tag', 'read', [tag_id], {'fields': ['name']})[0]['name']
+                    if product_name in tag_name:
+                        matching_product_tags.append(tag_id)
+
+                if matching_product_tags:
+                    selected_tags.append(matching_product_tags[0])
+                else:
+                    # If no match, create a new product interest tag
+                    try:
+                        tag_name = f"Product Interest: {product_name}"
+                        existing_tag = self.execute_kw('crm.tag', 'search_read',
+                                                [[['name', '=', tag_name]]], {'fields': ['id']})
+                        if existing_tag:
+                            new_tag_id = existing_tag[0]['id']
+                        else:
+                            new_tag_id = self.execute_kw('crm.tag', 'create', [{'name': tag_name}])
+                            # Add to our cached tag_ids
+                            self.tag_ids['Product Interest'].append(new_tag_id)
+                        selected_tags.append(new_tag_id)
+                    except Exception as e:
+                        logger.warning(f"Could not create tag for product {product_name}: {e}")
+                        # Fallback to random product tag
+                        selected_tags.append(random.choice(self.tag_ids['Product Interest']))
+            else:
+                # Select a random product interest tag
+                product_tag = random.choice(self.tag_ids['Product Interest'])
+                selected_tags.append(product_tag)
 
         return selected_tags
 
@@ -1179,70 +1215,6 @@ class CrmDataGenerator:
 
         logger.warning(f"No users found for team {team_name}, falling back to admin user")
         return self.uid
-
-    def _prepare_lead_data(self, company: Dict, user_id: int,
-                        probability_data: Dict, lead_source: str,
-                        selected_tags: List[int],
-                        date_created: datetime) -> Dict:
-        """Prepare lead data dictionary"""
-        stage_name = self.stage_names[probability_data['stage_id']].upper()
-        lead_type = 'lead' if 'NEW' in stage_name or 'COLD' in stage_name else 'opportunity'
-
-        # Add priority (star rating)
-        priority = self._get_priority_for_stage(stage_name)
-
-        # Prepare country ID
-        country_id = self._get_country_id(company)
-
-        # Create contact information
-        contact_name = self.fake.name()
-        email_domain = company['website'].replace('www.', '') if 'website' in company else self.fake.domain_name()
-
-        # Determine team based on country
-        country = company.get('country', '').lower()
-        if 'indonesia' in country or 'id' in country:
-            team_search = self.execute_kw('crm.team', 'search_read',
-                                        [[['name', '=', 'Sales Indonesia']]],
-                                        {'fields': ['id']})
-            team_id = team_search[0]['id'] if team_search else False
-        elif 'singapore' in country or 'sg' in country:
-            team_search = self.execute_kw('crm.team', 'search_read',
-                                        [[['name', '=', 'Sales Singapore']]],
-                                        {'fields': ['id']})
-            team_id = team_search[0]['id'] if team_search else False
-        else:
-            # Randomly assign to either team if country is not clearly identifiable
-            team_name = random.choice(['Sales Indonesia', 'Sales Singapore'])
-            team_search = self.execute_kw('crm.team', 'search_read',
-                                        [[['name', '=', team_name]]],
-                                        {'fields': ['id']})
-            team_id = team_search[0]['id'] if team_search else False
-
-        # Add debugging log
-        logger.info(f"Assigning lead for {company.get('name')} ({company.get('country')}) to team ID {team_id}")
-
-        lead_data = {
-            'name': f"{company.get('name', 'Unknown')} - {self.fake.catch_phrase()} Project",
-            'partner_name': company.get('name', self.fake.company()),
-            'contact_name': contact_name,
-            'function': self.fake.job(),
-            'email_from': f"{contact_name.split()[0].lower()}.{contact_name.split()[-1].lower()}@{email_domain}",
-            'phone': self.fake.phone_number(),
-            'user_id': user_id,
-            'team_id': team_id,
-            'stage_id': probability_data['stage_id'],
-            'type': lead_type,
-            'probability': probability_data['probability'],
-            'expected_revenue': probability_data['expected_revenue'],
-            'date_deadline': (date_created + timedelta(days=30)).strftime('%Y-%m-%d'),
-            'description': self.fake.paragraph(nb_sentences=5),
-            'priority': str(priority),
-            'tag_ids': [(6, 0, selected_tags)] if selected_tags else False,
-            'referred': lead_source == 'Referral',
-            'country_id': country_id,
-        }
-
-        return lead_data
 
     def load_company_data_from_csv(self, csv_file_path=None):
         """Load company data from a CSV file or use default sample"""
@@ -1382,7 +1354,15 @@ class CrmDataGenerator:
 
         # Create contact information
         contact_name = self.fake.name()
+        contact_first_name = contact_name.split()[0]  # Get the first name of contact
         email_domain = company_data.get('website', self.fake.domain_name()).replace('www.', '')
+
+        # Select a product from the product list
+        product_name = random.choice(self.PRODUCT_LIST)
+
+        # Create the lead name in the requested format
+        # "Company contactperson/client name(First name) | Product Name | Company name"
+        lead_name = f"{contact_first_name} | {product_name} | {company_data.get('name', 'Unknown')}"
 
         # Determine team based on country
         country = company_data.get('country', '').lower()
@@ -1408,7 +1388,7 @@ class CrmDataGenerator:
         logger.info(f"Assigning lead for {company_data.get('name')} ({company_data.get('country')}) to team ID {team_id}")
 
         lead_data = {
-            'name': f"{company_data.get('name', 'Unknown')} - {self.fake.catch_phrase()} Project",
+            'name': lead_name,  # New lead name format with contact's first name
             'partner_name': company_data.get('name', self.fake.company()),
             'contact_name': contact_name,
             'function': self.fake.job(),
@@ -1421,7 +1401,7 @@ class CrmDataGenerator:
             'probability': probability_data['probability'],
             'expected_revenue': probability_data['expected_revenue'],
             'date_deadline': (date_created + timedelta(days=30)).strftime('%Y-%m-%d'),
-            'description': self.fake.paragraph(nb_sentences=5),
+            'description': f"Product: {product_name}\n\n{self.fake.paragraph(nb_sentences=5)}",
             'priority': str(priority),
             'tag_ids': [(6, 0, selected_tags)] if selected_tags else False,
             'referred': lead_source == 'Referral',
@@ -1483,10 +1463,13 @@ class CrmDataGenerator:
                 # Determine lead source with weighted random selection
                 lead_source = random.choices(source_options, weights=source_weights, k=1)[0]
 
-                # Select tags
-                selected_tags = self._select_tags_for_lead(lead_source, company_data)
+                # Select a product from the product list
+                product_name = random.choice(self.PRODUCT_LIST)
 
-                # Prepare lead data - now use the created company record
+                # Select tags - now passing the product_name
+                selected_tags = self._select_tags_for_lead(lead_source, company_data, product_name)
+
+                # Prepare lead data - now passing the company record and product
                 lead_data = self._prepare_lead_data_with_company(
                     company_data, company_id, user_id, probability_data,
                     lead_source, selected_tags, date_created
