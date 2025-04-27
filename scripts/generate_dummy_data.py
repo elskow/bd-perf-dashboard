@@ -199,21 +199,19 @@ class CrmDataGenerator:
         ]
     }
 
-    def __init__(self, uid: int, models: xmlrpc.client.ServerProxy, db: str, password: str):
+    def __init__(self, uid: int, models: xmlrpc.client.ServerProxy, db: str, password: str, total_meetings: int = 0):
         """Initialize the generator with Odoo connection details."""
         self.uid = uid
         self.models = models
         self.db = db
         self.password = password
         self.fake = Faker()
+        self.target_total_meetings = total_meetings
+        self.max_meetings_per_user = 50
 
-        # Current actual date and time
         self.now = datetime.now()
-
-        # Simulation date for 2025
         self.simulation_date = datetime.now().replace(year=SIMULATION_YEAR)
 
-        # Initialize data structures
         self.tag_ids = {}
         self.users = {}
         self.stages = []
@@ -222,8 +220,16 @@ class CrmDataGenerator:
         self.activity_types = []
         self.companies = []
 
-        # Initialize meeting tracking
         self.meeting_tracker = {}
+        self.lead_meeting_counts = {}
+
+    def _get_ordinal_suffix(self, n: int) -> str:
+        """Return the ordinal suffix for a number (1st, 2nd, 3rd, etc.)"""
+        if 10 <= n % 100 <= 20:
+            suffix = 'th'
+        else:
+            suffix = {1: 'st', 2: 'nd', 3: 'rd'}.get(n % 10, 'th')
+        return f"{n}{suffix}"
 
     def execute_kw(self, model: str, method: str, args: List, kwargs: Dict = None) -> Any:
         """Execute Odoo RPC call with error handling."""
@@ -253,7 +259,7 @@ class CrmDataGenerator:
         logger.info("Initialized meeting tracker for all users")
 
     def _is_meeting_limit_reached(self, user_id: int, meeting_date: datetime, is_won_opportunity: bool = False) -> bool:
-        """Check if user has reached their meeting limit for the week, with special handling for won opportunities."""
+        """Check if user has reached their meeting limit for the week, with equal distribution across users."""
         week_key = f"{meeting_date.year}-W{meeting_date.isocalendar()[1]:02d}"
 
         if user_id not in self.meeting_tracker:
@@ -262,16 +268,12 @@ class CrmDataGenerator:
         if week_key not in self.meeting_tracker[user_id]:
             self.meeting_tracker[user_id][week_key] = 0
 
-        # Get the user's role
-        user_name = self.users.get(user_id, {}).get('name', '')
-        is_manager = 'Manager' in user_name or 'Director' in user_name
+        # Equal capacity for all users regardless of role
+        base_max_meetings = self.max_meetings_per_user
 
-        # Higher capacity for managers/directors
-        base_max_meetings = 20 if is_manager else 15
-
-        # For won opportunities, we allow exceeding the limit by 30%
+        # For won opportunities, we allow exceeding the limit by 20%
         if is_won_opportunity:
-            max_meetings = int(base_max_meetings * 1.3)
+            max_meetings = int(base_max_meetings * 1.2)
         else:
             max_meetings = base_max_meetings
 
@@ -299,7 +301,7 @@ class CrmDataGenerator:
                 for tag in tags:
                     tag_name = f"{category}: {tag}"
                     existing_tag = self.execute_kw('crm.tag', 'search_read',
-                                               [[['name', '=', tag_name]]], {'fields': ['id']})
+                                            [[['name', '=', tag_name]]], {'fields': ['id']})
 
                     if existing_tag:
                         tag_ids[category].append(existing_tag[0]['id'])
@@ -409,7 +411,7 @@ class CrmDataGenerator:
                 # Check if user is already in the team
                 existing_member = self.execute_kw('crm.team.member', 'search',
                                             [[('crm_team_id', '=', team_id),
-                                              ('user_id', '=', user_id)]])
+                                            ('user_id', '=', user_id)]])
 
                 if not existing_member:
                     member_data = {
@@ -429,8 +431,8 @@ class CrmDataGenerator:
         logger.info("\nVerifying team memberships:")
         for team_name, team_id in team_map.items():
             team_members = self.execute_kw('crm.team.member', 'search_read',
-                                      [[('crm_team_id', '=', team_id)]],
-                                      {'fields': ['user_id']})
+                                    [[('crm_team_id', '=', team_id)]],
+                                    {'fields': ['user_id']})
 
             member_ids = [member['user_id'][0] for member in team_members]
             member_names = []
@@ -503,7 +505,7 @@ class CrmDataGenerator:
         """Get the note subtype ID for messages."""
         try:
             note_subtype = self.execute_kw('mail.message.subtype', 'search_read',
-                                         [[['name', '=', 'Note']]], {'fields': ['id']})
+                                        [[['name', '=', 'Note']]], {'fields': ['id']})
             if note_subtype:
                 return note_subtype[0]['id']
             else:
@@ -514,7 +516,7 @@ class CrmDataGenerator:
             return 1
 
     def generate_business_datetime(self, start_date: datetime, end_date: datetime) -> datetime:
-        """Generate a datetime during business hours on weekdays."""
+        """Generate a datetime during business hours (9am-5pm) on weekdays (Monday-Friday)."""
         # Get a random date
         time_delta = end_date - start_date
         days_delta = time_delta.days + 1
@@ -534,11 +536,12 @@ class CrmDataGenerator:
                 while random_date.weekday() >= 5:
                     random_date -= timedelta(days=1)
 
-        # Set to business hours
-        business_start = dt_time(8, 0, 0)  # 8:00
-        business_end = dt_time(17, 0, 0)   # 17:00
+        # Set to business hours: 9:00 AM to 5:00 PM
+        business_start = dt_time(0, 0, 0)  # 9:00 AM
+        business_end = dt_time(8, 0, 0)   # 5:00 PM
 
-        # Random time during business hours
+        # Random time during business hours - ensure we don't start meetings too late
+        # Latest meeting start time would be 4:00 PM (end at 5:00 PM)
         random_hour = random.randint(business_start.hour, business_end.hour - 1)
         random_minute = random.choice([0, 15, 30, 45])  # Realistic meeting start times
 
@@ -555,7 +558,7 @@ class CrmDataGenerator:
         return None
 
     def create_lead_message(self, lead_id: int, body: str, author_id: int,
-                          message_date: datetime, subtype_id: Optional[int] = None) -> Optional[int]:
+                        message_date: datetime, subtype_id: Optional[int] = None) -> Optional[int]:
         """Create a message for a lead with specific historical date."""
         try:
             note_subtype_id = subtype_id or self.get_note_subtype_id()
@@ -577,7 +580,7 @@ class CrmDataGenerator:
             return None
 
     def add_stage_change_log(self, lead_id: int, old_stage_name: str, new_stage_name: str,
-                           user_id: int, date: datetime) -> Optional[int]:
+                        user_id: int, date: datetime) -> Optional[int]:
         """Add a log note about stage change with timestamp."""
         try:
             user_name = self.users.get(user_id, {}).get('name', "Administrator")
@@ -604,17 +607,40 @@ class CrmDataGenerator:
                             force_historical=False):
         """Create calendar event with properly sequenced historical logs."""
         try:
+            # Get lead data to extract company name
+            lead_data = self.execute_kw('crm.lead', 'read', [lead_id],
+                                        {'fields': ['name', 'partner_name']})
+
+            # Extract company name (usually after last pipe symbol in lead name)
+            company_name = ""
+            if lead_data:
+                if lead_data[0].get('partner_name'):
+                    company_name = lead_data[0]['partner_name']
+                elif '|' in lead_data[0]['name']:
+                    company_name = lead_data[0]['name'].split('|')[-1].strip()
+                else:
+                    company_name = lead_data[0]['name']
+
+            # Increment meeting count for this lead
+            if lead_id not in self.lead_meeting_counts:
+                self.lead_meeting_counts[lead_id] = 0
+            self.lead_meeting_counts[lead_id] += 1
+
+            # Format meeting name with ordinal number
+            meeting_number = self._get_ordinal_suffix(self.lead_meeting_counts[lead_id])
+            formatted_event_name = f"{meeting_number} Meeting | {company_name}"
+
             end_datetime = start_datetime + timedelta(hours=duration_hours)
 
             event_vals = {
-                'name': event_name,
+                'name': formatted_event_name,
                 'start': start_datetime.strftime('%Y-%m-%d %H:%M:%S'),
                 'stop': end_datetime.strftime('%Y-%m-%d %H:%M:%S'),
                 'duration': duration_hours,
                 'user_id': user_id,
                 'opportunity_id': lead_id,
                 'location': 'Virtual Meeting' if random.random() < 0.7 else 'Office Meeting Room',
-                'description': self.fake.paragraph(nb_sentences=2),
+                'description': f"Agenda: {event_name}\n\n{self.fake.paragraph(nb_sentences=2)}",
             }
 
             if partner_id:
@@ -644,7 +670,7 @@ class CrmDataGenerator:
                 # For historical meetings that already happened, add a summary message after
                 if force_historical or start_datetime < self.simulation_date:
                     # Add pre-meeting notification
-                    message_body = f"<p>Meeting scheduled: {event_name}<br/>Date: {start_datetime.strftime('%Y-%m-%d %H:%M')}<br/>Attendee: {user_name}</p>"
+                    message_body = f"<p>Meeting scheduled: {formatted_event_name}<br/>Date: {start_datetime.strftime('%Y-%m-%d %H:%M')}<br/>Attendee: {user_name}</p>"
                     self.create_lead_message(
                         lead_id,
                         message_body,
@@ -655,7 +681,7 @@ class CrmDataGenerator:
                     # Add post-meeting summary for meetings in the past
                     if random.random() < 0.7:  # 70% chance of adding summary
                         summary_date = start_datetime + timedelta(hours=duration_hours, days=random.randint(0, 1))
-                        summary_body = f"<p>Meeting summary: {event_name}<br/>Key points discussed:<br/>- {self.fake.sentence()}<br/>- {self.fake.sentence()}<br/>Next steps: {self.fake.sentence()}</p>"
+                        summary_body = f"<p>Meeting summary: {formatted_event_name}<br/>Key points discussed:<br/>- {self.fake.sentence()}<br/>- {self.fake.sentence()}<br/>Next steps: {self.fake.sentence()}</p>"
                         self.create_lead_message(
                             lead_id,
                             summary_body,
@@ -670,7 +696,7 @@ class CrmDataGenerator:
             return None
 
     def add_custom_stage_change_message(self, lead_id: int, old_stage_id: int, new_stage_id: int,
-                                      user_id: int, date: datetime) -> Optional[int]:
+                                    user_id: int, date: datetime) -> Optional[int]:
         """Add a user-friendly stage change message with timestamp."""
         try:
             old_stage_name = self.stage_names.get(old_stage_id, "Unknown")
@@ -722,9 +748,9 @@ class CrmDataGenerator:
 
         # Find WON and LOST stage IDs
         won_stage_id = next((sid for sid, sname in self.stage_names.items()
-                             if 'WON' in sname.upper()), None)
+                            if 'WON' in sname.upper()), None)
         lost_stage_id = next((sid for sid, sname in self.stage_names.items()
-                              if 'LOST' in sname.upper()), None)
+                            if 'LOST' in sname.upper()), None)
 
         # Ensure won/lost leads stay in terminal state
         if 'WON' in stage_name and lost_stage_id and random.random() < 0.99:
@@ -774,7 +800,7 @@ class CrmDataGenerator:
 
         # Find the best matching stage factor
         best_match = next((key for key in self.STAGE_TO_REVENUE_FACTOR
-                           if key in stage_name), None)
+                        if key in stage_name), None)
 
         revenue_factor = self.STAGE_TO_REVENUE_FACTOR.get(best_match, 0.7)
         return int(base_revenue * revenue_factor / 1000) * 1000
@@ -810,7 +836,7 @@ class CrmDataGenerator:
             return False
 
     def _create_stage_change_history(self, lead_id: int, lead_data: Dict, date_created: datetime,
-                                   current_stage_index: int) -> None:
+                                current_stage_index: int) -> None:
         """Create stage change history for a lead."""
         # Generate timestamps for stage transitions
         stage_dates = []
@@ -833,7 +859,7 @@ class CrmDataGenerator:
 
             # Ensure each date is strictly after the previous one
             current_date = max(current_date + timedelta(days=days_to_add),
-                             stage_dates[-1] + timedelta(days=1) if stage_dates else current_date)
+                            stage_dates[-1] + timedelta(days=1) if stage_dates else current_date)
 
             # Don't exceed simulation date
             if current_date > self.simulation_date:
@@ -922,7 +948,7 @@ class CrmDataGenerator:
             )
 
     def create_lead_activities(self, lead_id: int, lead_data: Dict, date_created: datetime,
-                             partner_id: Optional[int] = None) -> bool:
+                            partner_id: Optional[int] = None) -> bool:
         """Create activities and meetings for a lead based on its stage."""
         try:
             stage_id = lead_data.get('stage_id')
@@ -1291,7 +1317,7 @@ class CrmDataGenerator:
             return []
 
     def _create_single_activity(self, lead_id: int, activity: Dict, business_datetime: datetime,
-                              user_id: int, partner_id: Optional[int] = None) -> None:
+                            user_id: int, partner_id: Optional[int] = None) -> None:
         """Create a single activity record with proper handling for meetings."""
         try:
             activity_type_id = self._get_activity_type_id(activity['type'])
@@ -1313,7 +1339,7 @@ class CrmDataGenerator:
 
             if business_datetime < self.simulation_date:
                 self._mark_activity_as_done(activity_id, lead_id, activity, activity_values,
-                                          business_datetime, user_id, partner_id)
+                                        business_datetime, user_id, partner_id)
             elif business_datetime > self.simulation_date and business_datetime < self.simulation_date + timedelta(days=14):
                 # For future activities (next 14 days), create meetings for meeting type activities
                 if activity['type'] == 'meeting':
@@ -1341,8 +1367,8 @@ class CrmDataGenerator:
         return None
 
     def _mark_activity_as_done(self, activity_id: int, lead_id: int, activity: Dict,
-                             activity_values: Dict, business_datetime: datetime,
-                             user_id: int, partner_id: Optional[int] = None) -> None:
+                            activity_values: Dict, business_datetime: datetime,
+                            user_id: int, partner_id: Optional[int] = None) -> None:
         """Mark an activity as done with proper history recording."""
         try:
             self.execute_kw('mail.activity', 'action_done', [activity_id])
@@ -1562,7 +1588,7 @@ class CrmDataGenerator:
             # Check if company already exists
             existing_company = self.execute_kw('res.partner', 'search_read',
                                             [[['name', '=', company_data['name']],
-                                              ['is_company', '=', True]]],
+                                            ['is_company', '=', True]]],
                                             {'fields': ['id']})
 
             if existing_company:
@@ -1707,6 +1733,23 @@ class CrmDataGenerator:
             # Initialize the meeting tracker
             self._initialize_meeting_tracker()
 
+            # Calculate meetings per user if total meetings specified
+            if self.target_total_meetings > 0:
+                # Get active users (excluding Administrator)
+                active_users = [uid for uid, user in self.users.items()
+                            if 'Administrator' not in user.get('name', '') and user.get('login') != 'admin']
+
+                if active_users:
+                    # Calculate meetings per user, ensuring at least 3 meetings per user
+                    self.max_meetings_per_user = max(3, self.target_total_meetings // len(active_users))
+                    logger.info(f"Target: {self.target_total_meetings} meetings total")
+                    logger.info(f"Distributing across {len(active_users)} active users")
+                    logger.info(f"Setting max {self.max_meetings_per_user} meetings per user")
+                else:
+                    logger.warning("No active users found for meeting distribution")
+            else:
+                logger.info(f"No target meetings specified, using default max of {self.max_meetings_per_user} per user")
+
             # Validate required data
             if not self.stages:
                 logger.error("No CRM stages found. Cannot generate leads.")
@@ -1823,9 +1866,12 @@ class CrmDataGenerator:
         try:
             user_id = lead_data.get('user_id')[0] if isinstance(lead_data.get('user_id'), list) else lead_data.get('user_id', self.uid)
 
-            # Essential meeting sequence for a won deal - minimum 5 meetings
+            # Reset meeting counter for this lead to ensure proper sequencing
+            self.lead_meeting_counts[lead_id] = 0
+
+            # Essential meeting sequence for a won deal
             essential_meetings = [
-                {"name": "Initial Discovery Call", "days_offset": 5, "duration": 1.0},
+                {"name": "Discovery Call", "days_offset": 5, "duration": 1.0},
                 {"name": "Needs Assessment", "days_offset": 15, "duration": 1.5},
                 {"name": "Solution Presentation", "days_offset": 25, "duration": 2.0},
                 {"name": "Proposal Review", "days_offset": 40, "duration": 1.5},
@@ -1849,13 +1895,10 @@ class CrmDataGenerator:
                     meeting_date + timedelta(days=1)
                 )
 
-                # Create the meeting with historical timestamps
-                event_name = f"{meeting['name']} - {lead_data.get('name', 'Opportunity')}"
-
-                # Create the event
+                # Create the event with original meeting type preserved in description
                 event_id = self.create_calendar_event(
                     lead_id,
-                    event_name,
+                    meeting["name"],  # Original name preserved in description
                     meeting_datetime,
                     meeting["duration"],
                     user_id,
@@ -1943,6 +1986,8 @@ def main():
     parser.add_argument('--count', type=int, default=100, help='Number of leads to generate')
     parser.add_argument('--csv', help='Path to CSV file with company data')
     parser.add_argument('--year', type=int, default=SIMULATION_YEAR, help=f'Simulation year (default: {SIMULATION_YEAR})')
+    parser.add_argument('--meetings', type=int, default=0, help='Total number of meetings to generate (0 = automatic)')
+
 
     args = parser.parse_args()
 
@@ -1960,7 +2005,7 @@ def main():
     logger.info("Connected to Odoo successfully")
 
     # Generate dummy leads
-    generator = CrmDataGenerator(uid, models, args.db, args.password)
+    generator = CrmDataGenerator(uid, models, args.db, args.password, args.meetings)
     generator.generate_leads(args.count, args.csv)
 
 
