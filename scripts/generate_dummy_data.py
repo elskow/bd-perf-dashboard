@@ -1245,9 +1245,9 @@ class CrmDataGenerator:
             logger.warning(f"Could not create industry {industry_name}: {e}")
             return False
 
-    def _prepare_lead_data_with_company(self, company_data, company_id, user_id,
-                                      probability_data, lead_source, selected_tags,
-                                      date_created) -> Dict:
+    def _prepare_lead_data(self, company_data, company_id, user_id,
+                                    probability_data, lead_source, selected_tags,
+                                    date_created, product_name=None) -> Dict:
         """Prepare lead data dictionary using company record."""
         stage_name = self.stage_names[probability_data['stage_id']].upper()
         lead_type = 'lead' if 'NEW' in stage_name or 'COLD' in stage_name else 'opportunity'
@@ -1258,7 +1258,8 @@ class CrmDataGenerator:
         contact_first_name = contact_name.split()[0]
         email_domain = company_data.get('website', self.fake.domain_name()).replace('www.', '')
 
-        product_name = random.choice(self.PRODUCT_LIST)
+        if not product_name:
+            product_name = random.choice(self.PRODUCT_LIST)
 
         lead_name = f"{contact_first_name} | {product_name} | {company_data.get('name', 'Unknown')}"
 
@@ -1354,15 +1355,13 @@ class CrmDataGenerator:
                 date_created = self._generate_creation_date(i, count)
                 probability_data = self.get_probability_data(date_created)
 
-                # Select lead source and tags
                 lead_source = random.choices(source_options, weights=source_weights, k=1)[0]
                 product_name = random.choice(self.PRODUCT_LIST)
                 selected_tags = self._select_tags_for_lead(lead_source, company_data, product_name)
 
-                # Prepare lead data
-                lead_data = self._prepare_lead_data_with_company(
+                lead_data = self._prepare_lead_data(
                     company_data, company_id, user_id, probability_data,
-                    lead_source, selected_tags, date_created
+                    lead_source, selected_tags, date_created, product_name
                 )
 
                 # Filter out None and False values
