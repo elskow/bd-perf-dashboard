@@ -32,22 +32,23 @@ FALLBACK_LOCALE = 'id_ID'
 MAX_RETRIES = 5
 RETRY_DELAY = 5  # seconds
 
-# Try to set Indonesian locale
-try:
-    locale.setlocale(locale.LC_ALL, DEFAULT_LOCALE)
-except:
+# Set Indonesian locale
+for loc in [DEFAULT_LOCALE, FALLBACK_LOCALE]:
     try:
-        locale.setlocale(locale.LC_ALL, FALLBACK_LOCALE)
-    except:
-        logger.warning("Could not set Indonesian locale, using default")
+        locale.setlocale(locale.LC_ALL, loc)
+        break
+    except locale.Error:
+        continue
+else:
+    logger.warning("Could not set Indonesian locale, using default")
 
 
 class OdooUtils:
-    """Utility class for Odoo connection and common operations"""
+    """Utility class for Odoo connection and operations."""
 
     @staticmethod
     def format_idr(amount: float) -> str:
-        """Format amount as IDR currency"""
+        """Format amount as IDR currency."""
         try:
             return format_currency(amount, 'IDR', locale='id_ID')
         except:
@@ -55,7 +56,7 @@ class OdooUtils:
 
     @staticmethod
     def connect_to_odoo(url: str, db: str, username: str, password: str, max_retries: int = MAX_RETRIES) -> Tuple[Optional[int], Optional[xmlrpc.client.ServerProxy]]:
-        """Establish connection to Odoo instance with retries"""
+        """Establish connection to Odoo instance with retries."""
         common = xmlrpc.client.ServerProxy(f'{url}/xmlrpc/2/common')
 
         for attempt in range(max_retries):
@@ -67,21 +68,19 @@ class OdooUtils:
                     return uid, models
                 else:
                     logger.error("Authentication failed")
-                    if attempt < max_retries - 1:
-                        logger.info(f"Retrying in {RETRY_DELAY} seconds... (Attempt {attempt+1}/{max_retries})")
-                        time.sleep(RETRY_DELAY)
             except Exception as e:
                 logger.error(f"Connection error: {e}")
-                if attempt < max_retries - 1:
-                    logger.info(f"Retrying in {RETRY_DELAY} seconds... (Attempt {attempt+1}/{max_retries})")
-                    time.sleep(RETRY_DELAY)
+
+            if attempt < max_retries - 1:
+                logger.info(f"Retrying in {RETRY_DELAY} seconds... (Attempt {attempt+1}/{max_retries})")
+                time.sleep(RETRY_DELAY)
 
         return None, None
 
     @staticmethod
     @contextmanager
     def odoo_context(tracking_disabled: bool = True):
-        """Context manager to provide standard context for Odoo operations"""
+        """Context manager to provide standard context for Odoo operations."""
         context = {
             'mail_auto_subscribe_no_notify': tracking_disabled,
             'tracking_disable': tracking_disabled,
@@ -92,7 +91,7 @@ class OdooUtils:
 
 
 class CrmDataGenerator:
-    """Main class for generating CRM data in Odoo"""
+    """Generator for realistic CRM data in Odoo."""
 
     # Stage mapping constants
     STAGE_WEIGHTS = {
@@ -132,7 +131,7 @@ class CrmDataGenerator:
         'Organic Search': 5
     }
 
-    # Tag categories
+    # Product list
     PRODUCT_LIST = [
         'SIAP + HRM',
         'SIAP',
@@ -148,6 +147,7 @@ class CrmDataGenerator:
         'Mining + Asset',
     ]
 
+    # Tag categories
     TAG_CATEGORIES = {
         'Industry': [
             'Technology', 'Healthcare', 'Finance', 'Manufacturing', 'Retail',
@@ -185,6 +185,7 @@ class CrmDataGenerator:
     }
 
     def __init__(self, uid: int, models: xmlrpc.client.ServerProxy, db: str, password: str):
+        """Initialize the generator with Odoo connection details."""
         self.uid = uid
         self.models = models
         self.db = db
@@ -192,7 +193,7 @@ class CrmDataGenerator:
         self.fake = Faker()
         self.now = datetime.now()
 
-        # Initialize key data structures
+        # Initialize data structures
         self.tag_ids = {}
         self.users = {}
         self.stages = []
@@ -202,7 +203,7 @@ class CrmDataGenerator:
         self.companies = []
 
     def execute_kw(self, model: str, method: str, args: List, kwargs: Dict = None) -> Any:
-        """Execute Odoo RPC call with error handling"""
+        """Execute Odoo RPC call with error handling."""
         if kwargs is None:
             kwargs = {}
 
@@ -213,17 +214,14 @@ class CrmDataGenerator:
             raise
 
     def setup_crm_tags(self) -> Dict[str, List[int]]:
-        """Set up realistic CRM tags for lead categorization"""
+        """Set up CRM tags for lead categorization."""
         try:
             logger.info("Setting up CRM tags...")
-
             tag_ids = defaultdict(list)
 
             for category, tags in self.TAG_CATEGORIES.items():
                 for tag in tags:
                     tag_name = f"{category}: {tag}"
-
-                    # Check if tag already exists
                     existing_tag = self.execute_kw('crm.tag', 'search_read',
                                                [[['name', '=', tag_name]]], {'fields': ['id']})
 
@@ -234,26 +232,23 @@ class CrmDataGenerator:
                         tag_ids[category].append(tag_id)
 
             logger.info(f"Created {sum(len(tags) for tags in tag_ids.values())} tags across {len(tag_ids)} categories")
-
             self.tag_ids = tag_ids
             return tag_ids
-
         except Exception as e:
             logger.error(f"Error setting up CRM tags: {e}")
             return {}
 
     def setup_user_roles(self) -> Dict[int, Dict]:
-        """Set up user roles with team assignments"""
+        """Set up user roles with team assignments."""
         try:
             logger.info("Setting up user roles...")
-
             # Set up teams first
             sales_teams = self.execute_kw('crm.team', 'search_read',
                                         [[('name', 'in', ['Sales Indonesia', 'Sales Singapore'])]],
                                         {'fields': ['id', 'name']})
             team_map = {team['name']: team['id'] for team in sales_teams}
 
-            # Get the required groups
+            # Get required groups
             groups = self.execute_kw('res.groups', 'search_read',
                                 [[('name', 'in', [
                                     'User: Own Documents Only',
@@ -272,79 +267,12 @@ class CrmDataGenerator:
                     continue
 
                 for name, login, title in team_members:
-                    # Check if user exists
-                    existing_user = self.execute_kw('res.users', 'search_read',
-                                                [[('login', '=', login)]],
-                                                {'fields': ['id']})
-
-                    user_vals = {
-                        'name': name,
-                        'login': login,
-                        'password': 'demo123',
-                        'company_id': 1,
-                        'email': login,
-                        'sale_team_id': team_id,
-                        'groups_id': [(6, 0, group_ids)],  # Assign all required groups
-                        'share': False,  # Internal user
-                        'notification_type': 'email',
-                    }
-
-                    try:
-                        if existing_user:
-                            # Update existing user
-                            user_id = existing_user[0]['id']
-                            self.execute_kw('res.users', 'write', [[user_id], user_vals])
-                            logger.info(f"Updated user '{name}' with team {team_name}")
-                        else:
-                            # Create new user
-                            user_id = self.execute_kw('res.users', 'create', [user_vals])
-                            logger.info(f"Created user '{name}' with team {team_name}")
-
-                        # Get the partner id for this user
-                        user_data = self.execute_kw('res.users', 'read',
-                                                [user_id],
-                                                {'fields': ['partner_id']})
-                        user_partner_id = user_data[0]['partner_id'][0] if user_data and user_data[0]['partner_id'] else False
-
-                        if user_partner_id:
-                            # Check if user is already in the team
-                            existing_member = self.execute_kw('crm.team.member', 'search',
-                                                        [[('crm_team_id', '=', team_id),
-                                                        ('user_id', '=', user_id)]])
-
-                            if not existing_member:
-                                # Add user as team member - this is key for team membership!
-                                member_data = {
-                                    'crm_team_id': team_id,
-                                    'user_id': user_id,
-                                    'member_warning': False,
-                                    'create_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                                    'write_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                                }
-                                self.execute_kw('crm.team.member', 'create', [member_data])
-                                logger.info(f"Added user {name} as member of Sales {team_name} team")
-
-                    except Exception as e:
-                        logger.error(f"Error creating/updating user {name}: {e}")
+                    self._create_or_update_user(name, login, title, team_id, team_name, group_ids)
 
             # Verify team memberships
-            logger.info("\nVerifying team memberships:")
-            for team_name, team_id in team_map.items():
-                team_members = self.execute_kw('crm.team.member', 'search_read',
-                                        [[('crm_team_id', '=', team_id)]],
-                                        {'fields': ['user_id']})
+            self._verify_team_memberships(team_map)
 
-                member_ids = [member['user_id'][0] for member in team_members]
-                member_names = []
-                if member_ids:
-                    users_data = self.execute_kw('res.users', 'read',
-                                            [member_ids],
-                                            {'fields': ['name']})
-                    member_names = [user['name'] for user in users_data]
-
-                logger.info(f"Team '{team_name}' has {len(member_ids)} members: {', '.join(member_names) if member_names else 'None'}")
-
-            # Get final user list with team assignments
+            # Get final user list
             users = self.execute_kw('res.users', 'search_read',
                                 [[('share', '=', False)]],
                                 {'fields': ['id', 'name', 'login', 'sale_team_id']})
@@ -352,13 +280,94 @@ class CrmDataGenerator:
             users_dict = {user['id']: user for user in users}
             self.users = users_dict
             return users_dict
-
         except Exception as e:
             logger.error(f"Error setting up user roles: {e}")
             return {}
 
+    def _create_or_update_user(self, name, login, title, team_id, team_name, group_ids):
+        """Create or update a user with proper team assignment."""
+        try:
+            # Check if user exists
+            existing_user = self.execute_kw('res.users', 'search_read',
+                                        [[('login', '=', login)]],
+                                        {'fields': ['id']})
+
+            user_vals = {
+                'name': name,
+                'login': login,
+                'password': 'demo123',
+                'company_id': 1,
+                'email': login,
+                'sale_team_id': team_id,
+                'groups_id': [(6, 0, group_ids)],
+                'share': False,
+                'notification_type': 'email',
+            }
+
+            if existing_user:
+                # Update existing user
+                user_id = existing_user[0]['id']
+                self.execute_kw('res.users', 'write', [[user_id], user_vals])
+                logger.info(f"Updated user '{name}' with team {team_name}")
+            else:
+                # Create new user
+                user_id = self.execute_kw('res.users', 'create', [user_vals])
+                logger.info(f"Created user '{name}' with team {team_name}")
+
+            # Add user to team membership
+            self._add_user_to_team(user_id, team_id, team_name, name)
+
+        except Exception as e:
+            logger.error(f"Error creating/updating user {name}: {e}")
+
+    def _add_user_to_team(self, user_id, team_id, team_name, name):
+        """Add a user to a sales team as a member."""
+        try:
+            # Get the partner id for this user
+            user_data = self.execute_kw('res.users', 'read',
+                                    [user_id],
+                                    {'fields': ['partner_id']})
+            user_partner_id = user_data[0]['partner_id'][0] if user_data and user_data[0]['partner_id'] else False
+
+            if user_partner_id:
+                # Check if user is already in the team
+                existing_member = self.execute_kw('crm.team.member', 'search',
+                                            [[('crm_team_id', '=', team_id),
+                                              ('user_id', '=', user_id)]])
+
+                if not existing_member:
+                    member_data = {
+                        'crm_team_id': team_id,
+                        'user_id': user_id,
+                        'member_warning': False,
+                        'create_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                        'write_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                    }
+                    self.execute_kw('crm.team.member', 'create', [member_data])
+                    logger.info(f"Added user {name} as member of Sales {team_name} team")
+        except Exception as e:
+            logger.error(f"Error adding user {name} to team: {e}")
+
+    def _verify_team_memberships(self, team_map):
+        """Verify and log team memberships."""
+        logger.info("\nVerifying team memberships:")
+        for team_name, team_id in team_map.items():
+            team_members = self.execute_kw('crm.team.member', 'search_read',
+                                      [[('crm_team_id', '=', team_id)]],
+                                      {'fields': ['user_id']})
+
+            member_ids = [member['user_id'][0] for member in team_members]
+            member_names = []
+            if member_ids:
+                users_data = self.execute_kw('res.users', 'read',
+                                        [member_ids],
+                                        {'fields': ['name']})
+                member_names = [user['name'] for user in users_data]
+
+            logger.info(f"Team '{team_name}' has {len(member_ids)} members: {', '.join(member_names) if member_names else 'None'}")
+
     def setup_sales_teams(self) -> Dict[str, int]:
-        """Set up sales teams for Indonesia and Singapore"""
+        """Set up sales teams for Indonesia and Singapore."""
         try:
             logger.info("Setting up sales teams...")
             team_ids = {}
@@ -388,56 +397,8 @@ class CrmDataGenerator:
             logger.error(f"Error setting up sales teams: {e}")
             return {}
 
-    def load_company_data(self) -> List[Dict]:
-        """Load realistic company data or generate it if file not found"""
-        companies = []
-        try:
-            # Try to load from CSV file in the same directory as the script
-            script_dir = os.path.dirname(os.path.abspath(__file__))
-            csv_path = os.path.join(script_dir, 'sample_companies.csv')
-
-            if os.path.exists(csv_path):
-                with open(csv_path, 'r') as f:
-                    reader = csv.DictReader(f)
-                    companies = list(reader)
-                    logger.info(f"Loaded {len(companies)} companies from sample data")
-            else:
-                # Generate companies with Faker
-                industries = self.TAG_CATEGORIES['Industry']
-                company_sizes = ['1-10', '11-50', '51-200', '201-500', '501-1000', '1000+']
-
-                # Ensure we have a good mix of Indonesian and Singaporean companies
-                countries = ['Indonesia'] * 40 + ['Singapore'] * 40 + [self.fake.country() for _ in range(20)]
-                random.shuffle(countries)
-
-                for country in countries:
-                    companies.append({
-                        'name': self.fake.company(),
-                        'industry': random.choice(industries),
-                        'size': random.choice(company_sizes),
-                        'country': country,
-                        'website': 'www.' + self.fake.domain_name()
-                    })
-                logger.info("Generated 100 fake companies as sample data")
-        except Exception as e:
-            logger.error(f"Error loading company data: {e}")
-            # Create a minimal set as fallback
-            industries = self.TAG_CATEGORIES['Industry'][:5]
-            company_sizes = ['1-10', '11-50', '51-200', '201-500', '501-1000', '1000+']
-            for _ in range(50):
-                companies.append({
-                    'name': self.fake.company(),
-                    'industry': random.choice(industries),
-                    'size': random.choice(company_sizes),
-                    'country': self.fake.country(),
-                    'website': 'www.' + self.fake.domain_name()
-                })
-
-        self.companies = companies
-        return companies
-
     def get_crm_stages(self) -> List[Dict]:
-        """Get CRM stages from Odoo"""
+        """Get CRM stages from Odoo."""
         stages = self.execute_kw('crm.stage', 'search_read', [[]], {'fields': ['id', 'name', 'sequence']})
         if not stages:
             logger.error("No CRM stages found. Ensure CRM module is properly installed.")
@@ -456,14 +417,14 @@ class CrmDataGenerator:
         return stages
 
     def get_activity_types(self) -> List[Dict]:
-        """Get activity types from Odoo"""
+        """Get activity types from Odoo."""
         activity_types = self.execute_kw('mail.activity.type', 'search_read', [[]], {'fields': ['id', 'name']})
         logger.info(f"Found {len(activity_types)} activity types")
         self.activity_types = activity_types
         return activity_types
 
     def get_note_subtype_id(self) -> int:
-        """Get the note subtype ID for messages"""
+        """Get the note subtype ID for messages."""
         try:
             note_subtype = self.execute_kw('mail.message.subtype', 'search_read',
                                          [[['name', '=', 'Note']]], {'fields': ['id']})
@@ -477,7 +438,7 @@ class CrmDataGenerator:
             return 1
 
     def generate_business_datetime(self, start_date: datetime, end_date: datetime) -> datetime:
-        """Generate a datetime during business hours (9am-5pm) on weekdays only"""
+        """Generate a datetime during business hours on weekdays."""
         # Get a random date
         time_delta = end_date - start_date
         days_delta = time_delta.days + 1
@@ -488,7 +449,7 @@ class CrmDataGenerator:
             random_days = random.randint(0, days_delta)
             random_date = start_date + timedelta(days=random_days)
 
-        # Check if it's a weekend and adjust
+        # Adjust for weekends
         while random_date.weekday() >= 5:  # 5=Saturday, 6=Sunday
             random_date += timedelta(days=1)
             if random_date > end_date:
@@ -497,8 +458,8 @@ class CrmDataGenerator:
                 while random_date.weekday() >= 5:
                     random_date -= timedelta(days=1)
 
-        # Set to business hours (using 24-hour format)
-        business_start = dt_time(8, 0, 0)  # 8:00 (start earlier for Indonesian business hours)
+        # Set to business hours
+        business_start = dt_time(8, 0, 0)  # 8:00
         business_end = dt_time(17, 0, 0)   # 17:00
 
         # Random time during business hours
@@ -508,7 +469,7 @@ class CrmDataGenerator:
         return random_date.replace(hour=random_hour, minute=random_minute, second=0)
 
     def _get_user_partner_id(self, user_id: int) -> Optional[int]:
-        """Get the partner ID associated with a user"""
+        """Get the partner ID associated with a user."""
         try:
             user_data = self.execute_kw('res.users', 'read', [user_id], {'fields': ['partner_id']})
             if user_data and user_data[0]['partner_id']:
@@ -519,11 +480,9 @@ class CrmDataGenerator:
 
     def create_lead_message(self, lead_id: int, body: str, author_id: int,
                           message_date: datetime, subtype_id: Optional[int] = None) -> Optional[int]:
-        """Create a message for a lead with specific historical date"""
+        """Create a message for a lead with specific historical date."""
         try:
             note_subtype_id = subtype_id or self.get_note_subtype_id()
-
-            # Get the user partner ID
             partner_id = self._get_user_partner_id(author_id)
 
             message_vals = {
@@ -536,18 +495,16 @@ class CrmDataGenerator:
                 'date': message_date.strftime('%Y-%m-%d %H:%M:%S')
             }
 
-            message_id = self.execute_kw('mail.message', 'create', [message_vals])
-            return message_id
+            return self.execute_kw('mail.message', 'create', [message_vals])
         except Exception as e:
             logger.error(f"Error creating lead message: {e}")
             return None
 
     def add_stage_change_log(self, lead_id: int, old_stage_name: str, new_stage_name: str,
-                            user_id: int, date: datetime) -> Optional[int]:
-        """Add a log note about stage change for analytics with correct historical timestamp"""
+                           user_id: int, date: datetime) -> Optional[int]:
+        """Add a log note about stage change with timestamp."""
         try:
             user_name = self.users.get(user_id, {}).get('name', "Administrator")
-
             message = f"Stage changed from '{old_stage_name}' to '{new_stage_name}'"
             message_with_tag = f"{message} #stage_change_log#"
 
@@ -561,20 +518,17 @@ class CrmDataGenerator:
             }
 
             analytics_message = f"{message_with_tag}\n\n<!-- ANALYTICS_DATA: {str(analytics_data)} -->"
-
             return self.create_lead_message(lead_id, analytics_message, user_id, date)
-
         except Exception as e:
             logger.error(f"Error adding stage change log: {e}")
             return None
 
     def create_calendar_event(self, lead_id: int, event_name: str, start_datetime: datetime,
-                             duration_hours: float, user_id: int, partner_id: Optional[int] = None) -> Optional[int]:
-        """Create a calendar event with proper historical dates"""
+                            duration_hours: float, user_id: int, partner_id: Optional[int] = None) -> Optional[int]:
+        """Create a calendar event with proper historical dates."""
         try:
             end_datetime = start_datetime + timedelta(hours=duration_hours)
 
-            # Create event with all tracking disabled
             event_vals = {
                 'name': event_name,
                 'start': start_datetime.strftime('%Y-%m-%d %H:%M:%S'),
@@ -590,15 +544,11 @@ class CrmDataGenerator:
                 event_vals['partner_ids'] = [(4, partner_id)]
 
             with OdooUtils.odoo_context() as context:
-                # Create the event with context to disable auto-messages
                 event_id = self.execute_kw('calendar.event', 'create', [event_vals], {'context': context})
 
-                # Add a message with the historical timestamp
                 if start_datetime < self.now:
                     # Get user name for the message
-                    user_name = "Administrator"
-                    if user_id in self.users:
-                        user_name = self.users[user_id].get('name', "Administrator")
+                    user_name = self.users.get(user_id, {}).get('name', "Administrator")
 
                     # Calendar message with meeting details
                     message_body = f"<p>Meeting scheduled at '{start_datetime.strftime('%Y-%m-%d %H:%M:%S')}'<br/>Subject: {event_name}<br/>Duration: {duration_hours} hours</p>"
@@ -617,16 +567,12 @@ class CrmDataGenerator:
             return None
 
     def add_custom_stage_change_message(self, lead_id: int, old_stage_id: int, new_stage_id: int,
-                                       user_id: int, date: datetime) -> Optional[int]:
-        """Add a user-friendly stage change message with historical timestamp"""
+                                      user_id: int, date: datetime) -> Optional[int]:
+        """Add a user-friendly stage change message with timestamp."""
         try:
             old_stage_name = self.stage_names.get(old_stage_id, "Unknown")
             new_stage_name = self.stage_names.get(new_stage_id, "Unknown")
-
-            # Get user name
-            user_name = "Administrator"
-            if user_id in self.users:
-                user_name = self.users[user_id].get('name', "Administrator")
+            user_name = self.users.get(user_id, {}).get('name', "Administrator")
 
             # Different message format based on stage transition
             if 'WON' in new_stage_name.upper():
@@ -643,7 +589,7 @@ class CrmDataGenerator:
             return None
 
     def get_probability_data(self, date_created: datetime) -> Dict:
-        """Calculate probability and other metrics based on lead age"""
+        """Calculate probability and other metrics based on lead age."""
         lead_age = (self.now - date_created).days
 
         # Define stage weights for distribution
@@ -672,13 +618,10 @@ class CrmDataGenerator:
             stage_name = self.stage_names[stage_id].upper()
 
         # Find WON and LOST stage IDs
-        won_stage_id = None
-        lost_stage_id = None
-        for sid, sname in self.stage_names.items():
-            if 'WON' in sname.upper():
-                won_stage_id = sid
-            elif 'LOST' in sname.upper():
-                lost_stage_id = sid
+        won_stage_id = next((sid for sid, sname in self.stage_names.items()
+                             if 'WON' in sname.upper()), None)
+        lost_stage_id = next((sid for sid, sname in self.stage_names.items()
+                              if 'LOST' in sname.upper()), None)
 
         # Ensure won/lost leads stay in terminal state
         if 'WON' in stage_name and lost_stage_id and random.random() < 0.99:
@@ -688,59 +631,63 @@ class CrmDataGenerator:
                 stage_name = self.stage_names[stage_id].upper()
 
         # Assign probability based on stage
-        if 'WON' in stage_name:
-            probability = 100
-        elif 'LOST' in stage_name:
-            probability = 0
-        elif 'CONTRACT' in stage_name:
-            probability = random.randint(80, 95)
-        elif 'FOCUS' in stage_name:
-            probability = random.randint(60, 80)
-        elif 'WARM' in stage_name:
-            probability = random.randint(40, 60)
-        elif 'PUSH TO WARM' in stage_name:
-            probability = random.randint(30, 50)
-        elif 'POTENTIAL' in stage_name:
-            probability = random.randint(20, 40)
-        elif 'COLD' in stage_name:
-            probability = random.randint(1, 20)
-        elif 'NEW' in stage_name:
-            probability = random.randint(1, 10)
-        else:
-            probability = random.randint(10, 50)
-
-        IDR_CONVERSION = 1000
-        base_revenue = random.randint(5000, 500000) * IDR_CONVERSION
-
-        # Find the best matching stage factor
-        best_match = None
-        for key in self.STAGE_TO_REVENUE_FACTOR:
-            if key in stage_name:
-                best_match = key
-                break
-
-        revenue_factor = self.STAGE_TO_REVENUE_FACTOR.get(best_match, 0.7)
-        expected_revenue = int(base_revenue * revenue_factor / 1000) * 1000
+        probability = self._calculate_probability_for_stage(stage_name)
+        revenue = self._calculate_revenue_for_stage(stage_name)
 
         return {
             'stage_id': stage_id,
             'stage_index': stage_index,
             'probability': probability,
-            'expected_revenue': expected_revenue
+            'expected_revenue': revenue
         }
 
+    def _calculate_probability_for_stage(self, stage_name: str) -> int:
+        """Calculate probability based on stage name."""
+        if 'WON' in stage_name:
+            return 100
+        elif 'LOST' in stage_name:
+            return 0
+        elif 'CONTRACT' in stage_name:
+            return random.randint(80, 95)
+        elif 'FOCUS' in stage_name:
+            return random.randint(60, 80)
+        elif 'WARM' in stage_name:
+            return random.randint(40, 60)
+        elif 'PUSH TO WARM' in stage_name:
+            return random.randint(30, 50)
+        elif 'POTENTIAL' in stage_name:
+            return random.randint(20, 40)
+        elif 'COLD' in stage_name:
+            return random.randint(1, 20)
+        elif 'NEW' in stage_name:
+            return random.randint(1, 10)
+        else:
+            return random.randint(10, 50)
+
+    def _calculate_revenue_for_stage(self, stage_name: str) -> int:
+        """Calculate expected revenue based on stage name."""
+        IDR_CONVERSION = 1000
+        base_revenue = random.randint(5000, 500000) * IDR_CONVERSION
+
+        # Find the best matching stage factor
+        best_match = next((key for key in self.STAGE_TO_REVENUE_FACTOR
+                           if key in stage_name), None)
+
+        revenue_factor = self.STAGE_TO_REVENUE_FACTOR.get(best_match, 0.7)
+        return int(base_revenue * revenue_factor / 1000) * 1000
+
     def create_realistic_lead_history(self, lead_id: int, lead_data: Dict,
-                                     date_created: datetime, current_stage_id: int) -> bool:
-        """Create a realistic history of stage changes and messages for a lead"""
+                                    date_created: datetime, current_stage_id: int) -> bool:
+        """Create a realistic history of stage changes and messages for a lead."""
         try:
             assigned_user_id = lead_data.get('user_id', self.uid)
             user_name = self.users.get(assigned_user_id, {}).get('name', "Administrator")
 
-            # Add creation message with historical timestamp
+            # Add creation message
             creation_msg = f"<p>Lead/Opportunity created by {user_name}</p>"
             self.create_lead_message(lead_id, creation_msg, assigned_user_id, date_created)
 
-            # Add customer info message (slightly after creation)
+            # Add customer info message
             customer_msg = f"<p>Customer information added by {user_name}<br/>{lead_data.get('partner_name', '')}, {lead_data.get('contact_name', '')}</p>"
             self.create_lead_message(
                 lead_id,
@@ -749,28 +696,25 @@ class CrmDataGenerator:
                 date_created + timedelta(minutes=random.randint(1, 5))
             )
 
-            # Determine how many stages this lead has gone through
+            # Create stage history if lead has progressed
             current_stage_index = self.stage_ids.index(current_stage_id)
-
-            # Add historical stage changes if not in the first stage
             if current_stage_index > 0:
                 self._create_stage_change_history(lead_id, lead_data, date_created, current_stage_index)
 
             return True
-
         except Exception as e:
             logger.error(f"Error creating lead history for lead {lead_id}: {e}")
             return False
 
     def _create_stage_change_history(self, lead_id: int, lead_data: Dict, date_created: datetime,
-                                    current_stage_index: int) -> None:
-        """Create stage change history for a lead"""
+                                   current_stage_index: int) -> None:
+        """Create stage change history for a lead."""
         # Generate timestamps for stage transitions
         stage_dates = []
         current_date = date_created + timedelta(hours=random.randint(2, 8))
         assigned_user_id = lead_data.get('user_id', self.uid)
 
-        # Generate sequential stage transitions with reasonable time gaps
+        # Generate sequential stage transitions with time gaps
         for i in range(current_stage_index):
             from_stage_id = self.stage_ids[i]
             to_stage_id = self.stage_ids[i+1]
@@ -781,28 +725,8 @@ class CrmDataGenerator:
             if 'WON' in from_stage_name or 'LOST' in from_stage_name:
                 continue
 
-            # Add appropriate time between stages based on stage type
-            if 'NEW' in from_stage_name:
-                days_to_add = random.randint(1, 3)
-            elif 'COLD' in from_stage_name:
-                days_to_add = random.randint(2, 10)
-            elif 'POTENTIAL' in from_stage_name:
-                days_to_add = random.randint(2, 8)
-            elif 'PUSH TO WARM' in from_stage_name:
-                days_to_add = random.randint(1, 7)
-            elif 'WARM' in from_stage_name:
-                days_to_add = random.randint(3, 10)
-            elif 'FOCUS' in from_stage_name:
-                days_to_add = random.randint(3, 15)
-            elif 'CONTRACT' in from_stage_name:
-                if 'WON' in to_stage_name:
-                    days_to_add = random.randint(5, 20)
-                elif 'LOST' in to_stage_name:
-                    days_to_add = random.randint(5, 30)
-                else:
-                    days_to_add = random.randint(3, 15)
-            else:
-                days_to_add = random.randint(1, 7)
+            # Calculate days to add based on stage
+            days_to_add = self._calculate_days_between_stages(from_stage_name, to_stage_name)
 
             # Ensure each date is strictly after the previous one
             current_date = max(current_date + timedelta(days=days_to_add),
@@ -812,7 +736,6 @@ class CrmDataGenerator:
             if current_date > self.now:
                 current_date = self.now - timedelta(hours=random.randint(1, 48))
 
-            # Add the date in strictly ascending order
             stage_dates.append(current_date)
 
         # Record stage transitions
@@ -827,19 +750,9 @@ class CrmDataGenerator:
 
             # Add manager review for important stages
             if 'FOCUS' in to_stage_name or 'CONTRACT' in to_stage_name:
-                manager_users = [uid for uid, user in self.users.items()
-                            if 'Manager' in user.get('name', '') or 'Director' in user.get('name', '')]
-                if manager_users:
-                    manager_id = random.choice(manager_users)
-                    manager_message = f"Reviewed the opportunity and approved the stage change to '{to_stage_name}'"
-                    self.create_lead_message(
-                        lead_id,
-                        manager_message,
-                        manager_id,
-                        stage_date + timedelta(hours=random.randint(1, 4))
-                    )
+                self._add_manager_review(lead_id, to_stage_name, stage_date)
 
-            # Add stage change logs
+            # Log stage change
             self.add_stage_change_log(
                 lead_id,
                 self.stage_names[from_stage_id],
@@ -848,6 +761,7 @@ class CrmDataGenerator:
                 stage_date
             )
 
+            # Add user-friendly message
             self.add_custom_stage_change_message(
                 lead_id,
                 from_stage_id,
@@ -856,7 +770,7 @@ class CrmDataGenerator:
                 stage_date + timedelta(seconds=30)
             )
 
-            # Write the stage change with tracking disabled - apply ALL transitions
+            # Apply stage change
             with OdooUtils.odoo_context() as context:
                 self.execute_kw('crm.lead', 'write', [
                     lead_id,
@@ -866,9 +780,47 @@ class CrmDataGenerator:
                     }
                 ], {'context': context})
 
+    def _calculate_days_between_stages(self, from_stage_name: str, to_stage_name: str) -> int:
+        """Calculate reasonable days between stage transitions."""
+        if 'NEW' in from_stage_name:
+            return random.randint(1, 3)
+        elif 'COLD' in from_stage_name:
+            return random.randint(2, 10)
+        elif 'POTENTIAL' in from_stage_name:
+            return random.randint(2, 8)
+        elif 'PUSH TO WARM' in from_stage_name:
+            return random.randint(1, 7)
+        elif 'WARM' in from_stage_name:
+            return random.randint(3, 10)
+        elif 'FOCUS' in from_stage_name:
+            return random.randint(3, 15)
+        elif 'CONTRACT' in from_stage_name:
+            if 'WON' in to_stage_name:
+                return random.randint(5, 20)
+            elif 'LOST' in to_stage_name:
+                return random.randint(5, 30)
+            else:
+                return random.randint(3, 15)
+        else:
+            return random.randint(1, 7)
+
+    def _add_manager_review(self, lead_id: int, stage_name: str, stage_date: datetime):
+        """Add manager review message for important stage changes."""
+        manager_users = [uid for uid, user in self.users.items()
+                        if 'Manager' in user.get('name', '') or 'Director' in user.get('name', '')]
+        if manager_users:
+            manager_id = random.choice(manager_users)
+            manager_message = f"Reviewed the opportunity and approved the stage change to '{stage_name}'"
+            self.create_lead_message(
+                lead_id,
+                manager_message,
+                manager_id,
+                stage_date + timedelta(hours=random.randint(1, 4))
+            )
+
     def create_lead_activities(self, lead_id: int, lead_data: Dict, date_created: datetime,
-                              partner_id: Optional[int] = None) -> bool:
-        """Create activities and meetings for a lead based on its stage"""
+                             partner_id: Optional[int] = None) -> bool:
+        """Create activities and meetings for a lead based on its stage."""
         try:
             stage_id = lead_data.get('stage_id')
             if not stage_id or stage_id not in self.stage_names:
@@ -910,13 +862,12 @@ class CrmDataGenerator:
                 self._create_single_activity(lead_id, activity, business_datetime, user_id, partner_id)
 
             return True
-
         except Exception as e:
             logger.error(f"Error creating activities for lead {lead_id}: {e}")
             return False
 
     def _get_activity_sequence_for_stage(self, stage_name: str) -> List[Dict]:
-        """Get appropriate activity sequence for a given stage"""
+        """Get appropriate activity sequence for a given stage."""
         if 'NEW' in stage_name or 'COLD' in stage_name:
             # New/Cold leads: Initial outreach
             return [
@@ -958,27 +909,13 @@ class CrmDataGenerator:
             return []
 
     def _create_single_activity(self, lead_id: int, activity: Dict, business_datetime: datetime,
-                                user_id: int, partner_id: Optional[int] = None) -> None:
-        """Create a single activity record with proper handling for meetings"""
+                              user_id: int, partner_id: Optional[int] = None) -> None:
+        """Create a single activity record with proper handling for meetings."""
         try:
-            activity_type_id = None
-
-            # For meeting activities, create calendar events
-            if activity['type'] == 'meeting':
-                # Find meeting activity type
-                meeting_activity_types = [a for a in self.activity_types if 'meeting' in a['name'].lower()]
-                if meeting_activity_types:
-                    activity_type_id = random.choice(meeting_activity_types)['id']
-            elif activity['type'] in ['call', 'email']:
-                # For calls and emails, find appropriate activity type
-                call_email_types = [a for a in self.activity_types if activity['type'] in a['name'].lower()]
-                if call_email_types:
-                    activity_type_id = random.choice(call_email_types)['id']
-
+            activity_type_id = self._get_activity_type_id(activity['type'])
             if not activity_type_id:
                 return
 
-            # Create activity record
             activity_values = {
                 'res_id': lead_id,
                 'res_model_id': self.execute_kw('ir.model', 'search', [[['model', '=', 'crm.lead']]])[0],
@@ -989,16 +926,13 @@ class CrmDataGenerator:
                 'user_id': user_id,
             }
 
-            # Create the activity with tracking disabled
             with OdooUtils.odoo_context() as context:
                 activity_id = self.execute_kw('mail.activity', 'create', [activity_values], {'context': context})
 
-            # Mark as done if in the past
             if business_datetime < self.now:
                 self._mark_activity_as_done(activity_id, lead_id, activity, activity_values,
                                           business_datetime, user_id, partner_id)
             elif business_datetime > self.now and business_datetime < self.now + timedelta(days=14):
-                # Create upcoming calendar event for near-future meetings
                 if activity['type'] == 'meeting':
                     self.create_calendar_event(
                         lead_id,
@@ -1008,23 +942,31 @@ class CrmDataGenerator:
                         user_id,
                         partner_id
                     )
-
         except Exception as e:
             logger.error(f"Error creating activity: {e}")
 
+    def _get_activity_type_id(self, activity_type: str) -> Optional[int]:
+        """Get activity type ID based on activity type string."""
+        if activity_type == 'meeting':
+            meeting_activity_types = [a for a in self.activity_types if 'meeting' in a['name'].lower()]
+            if meeting_activity_types:
+                return random.choice(meeting_activity_types)['id']
+        elif activity_type in ['call', 'email']:
+            call_email_types = [a for a in self.activity_types if activity_type in a['name'].lower()]
+            if call_email_types:
+                return random.choice(call_email_types)['id']
+        return None
+
     def _mark_activity_as_done(self, activity_id: int, lead_id: int, activity: Dict,
-                              activity_values: Dict, business_datetime: datetime,
-                              user_id: int, partner_id: Optional[int] = None) -> None:
-        """Mark an activity as done with proper history recording"""
+                             activity_values: Dict, business_datetime: datetime,
+                             user_id: int, partner_id: Optional[int] = None) -> None:
+        """Mark an activity as done with proper history recording."""
         try:
-            # Use action_done
             self.execute_kw('mail.activity', 'action_done', [activity_id])
 
-            # Add a message with historical timestamp
             user_name = self.users.get(user_id, {}).get('name', "Administrator")
             activity_done_msg = f"<p>{activity['name']} done (originally assigned to {user_name})</p><p>Original note:<br/>{activity_values['note']}</p>"
 
-            # Create historical message about completed activity
             self.create_lead_message(
                 lead_id,
                 activity_done_msg,
@@ -1032,7 +974,6 @@ class CrmDataGenerator:
                 business_datetime
             )
 
-            # Create a calendar event for meetings
             if activity['type'] == 'meeting':
                 self.create_calendar_event(
                     lead_id,
@@ -1042,108 +983,107 @@ class CrmDataGenerator:
                     user_id,
                     partner_id
                 )
-
         except Exception as e:
             logger.error(f"Error marking activity as done: {e}")
-            # If action_done fails, try unlink
             try:
                 self.execute_kw('mail.activity', 'unlink', [activity_id])
             except:
                 pass
 
     def _select_tags_for_lead(self, lead_source: str, company_data: Dict, product_name: str = None) -> List[int]:
-        """Select appropriate tags for a lead based on company data and product"""
+        """Select appropriate tags for a lead based on company data and product."""
         selected_tags = []
 
-        # Select industry tag based on company's industry if available
-        if 'Industry' in self.tag_ids and self.tag_ids['Industry'] and company_data.get('industry'):
-            matching_industry_tags = []
+        # Industry tag
+        if 'Industry' in self.tag_ids and self.tag_ids['Industry']:
+            industry_tag = self._get_or_create_industry_tag(company_data)
+            if industry_tag:
+                selected_tags.append(industry_tag)
 
-            for tag_id in self.tag_ids['Industry']:
-                tag_name = self.execute_kw('crm.tag', 'read', [tag_id], {'fields': ['name']})[0]['name']
-                # Extract the tag value part (after the colon and space)
-                if ': ' in tag_name:
-                    tag_value = tag_name.split(': ')[1]
-                    # Check if this tag matches the company's industry
-                    if company_data['industry'] in tag_value or tag_value in company_data['industry']:
-                        matching_industry_tags.append(tag_id)
-
-            if matching_industry_tags:
-                # Use the matching industry tag
-                selected_tags.append(matching_industry_tags[0])
-            else:
-                # If no match, create a new tag for this industry
-                try:
-                    tag_name = f"Industry: {company_data['industry']}"
-                    existing_tag = self.execute_kw('crm.tag', 'search_read',
-                                            [[['name', '=', tag_name]]], {'fields': ['id']})
-                    if existing_tag:
-                        new_tag_id = existing_tag[0]['id']
-                    else:
-                        new_tag_id = self.execute_kw('crm.tag', 'create', [{'name': tag_name}])
-                        # Add to our cached tag_ids
-                        self.tag_ids['Industry'].append(new_tag_id)
-                    selected_tags.append(new_tag_id)
-                except Exception as e:
-                    logger.warning(f"Could not create tag for industry {company_data['industry']}: {e}")
-                    # Fallback to random industry tag
-                    selected_tags.append(random.choice(self.tag_ids['Industry']))
-        elif 'Industry' in self.tag_ids and self.tag_ids['Industry']:
-            # Fallback: select a random industry tag if no industry info
-            industry_tag = random.choice(self.tag_ids['Industry'])
-            selected_tags.append(industry_tag)
-
-        # Always select a source tag matching the lead source
+        # Source tag
         if 'Source' in self.tag_ids and self.tag_ids['Source']:
-            matching_source_tags = []
-            for tag_id in self.tag_ids['Source']:
-                tag_name = self.execute_kw('crm.tag', 'read', [tag_id], {'fields': ['name']})[0]['name']
-                if lead_source in tag_name:
-                    matching_source_tags.append(tag_id)
+            source_tag = self._get_source_tag(lead_source)
+            if source_tag:
+                selected_tags.append(source_tag)
 
-            if matching_source_tags:
-                selected_tags.append(matching_source_tags[0])
-            elif self.tag_ids['Source']:
-                selected_tags.append(random.choice(self.tag_ids['Source']))
-
-        # Select product interest tag - either matching the provided product_name or random
+        # Product interest tag
         if 'Product Interest' in self.tag_ids and self.tag_ids['Product Interest']:
-            if product_name:
-                # Try to find a tag matching the selected product
-                matching_product_tags = []
-                for tag_id in self.tag_ids['Product Interest']:
-                    tag_name = self.execute_kw('crm.tag', 'read', [tag_id], {'fields': ['name']})[0]['name']
-                    if product_name in tag_name:
-                        matching_product_tags.append(tag_id)
-
-                if matching_product_tags:
-                    selected_tags.append(matching_product_tags[0])
-                else:
-                    # If no match, create a new product interest tag
-                    try:
-                        tag_name = f"Product Interest: {product_name}"
-                        existing_tag = self.execute_kw('crm.tag', 'search_read',
-                                                [[['name', '=', tag_name]]], {'fields': ['id']})
-                        if existing_tag:
-                            new_tag_id = existing_tag[0]['id']
-                        else:
-                            new_tag_id = self.execute_kw('crm.tag', 'create', [{'name': tag_name}])
-                            # Add to our cached tag_ids
-                            self.tag_ids['Product Interest'].append(new_tag_id)
-                        selected_tags.append(new_tag_id)
-                    except Exception as e:
-                        logger.warning(f"Could not create tag for product {product_name}: {e}")
-                        # Fallback to random product tag
-                        selected_tags.append(random.choice(self.tag_ids['Product Interest']))
-            else:
-                # Select a random product interest tag
-                product_tag = random.choice(self.tag_ids['Product Interest'])
+            product_tag = self._get_or_create_product_tag(product_name)
+            if product_tag:
                 selected_tags.append(product_tag)
 
         return selected_tags
 
+    def _get_or_create_industry_tag(self, company_data: Dict) -> Optional[int]:
+        """Get or create industry tag based on company data."""
+        if not company_data.get('industry'):
+            return random.choice(self.tag_ids['Industry']) if self.tag_ids['Industry'] else None
+
+        # Look for matching tag
+        for tag_id in self.tag_ids['Industry']:
+            tag_name = self.execute_kw('crm.tag', 'read', [tag_id], {'fields': ['name']})[0]['name']
+            if ': ' in tag_name:
+                tag_value = tag_name.split(': ')[1]
+                if company_data['industry'] in tag_value or tag_value in company_data['industry']:
+                    return tag_id
+
+        # Create new tag if no match
+        try:
+            tag_name = f"Industry: {company_data['industry']}"
+            existing_tag = self.execute_kw('crm.tag', 'search_read',
+                                    [[['name', '=', tag_name]]], {'fields': ['id']})
+            if existing_tag:
+                new_tag_id = existing_tag[0]['id']
+            else:
+                new_tag_id = self.execute_kw('crm.tag', 'create', [{'name': tag_name}])
+                self.tag_ids['Industry'].append(new_tag_id)
+            return new_tag_id
+        except Exception as e:
+            logger.warning(f"Could not create tag for industry {company_data['industry']}: {e}")
+            return random.choice(self.tag_ids['Industry']) if self.tag_ids['Industry'] else None
+
+    def _get_source_tag(self, lead_source: str) -> Optional[int]:
+        """Get source tag matching the lead source."""
+        matching_source_tags = []
+        for tag_id in self.tag_ids['Source']:
+            tag_name = self.execute_kw('crm.tag', 'read', [tag_id], {'fields': ['name']})[0]['name']
+            if lead_source in tag_name:
+                matching_source_tags.append(tag_id)
+
+        if matching_source_tags:
+            return matching_source_tags[0]
+        elif self.tag_ids['Source']:
+            return random.choice(self.tag_ids['Source'])
+        return None
+
+    def _get_or_create_product_tag(self, product_name: str) -> Optional[int]:
+        """Get or create product interest tag."""
+        if not product_name:
+            return random.choice(self.tag_ids['Product Interest']) if self.tag_ids['Product Interest'] else None
+
+        # Look for matching tag
+        for tag_id in self.tag_ids['Product Interest']:
+            tag_name = self.execute_kw('crm.tag', 'read', [tag_id], {'fields': ['name']})[0]['name']
+            if product_name in tag_name:
+                return tag_id
+
+        # Create new tag if no match
+        try:
+            tag_name = f"Product Interest: {product_name}"
+            existing_tag = self.execute_kw('crm.tag', 'search_read',
+                                    [[['name', '=', tag_name]]], {'fields': ['id']})
+            if existing_tag:
+                new_tag_id = existing_tag[0]['id']
+            else:
+                new_tag_id = self.execute_kw('crm.tag', 'create', [{'name': tag_name}])
+                self.tag_ids['Product Interest'].append(new_tag_id)
+            return new_tag_id
+        except Exception as e:
+            logger.warning(f"Could not create tag for product {product_name}: {e}")
+            return random.choice(self.tag_ids['Product Interest']) if self.tag_ids['Product Interest'] else None
+
     def _get_priority_for_stage(self, stage_name: str) -> int:
-        """Determine appropriate priority based on stage"""
+        """Determine appropriate priority based on stage."""
         if 'FOCUS' in stage_name or 'CONTRACT' in stage_name:
             # More likely to be high priority in later stages
             priority_weights = [20, 30, 50]  # More likely to be high priority
@@ -1153,17 +1093,8 @@ class CrmDataGenerator:
             priority_weights = [70, 20, 10]  # 0=Normal, 1=Medium, 2=High
             return random.choices([0, 1, 2], weights=priority_weights, k=1)[0]
 
-    def _get_country_id(self, company: Dict) -> Optional[int]:
-        """Get country ID from company data"""
-        country_id = False
-        if 'country' in company:
-            country_search = self.execute_kw('res.country', 'search', [[['name', 'ilike', company['country']]]])
-            if country_search:
-                country_id = country_search[0]
-        return country_id
-
     def _create_partner_for_lead(self, lead_id: int, lead_data: Dict) -> Optional[int]:
-        """Create partner record for a lead"""
+        """Create partner record for a lead."""
         try:
             # Create partner with tracking disabled
             with OdooUtils.odoo_context() as context:
@@ -1183,13 +1114,12 @@ class CrmDataGenerator:
                 self.execute_kw('crm.lead', 'write', [lead_id, {'partner_id': partner_id}], {'context': context})
 
                 return partner_id
-
         except Exception as e:
             logger.warning(f"Could not create partner for lead {lead_id}: {e}")
             return None
 
     def _select_user(self, company: Dict) -> int:
-        """Select a random user based on company's country"""
+        """Select appropriate user based on company's country."""
         if not self.users:
             logger.warning("No users found in the system")
             return self.uid
@@ -1203,7 +1133,7 @@ class CrmDataGenerator:
         else:
             team_name = random.choice(['Sales Indonesia', 'Sales Singapore'])
 
-        # Get users for the team directly from Odoo
+        # Get users for the team
         team_users = self.execute_kw('res.users', 'search_read',
                                     [[('sale_team_id.name', '=', team_name)]],
                                     {'fields': ['id', 'name']})
@@ -1217,46 +1147,18 @@ class CrmDataGenerator:
         return self.uid
 
     def load_company_data_from_csv(self, csv_file_path=None):
-        """Load company data from a CSV file or use default sample"""
+        """Load company data from a CSV file."""
         companies = []
 
-        try:
-            # Try to load from provided CSV file
-            if csv_file_path and os.path.exists(csv_file_path):
-                with open(csv_file_path, 'r') as f:
-                    reader = csv.DictReader(f)
-                    for row in reader:
-                        companies.append({
-                            'name': row.get('Company', '').strip('$'),
-                            'industry': row.get('Industry', ''),
-                            'country': row.get('Country', ''),
-                            'city': row.get('City', ''),
-                            'valuation': row.get('Valuation ($B)', '').strip('$'),
-                            'website': f"www.{row.get('Company', '').lower().replace(' ', '')}.com",
-                        })
-                logger.info(f"Loaded {len(companies)} companies from CSV file")
-            else:
-                # Use sample data embedded in the script
-                sample_data = """
-                ,Company,Valuation ($B),Date Joined,Country,City,Industry
-                0,ByteDance,$225,4/7/2017,China,Beijing,Media & Entertainment
-                1,SpaceX,$150,12/1/2012,United States,Hawthorne,Industrials
-                2,OpenAI,$80,7/22/2019,United States,San Francisco,Enterprise Tech
-                3,SHEIN,$66,7/3/2018,Singapore,Singapore City,Consumer & Retail
-                4,Stripe,$65,1/23/2014,United States,San Francisco,Financial Services
-                5,Databricks,$43,2/5/2019,United States,San Francisco,Enterprise Tech
-                6,Canva,$25.4,1/8/2018,Australia,Surry Hills,Enterprise Tech
-                7,Revolut,$33,4/26/2018,United Kingdom,London,Financial Services
-                8,Epic Games,$22.5,10/26/2018,United States,Cary,Media & Entertainment
-                9,Fanatics,$31,6/6/2012,United States,Jacksonville,Consumer & Retail
-                10,Chime,$25,3/5/2019,United States,San Francisco,Financial Services
-                11,Xiaohongshu,$20,3/31/2016,China,Shanghai,Media & Entertainment
-                12,Miro,$17.50,1/5/2022,United States,San Francisco,Enterprise Tech
-                """
+        if not csv_file_path:
+            raise ValueError("No CSV file path provided. A company data CSV file is required.")
 
-                # Parse the sample data
-                lines = [line.strip() for line in sample_data.strip().split('\n')]
-                reader = csv.DictReader(lines)
+        if not os.path.exists(csv_file_path):
+            raise FileNotFoundError(f"CSV file not found at: {csv_file_path}")
+
+        try:
+            with open(csv_file_path, 'r') as f:
+                reader = csv.DictReader(f)
                 for row in reader:
                     companies.append({
                         'name': row.get('Company', '').strip('$'),
@@ -1266,28 +1168,25 @@ class CrmDataGenerator:
                         'valuation': row.get('Valuation ($B)', '').strip('$'),
                         'website': f"www.{row.get('Company', '').lower().replace(' ', '')}.com",
                     })
-                logger.info(f"Using {len(companies)} sample companies from embedded data")
 
+            if not companies:
+                raise ValueError("CSV file is empty or has invalid format.")
+
+            logger.info(f"Loaded {len(companies)} companies from CSV file")
         except Exception as e:
             logger.error(f"Error loading company data: {e}")
-            # Create a minimal set as fallback
-            companies = [
-                {'name': 'ByteDance', 'industry': 'Media & Entertainment', 'country': 'China'},
-                {'name': 'SpaceX', 'industry': 'Industrials', 'country': 'United States'},
-                {'name': 'OpenAI', 'industry': 'Enterprise Tech', 'country': 'United States'},
-                {'name': 'SHEIN', 'industry': 'Consumer & Retail', 'country': 'Singapore'}
-            ]
+            raise
 
         self.companies = companies
         return companies
 
     def create_company_record(self, company_data):
-        """Create a company record in Odoo on-the-fly"""
+        """Create a company record in Odoo."""
         try:
-            # Check if company already exists to avoid duplicates
+            # Check if company already exists
             existing_company = self.execute_kw('res.partner', 'search_read',
                                             [[['name', '=', company_data['name']],
-                                                ['is_company', '=', True]]],
+                                              ['is_company', '=', True]]],
                                             {'fields': ['id']})
 
             if existing_company:
@@ -1301,24 +1200,9 @@ class CrmDataGenerator:
                 if country_search:
                     country_id = country_search[0]
 
-            # Find industry ID if available
-            industry_id = False
-            if company_data.get('industry'):
-                # Try to find the industry in Odoo
-                industry_search = self.execute_kw('res.partner.industry', 'search',
-                                                [[['name', 'ilike', company_data['industry']]]])
-                if industry_search:
-                    industry_id = industry_search[0]
-                else:
-                    # Create the industry if it doesn't exist
-                    try:
-                        industry_id = self.execute_kw('res.partner.industry', 'create',
-                                                    [{'name': company_data['industry']}])
-                        logger.info(f"Created new industry: {company_data['industry']}")
-                    except Exception as e:
-                        logger.warning(f"Could not create industry {company_data['industry']}: {e}")
+            # Find or create industry ID
+            industry_id = self._get_or_create_industry(company_data.get('industry'))
 
-            # Create new company with tracking disabled
             with OdooUtils.odoo_context() as context:
                 company_vals = {
                     'name': company_data['name'],
@@ -1326,10 +1210,9 @@ class CrmDataGenerator:
                     'company_type': 'company',
                     'website': company_data.get('website', ''),
                     'country_id': country_id,
-                    'industry_id': industry_id,  # Now using the industry from CSV
+                    'industry_id': industry_id,
                 }
 
-                # Add city if available
                 if company_data.get('city'):
                     company_vals['city'] = company_data['city']
 
@@ -1337,58 +1220,53 @@ class CrmDataGenerator:
 
                 logger.info(f"Created company record for {company_data['name']} with industry: {company_data.get('industry', 'None')}")
                 return company_id
-
         except Exception as e:
             logger.error(f"Error creating company record: {e}")
             return False
 
+    def _get_or_create_industry(self, industry_name):
+        """Find or create an industry record."""
+        if not industry_name:
+            return False
+
+        # Try to find the industry in Odoo
+        industry_search = self.execute_kw('res.partner.industry', 'search',
+                                        [[['name', 'ilike', industry_name]]])
+        if industry_search:
+            return industry_search[0]
+
+        # Create the industry if it doesn't exist
+        try:
+            industry_id = self.execute_kw('res.partner.industry', 'create',
+                                        [{'name': industry_name}])
+            logger.info(f"Created new industry: {industry_name}")
+            return industry_id
+        except Exception as e:
+            logger.warning(f"Could not create industry {industry_name}: {e}")
+            return False
+
     def _prepare_lead_data_with_company(self, company_data, company_id, user_id,
-                                    probability_data, lead_source, selected_tags,
-                                    date_created) -> Dict:
-        """Prepare lead data dictionary using an existing company record"""
+                                      probability_data, lead_source, selected_tags,
+                                      date_created) -> Dict:
+        """Prepare lead data dictionary using company record."""
         stage_name = self.stage_names[probability_data['stage_id']].upper()
         lead_type = 'lead' if 'NEW' in stage_name or 'COLD' in stage_name else 'opportunity'
 
-        # Add priority (star rating)
         priority = self._get_priority_for_stage(stage_name)
 
-        # Create contact information
         contact_name = self.fake.name()
-        contact_first_name = contact_name.split()[0]  # Get the first name of contact
+        contact_first_name = contact_name.split()[0]
         email_domain = company_data.get('website', self.fake.domain_name()).replace('www.', '')
 
-        # Select a product from the product list
         product_name = random.choice(self.PRODUCT_LIST)
 
-        # Create the lead name in the requested format
-        # "Company contactperson/client name(First name) | Product Name | Company name"
         lead_name = f"{contact_first_name} | {product_name} | {company_data.get('name', 'Unknown')}"
 
-        # Determine team based on country
-        country = company_data.get('country', '').lower()
-        if 'indonesia' in country or 'id' in country:
-            team_search = self.execute_kw('crm.team', 'search_read',
-                                        [[['name', '=', 'Sales Indonesia']]],
-                                        {'fields': ['id']})
-            team_id = team_search[0]['id'] if team_search else False
-        elif 'singapore' in country or 'sg' in country:
-            team_search = self.execute_kw('crm.team', 'search_read',
-                                        [[['name', '=', 'Sales Singapore']]],
-                                        {'fields': ['id']})
-            team_id = team_search[0]['id'] if team_search else False
-        else:
-            # Randomly assign to either team if country is not clearly identifiable
-            team_name = random.choice(['Sales Indonesia', 'Sales Singapore'])
-            team_search = self.execute_kw('crm.team', 'search_read',
-                                        [[['name', '=', team_name]]],
-                                        {'fields': ['id']})
-            team_id = team_search[0]['id'] if team_search else False
-
-        # Add debugging log
-        logger.info(f"Assigning lead for {company_data.get('name')} ({company_data.get('country')}) to team ID {team_id}")
+        # Get team ID based on country
+        team_id = self._get_team_id_for_country(company_data.get('country', ''))
 
         lead_data = {
-            'name': lead_name,  # New lead name format with contact's first name
+            'name': lead_name,
             'partner_name': company_data.get('name', self.fake.company()),
             'contact_name': contact_name,
             'function': self.fake.job(),
@@ -1405,40 +1283,60 @@ class CrmDataGenerator:
             'priority': str(priority),
             'tag_ids': [(6, 0, selected_tags)] if selected_tags else False,
             'referred': lead_source == 'Referral',
-            'partner_id': company_id,  # Use the created company record
+            'partner_id': company_id,
         }
 
         return lead_data
 
+    def _get_team_id_for_country(self, country):
+        """Get sales team ID based on country."""
+        country = country.lower()
+        if 'indonesia' in country or 'id' in country:
+            team_name = 'Sales Indonesia'
+        elif 'singapore' in country or 'sg' in country:
+            team_name = 'Sales Singapore'
+        else:
+            team_name = random.choice(['Sales Indonesia', 'Sales Singapore'])
+
+        team_search = self.execute_kw('crm.team', 'search_read',
+                                    [[['name', '=', team_name]]],
+                                    {'fields': ['id']})
+
+        team_id = team_search[0]['id'] if team_search else False
+        logger.info(f"Assigning lead for country '{country}' to team '{team_name}' (ID: {team_id})")
+        return team_id
+
     def generate_leads(self, count: int = 100, company_csv=None) -> bool:
-        """Generate realistic dummy leads/opportunities"""
+        """Generate realistic dummy leads/opportunities."""
         try:
-            # Setup required data structures
             logger.info("Setting up initial data structures...")
 
-            # First set up teams
+            if not company_csv:
+                logger.error("No company CSV file provided. This is required to generate leads.")
+                return False
+
+            # Initialize required data
             team_ids = self.setup_sales_teams()
             if not team_ids:
                 logger.error("Failed to set up sales teams")
                 return False
 
-            # Then set up other required data
             self.setup_crm_tags()
             self.setup_user_roles()
-            self.load_company_data_from_csv(company_csv)  # Load from CSV or use sample data
+            self.load_company_data_from_csv(company_csv)
             self.get_crm_stages()
             self.get_activity_types()
 
+            # Validate required data
             if not self.stages:
                 logger.error("No CRM stages found. Cannot generate leads.")
                 return False
 
-            # Check if we have teams and users properly set up
             if not self.users:
                 logger.error("No users found. Cannot generate leads.")
                 return False
 
-            # Get lead sources with weighted probabilities
+            # Prepare lead source options
             source_options = list(self.LEAD_SOURCES.keys())
             source_weights = list(self.LEAD_SOURCES.values())
 
@@ -1447,51 +1345,39 @@ class CrmDataGenerator:
             all_created_leads = []
 
             for i in range(count):
-                # Choose a company from our pool
+                # Select random company and assign user
                 company_data = random.choice(self.companies)
-
-                # Create company record on-the-fly
                 company_id = self.create_company_record(company_data)
-
-                # Select user based on company's country
                 user_id = self._select_user(company_data)
-                date_created = self._generate_creation_date(i, count)
 
-                # Get probability and related data based on creation date
+                # Generate creation date and calculate probability data
+                date_created = self._generate_creation_date(i, count)
                 probability_data = self.get_probability_data(date_created)
 
-                # Determine lead source with weighted random selection
+                # Select lead source and tags
                 lead_source = random.choices(source_options, weights=source_weights, k=1)[0]
-
-                # Select a product from the product list
                 product_name = random.choice(self.PRODUCT_LIST)
-
-                # Select tags - now passing the product_name
                 selected_tags = self._select_tags_for_lead(lead_source, company_data, product_name)
 
-                # Prepare lead data - now passing the company record and product
+                # Prepare lead data
                 lead_data = self._prepare_lead_data_with_company(
                     company_data, company_id, user_id, probability_data,
                     lead_source, selected_tags, date_created
                 )
 
-                # Filter out any False values that might cause XML-RPC errors
+                # Filter out None and False values
                 lead_data = {k: v for k, v in lead_data.items() if v is not None and v is not False}
 
                 try:
-                    # Create the lead with tracking disabled
+                    # Create lead with tracking disabled
                     with OdooUtils.odoo_context() as context:
                         lead_id = self.execute_kw('crm.lead', 'create', [lead_data], {'context': context})
 
                     all_created_leads.append(lead_id)
 
-                    # Create lead history with proper timestamps
+                    # Create realistic history and activities
                     self.create_realistic_lead_history(lead_id, lead_data, date_created, probability_data['stage_id'])
-
-                    # Create partner record if needed (for contact)
                     partner_id = self._create_partner_for_lead(lead_id, lead_data)
-
-                    # Create activities and meetings
                     self.create_lead_activities(lead_id, lead_data, date_created, partner_id)
 
                     created_count += 1
@@ -1508,20 +1394,20 @@ class CrmDataGenerator:
             logger.error(f"Error generating dummy data: {e}")
             return False
 
-
     def _generate_creation_date(self, index: int, total_count: int) -> datetime:
-        """Generate appropriate creation date with weighting toward recency"""
-        if index < total_count * 0.1:  # 10% very old leads
+        """Generate appropriate creation date with weighting toward recency."""
+        if index < total_count * 0.1:  # Oldest 10%
             return self.fake.date_time_between(start_date='-2y', end_date='-1y')
-        elif index < total_count * 0.3:  # 20% older leads
+        elif index < total_count * 0.3:  # Next 20%
             return self.fake.date_time_between(start_date='-1y', end_date='-6m')
-        elif index < total_count * 0.7:  # 40% medium age
+        elif index < total_count * 0.7:  # Middle 40%
             return self.fake.date_time_between(start_date='-6m', end_date='-1m')
-        else:  # 30% recent leads
+        else:  # Most recent 30%
             return self.fake.date_time_between(start_date='-1m', end_date='now')
 
 
 def main():
+    """Main entry point for the script."""
     parser = argparse.ArgumentParser(description='Generate realistic CRM data in Odoo')
     parser.add_argument('--url', default='http://localhost:8069', help='Odoo URL')
     parser.add_argument('--db', default='crm_project', help='Database name')
@@ -1544,6 +1430,7 @@ def main():
     # Generate dummy leads
     generator = CrmDataGenerator(uid, models, args.db, args.password)
     generator.generate_leads(args.count, args.csv)
+
 
 if __name__ == "__main__":
     main()
