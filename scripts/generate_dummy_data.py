@@ -165,22 +165,23 @@ class CrmDataGenerator:
     # Sales roles
     SALES_ROLES = {
         'Indonesia': [
-            ("Budi Santoso", "id.sales.director@example.com", "Sales Director Indonesia"),
-            ("Ahmad Wijaya", "id.enterprise.manager@example.com", "Enterprise Manager Indonesia"),
-            ("Dewi Lestari", "id.sam.enterprise@example.com", "Enterprise Sales Indonesia"),
-            ("Bambang Suparno", "id.enterprise.sales@example.com", "Enterprise Sales Indonesia"),
-            ("Siti Rahma", "id.smb.manager@example.com", "SMB Manager Indonesia"),
-            ("Agus Setiawan", "id.smb.sales1@example.com", "SMB Sales Indonesia"),
-            ("Ratna Sari", "id.smb.sales2@example.com", "SMB Sales Indonesia"),
+            ("David Mulya", "david.mulya@hashmicro.com", "Sales Director Indonesia"),
+            ("Dony Hendrawan", "dony.hendrawan@hashmicro.com", "Enterprise Manager Indonesia"),
+            ("Rizky Anwar", "rizky.anwar@hashmicro.com", "Enterprise Sales Indonesia"),
+            ("Luqman Pratama", "luqman.pratama@hashmicro.com", "Enterprise Sales Indonesia"),
+            ("Nesya Zatika", "nesya.zatika@hashmicro.com", "SMB Manager Indonesia"),
+            ("Cindy Novely", "cindy.novely@hashmicro.com", "SMB Sales Indonesia"),
+            ("Clarita Nikita", "clarita.nikita@hashmicro.com", "SMB Sales Indonesia"),
+            ("Amelia Wijaya", "amelia.wijaya@hashmicro.com", "Enterprise Sales Indonesia"),
+            ("Iqbal Iskandar", "iqbal.iskandar@hashmicro.com", "Enterprise Sales Indonesia"),
+            ("Syella Manuela", "syella.manuela@hashmicro.com", "SMB Sales Indonesia"),
         ],
         'Singapore': [
-            ("Michael Tan", "sg.sales.director@example.com", "Sales Director Singapore"),
-            ("Sarah Wong", "sg.enterprise.manager@example.com", "Enterprise Manager Singapore"),
-            ("David Lim", "sg.sam.enterprise@example.com", "Enterprise Sales Singapore"),
-            ("Jennifer Chen", "sg.enterprise.sales@example.com", "Enterprise Sales Singapore"),
-            ("Kenneth Ng", "sg.smb.manager@example.com", "SMB Manager Singapore"),
-            ("Grace Lee", "sg.smb.sales1@example.com", "SMB Sales Singapore"),
-            ("Marcus Goh", "sg.smb.sales2@example.com", "SMB Sales Singapore"),
+            ("Dion Irawan", "dion.irawan@hashmicro.com", "Sales Director Singapore"),
+            ("Elisabeth Pudjo", "elisabeth.pudjo@hashmicro.com", "Enterprise Manager Singapore"),
+            ("Yohana Munthe", "yohana.munthe@hashmicro.com", "Enterprise Sales Singapore"),
+            ("Michael Lim", "michael.lim@hashmicro.com", "Enterprise Sales Singapore"),
+            ("Rafael Sinaga", "rafael.sinaga@hashmicro.com", "SMB Manager Singapore"),
         ]
     }
 
