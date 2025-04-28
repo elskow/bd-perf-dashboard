@@ -15,7 +15,6 @@ import locale
 
 # Third-party imports
 import xmlrpc.client
-from babel.numbers import format_currency
 from faker import Faker
 
 # Configure logging
@@ -47,14 +46,6 @@ else:
 
 class OdooUtils:
     """Utility class for Odoo connection and operations."""
-
-    @staticmethod
-    def format_idr(amount: float) -> str:
-        """Format amount as IDR currency."""
-        try:
-            return format_currency(amount, 'IDR', locale='id_ID')
-        except Exception:
-            return f"Rp {amount:,.0f},-"
 
     @staticmethod
     def connect_to_odoo(url: str, db: str, username: str, password: str, max_retries: int = MAX_RETRIES) -> Tuple[Optional[int], Optional[xmlrpc.client.ServerProxy]]:
