@@ -375,7 +375,9 @@ class CrmDataGenerator:
                     logger.error("Could not find team ID for Sales %s", team_name)
                     continue
 
-                for name, login in team_members:
+                for member_tuple in team_members:
+                    # Properly unpack the 3-element tuple
+                    name, login, role = member_tuple
                     self._create_or_update_user(name, login, team_id, team_name, group_ids)
 
             # Verify team memberships
@@ -459,7 +461,7 @@ class CrmDataGenerator:
 
     def _verify_team_memberships(self, team_map):
         """Verify and log team memberships."""
-        logger.info("\nVerifying team memberships:")
+        logger.info("Verifying team memberships:")
         for team_name, team_id in team_map.items():
             team_members = self.execute_kw('crm.team.member', 'search_read',
                                     [[('crm_team_id', '=', team_id)]],
@@ -1893,11 +1895,11 @@ class CrmDataGenerator:
             # Sort users by number of meetings
             sorted_users = sorted(user_meetings.items(), key=lambda x: x[1], reverse=True)
 
-            logger.info("\nMeeting Statistics for %d:", SIMULATION_YEAR)
+            logger.info("Meeting Statistics for %d:", SIMULATION_YEAR)
             logger.info("Total meetings created: %d", total_meetings)
 
             # Log meetings per user
-            logger.info("\nMeetings per user:")
+            logger.info("Meetings per user:")
             for user_name, meeting_count in sorted_users:
                 logger.info("  %s: %d meetings", user_name, meeting_count)
 
@@ -1910,7 +1912,7 @@ class CrmDataGenerator:
                         weekly_avg[week] = 0
                     weekly_avg[week] += count
 
-            logger.info("\nAverage meetings per week (all users):")
+            logger.info("Average meetings per week (all users):")
             active_users = len(self.meeting_tracker)
             for week in sorted(weekly_avg.keys()):
                 logger.info("  %s: %d total (%d per user)", week, weekly_avg[week], weekly_avg[week] // active_users)
