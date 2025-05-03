@@ -21,8 +21,18 @@ async def get_sales_teams(
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                                detail="Failed to retrieve sales teams from Odoo")
 
-        # Resolve members for each team
+        # Transform the data to match our model
+        processed_teams = []
         for team in teams:
+            processed_team = {
+                'id': team['id'],
+                'name': team['name'],
+                # Convert user_id to proper format or None
+                'user_id': {'id': team['user_id'][0], 'name': team['user_id'][1]} if team.get('user_id') else None,
+                'members': []
+            }
+
+            # Resolve members for each team
             if team.get('member_ids'):
                 member_data = execute_kw(
                     'crm.team.member', 'read',
@@ -37,11 +47,11 @@ async def get_sales_teams(
                         [user_ids],
                         {'fields': ['name', 'login']}
                     )
-                    team['members'] = user_data
-                else:
-                    team['members'] = []
+                    processed_team['members'] = user_data
 
-        return {"data": teams}
+            processed_teams.append(processed_team)
+
+        return {"data": processed_teams}
 
     except HTTPException as e:
         raise

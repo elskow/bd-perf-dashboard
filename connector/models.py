@@ -92,7 +92,7 @@ class TeamMember(BaseModel):
 class SalesTeam(BaseModel):
     id: int
     name: str
-    user_id: Optional[List[int]] = None
+    user_id: Optional[Dict[str, Any]] = None
     members: Optional[List[TeamMember]] = None
 
 class SalesTeamListResponse(BaseModel):
@@ -103,24 +103,24 @@ class StageStats(BaseModel):
     id: int
     name: str
     sequence: int
-    count: int
-    expected_revenue: float
+    count: int = 0  # Default value for count
+    expected_revenue: float = 0.0  # Default value for revenue
 
 class TeamStats(BaseModel):
     id: int
     name: str
-    count: int
-    expected_revenue: float
+    count: int = 0  # Default value for count
+    expected_revenue: float = 0.0  # Default value for revenue
 
 class MonthlyMeeting(BaseModel):
     month: int
     month_name: str
-    meeting_count: int
+    meeting_count: int = 0  # Default value for meeting count
 
 class DashboardResponse(BaseModel):
-    total_leads: int
-    total_expected_revenue: float
-    total_meetings: int
+    total_leads: int = 0  # Default value
+    total_expected_revenue: float = 0.0  # Default value
+    total_meetings: int = 0  # Default value
     stage_stats: List[StageStats]
     team_stats: List[TeamStats]
     monthly_meetings: List[MonthlyMeeting]

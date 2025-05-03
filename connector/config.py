@@ -1,13 +1,22 @@
 import os
 import logging
+from logging import StreamHandler
+import sys
 
-# Configure logging
+# Configure consistent logging format
+log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[logging.StreamHandler()]
+    format=log_format,
+    handlers=[StreamHandler(sys.stdout)]
 )
-logger = logging.getLogger(__name__)
+
+# Create logger for this application
+logger = logging.getLogger("odoo-connector")
+
+# Set log level from environment (default: INFO)
+log_level = os.environ.get('LOG_LEVEL', 'INFO').upper()
+logger.setLevel(getattr(logging, log_level, logging.INFO))
 
 # Constants
 MAX_RETRIES = 5
