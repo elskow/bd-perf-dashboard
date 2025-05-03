@@ -8,7 +8,10 @@ dependencies = [
     "argparse>=1.4.0",
     "babel>=2.17.0",
     "faker",
-    "flask>=3.1.0",
+    "fastapi>=0.115.12",
+    "pandas>=2.2.3",
+    "pydantic>=2.11.4",
+    "python-dotenv>=1.1.0",
     "pytz>=2025.2",
-    "werkzeug>=3.1.3",
+    "uvicorn>=0.34.2",
 ]
