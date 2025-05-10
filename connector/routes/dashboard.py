@@ -1,8 +1,7 @@
 from fastapi import Depends, HTTPException, status, Query
 from datetime import datetime, timedelta
-import asyncio
 from dependencies import get_api_key
-from odoo_client import execute_kw_async, batch_execute, connect_to_odoo
+from odoo_client import execute_kw_async, connect_to_odoo
 from models import DashboardResponse, LeadInfo, MeetingStats, MeetingDetail
 from config import logger
 from cache import cached
@@ -18,18 +17,117 @@ def format_date(date_str):
     except (ValueError, TypeError):
         return None
 
-@app.get("/api/dashboard", response_model=DashboardResponse, tags=["Dashboard"])
+@app.get(
+    "/api/dashboard",
+    response_model=DashboardResponse,
+    tags=["Dashboard"],
+    summary="Get Salesperson Dashboard Data",
+    description="""
+    Retrieves comprehensive dashboard data for a specific salesperson including:
+    - Lead information with industry and meeting dates
+    - Meeting statistics for the last 30 days
+    - Upcoming meetings schedule
+    
+    The data is cached for 5 minutes to improve performance.
+    """,
+    responses={
+        200: {
+            "description": "Successfully retrieved dashboard data",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "salesperson_name": "John Doe",
+                        "leads": [
+                            {
+                                "name": "Potential Client A",
+                                "industry": "Technology",
+                                "stage": "WARM",
+                                "first_meeting_date": "15 MARCH",
+                                "warm_focus_date": "20 MARCH"
+                            }
+                        ],
+                        "meeting_stats": {
+                            "first_meetings": 5,
+                            "second_meetings": 3,
+                            "third_meetings": 2,
+                            "more_meetings": 1,
+                            "total_meetings": 11
+                        },
+                        "upcoming_meetings": [
+                            {
+                                "name": "Follow-up Meeting",
+                                "date": "25 MARCH"
+                            }
+                        ]
+                    }
+                }
+            }
+        },
+        401: {
+            "description": "Invalid or missing API key",
+            "content": {
+                "application/json": {
+                    "example": {"detail": "Invalid API key"}
+                }
+            }
+        },
+        404: {
+            "description": "Salesperson not found",
+            "content": {
+                "application/json": {
+                    "example": {"detail": "Salesperson not found"}
+                }
+            }
+        },
+        500: {
+            "description": "Internal server error",
+            "content": {
+                "application/json": {
+                    "example": {"detail": "An error occurred while retrieving dashboard data"}
+                }
+            }
+        }
+    }
+)
 @cached(ttl=300, key_prefix='dashboard')
 async def get_dashboard_data(
     api_key: str = Depends(get_api_key),
-    salesperson_id: int = Query(..., description="ID of the salesperson to get dashboard data for")
-):
-    """Get weekly report data for a specific salesperson"""
+    salesperson_id: int = Query(
+        ...,
+        description="ID of the salesperson to get dashboard data for",
+        example=1,
+        gt=0,
+        title="Salesperson ID"
+    )
+) -> DashboardResponse:
+    """
+    Get weekly report data for a specific salesperson.
+    
+    This endpoint provides a comprehensive dashboard including:
+    - List of leads with their current stages and important dates
+    - Meeting statistics (1st, 2nd, 3rd, and more meetings)
+    - Upcoming meetings schedule
+    
+    The data is cached for 5 minutes to improve performance and reduce load on the Odoo server.
+    
+    Args:
+        api_key (str): API key for authentication
+        salesperson_id (int): The ID of the salesperson to get data for
+        
+    Returns:
+        DashboardResponse: Complete dashboard data including leads, meeting stats, and upcoming meetings
+        
+    Raises:
+        HTTPException: If authentication fails, salesperson not found, or there's an error retrieving data
+    """
     try:
         # Get salesperson's details
         user_data = await execute_kw_async('res.users', 'read', [[salesperson_id]], {'fields': ['name']})
         if not user_data:
-            raise HTTPException(status_code=404, detail="Salesperson not found")
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Salesperson not found"
+            )
         
         salesperson_name = user_data[0]['name']
 
@@ -165,18 +263,13 @@ async def get_dashboard_data(
                 warm_focus_date=warm_focus_date
             ))
 
-        # Get meetings statistics (last 30 days)
-        today = datetime.now()
-        start_date = (today - timedelta(days=30)).strftime('%Y-%m-%d')
-        end_date = today.strftime('%Y-%m-%d')
-
+        # Get meetings statistics (all meetings)
         meetings_data = await execute_kw_async(
             'calendar.event',
             'search_read',
             [[
                 ('user_id', '=', salesperson_id),
-                ('start', '>=', start_date),
-                ('start', '<=', end_date)
+                ('opportunity_id', 'in', lead_ids)  # Only get meetings linked to leads
             ]],
             {
                 'fields': [
@@ -184,35 +277,42 @@ async def get_dashboard_data(
                     'start',
                     'stop',
                     'opportunity_id'
-                ]
+                ],
+                'order': 'start asc'  # Order by date to ensure proper counting
             }
         )
 
         # Calculate meeting stats
         meeting_counts = {
-            'first': 0,
-            'second': 0,
-            'third': 0,
-            'more': 0
+            'first': 0,  # Count of leads that have had their first meeting
+            'second': 0,  # Count of leads that have had their second meeting
+            'third': 0,   # Count of leads that have had their third meeting
+            'more': 0     # Count of leads that have had more than 3 meetings
         }
 
-        lead_meeting_counts = {}
+        # Group meetings by lead
+        lead_meetings = {}
         for meeting in meetings_data:
             if meeting.get('opportunity_id'):
                 lead_id = meeting['opportunity_id'][0]
-                lead_meeting_counts[lead_id] = lead_meeting_counts.get(lead_id, 0) + 1
+                if lead_id not in lead_meetings:
+                    lead_meetings[lead_id] = []
+                lead_meetings[lead_id].append(meeting)
 
-        for count in lead_meeting_counts.values():
-            if count == 1:
+        # Count meetings for each lead
+        for lead_id, meetings in lead_meetings.items():
+            meeting_count = len(meetings)
+            if meeting_count >= 1:
                 meeting_counts['first'] += 1
-            elif count == 2:
+            if meeting_count >= 2:
                 meeting_counts['second'] += 1
-            elif count == 3:
+            if meeting_count >= 3:
                 meeting_counts['third'] += 1
-            else:
+            if meeting_count >= 4:
                 meeting_counts['more'] += 1
 
-        # Get upcoming meetings
+        # Get upcoming meetings (next 5 meetings from today)
+        today = datetime.now()
         future_meetings = await execute_kw_async(
             'calendar.event',
             'search_read',
@@ -248,9 +348,12 @@ async def get_dashboard_data(
             upcoming_meetings=upcoming
         )
 
+    except HTTPException as e:
+        # Re-raise HTTP exceptions as is
+        raise
     except Exception as e:
         logger.error(f"Error in dashboard: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=str(e)
+            detail="An error occurred while retrieving dashboard data"
         )

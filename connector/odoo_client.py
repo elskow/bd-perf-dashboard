@@ -2,7 +2,7 @@ import time
 import xmlrpc.client
 import asyncio
 from functools import lru_cache
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple
 import concurrent.futures
 from config import ODOO_URL, ODOO_DB, ODOO_USERNAME, ODOO_PASSWORD, MAX_RETRIES, RETRY_DELAY, logger
 import threading
@@ -13,24 +13,8 @@ local = threading.local()
 # Thread pool for async operations
 thread_pool = concurrent.futures.ThreadPoolExecutor(max_workers=10)
 
-# Initialize global connection variables
-odoo_uid = None
-odoo_models = None
-
-def get_odoo_connection():
-    """Get thread-local Odoo connection to prevent concurrency issues"""
-    if not hasattr(local, 'odoo_uid') or not hasattr(local, 'odoo_models') or not local.odoo_uid:
-        local.odoo_uid, local.odoo_models = create_odoo_connection()
-
-    return local.odoo_uid, local.odoo_models
-
 def connect_to_odoo():
     """Connect to Odoo instance with retry logic"""
-    global odoo_uid, odoo_models
-
-    if odoo_uid and odoo_models:
-        return odoo_uid, odoo_models
-
     common = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/common')
 
     for attempt in range(MAX_RETRIES):
@@ -39,7 +23,6 @@ def connect_to_odoo():
             if uid:
                 logger.info(f"Odoo authentication successful - user ID {uid}")
                 models = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/object')
-                odoo_uid, odoo_models = uid, models
                 return uid, models
             else:
                 logger.error("Odoo authentication failed - invalid credentials")
@@ -51,25 +34,12 @@ def connect_to_odoo():
     logger.critical("All connection attempts to Odoo failed - service unavailable")
     return None, None
 
-def create_odoo_connection():
-    """Create a new Odoo connection with retry logic"""
-    common = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/common')
+def get_odoo_connection():
+    """Get thread-local Odoo connection to prevent concurrency issues"""
+    if not hasattr(local, 'odoo_uid') or not hasattr(local, 'odoo_models') or not local.odoo_uid:
+        local.odoo_uid, local.odoo_models = connect_to_odoo()
 
-    for attempt in range(MAX_RETRIES):
-        try:
-            uid = common.authenticate(ODOO_DB, ODOO_USERNAME, ODOO_PASSWORD, {})
-            if uid:
-                models = xmlrpc.client.ServerProxy(f'{ODOO_URL}/xmlrpc/2/object')
-                return uid, models
-            else:
-                logger.error("Authentication with Odoo failed")
-        except Exception as e:
-            logger.error(f"Connection error (attempt {attempt+1}/{MAX_RETRIES}): {str(e)}")
-            if attempt < MAX_RETRIES - 1:
-                time.sleep(RETRY_DELAY)
-
-    logger.critical("All connection attempts to Odoo failed")
-    return None, None
+    return local.odoo_uid, local.odoo_models
 
 def execute_kw(model: str, method: str, args: List, kwargs: Optional[Dict] = None) -> Any:
     """Execute Odoo RPC call with error handling"""

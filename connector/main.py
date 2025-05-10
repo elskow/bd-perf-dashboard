@@ -3,7 +3,6 @@ from app import app
 import config
 from cache import cache
 import os
-import sys
 import logging
 
 # Force-import all routes to ensure they're registered with FastAPI
