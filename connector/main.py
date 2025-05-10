@@ -8,10 +8,7 @@ import logging
 
 # Force-import all routes to ensure they're registered with FastAPI
 from routes.health import *
-from routes.leads import *
-from routes.meetings import *
 from routes.salesteams import *
-from routes.stages import *
 from routes.dashboard import *
 
 # Add cache cleaning on exit

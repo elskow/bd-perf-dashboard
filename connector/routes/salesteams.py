@@ -13,42 +13,44 @@ async def get_sales_teams(
     try:
         teams = execute_kw(
             'crm.team', 'search_read',
-            [[]],
-            {'fields': ['id', 'name', 'user_id', 'member_ids']}
+            [[('name', 'in', ['Sales Indonesia', 'Sales Singapore'])]],
+            {'fields': ['id', 'name', 'user_id']}
         )
 
-        if teams is None:
+        if teams is None or not teams:
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                                detail="Failed to retrieve sales teams from Odoo")
 
-        # Transform the data to match our model
         processed_teams = []
         for team in teams:
+            team_members = execute_kw(
+                'crm.team.member', 'search_read',
+                [[('crm_team_id', '=', team['id'])]],
+                {'fields': ['user_id']}
+            )
+            
+            user_ids = [m['user_id'][0] for m in team_members if m.get('user_id')]
+            
             processed_team = {
                 'id': team['id'],
                 'name': team['name'],
-                # Convert user_id to proper format or None
                 'user_id': {'id': team['user_id'][0], 'name': team['user_id'][1]} if team.get('user_id') else None,
                 'members': []
             }
-
-            # Resolve members for each team
-            if team.get('member_ids'):
-                member_data = execute_kw(
-                    'crm.team.member', 'read',
-                    [team['member_ids']],
-                    {'fields': ['user_id']}
+            
+            if user_ids:
+                user_data = execute_kw(
+                    'res.users', 'read',
+                    [user_ids],
+                    {'fields': ['id', 'name', 'login', 'image_1920']}
                 )
-
-                user_ids = [m['user_id'][0] for m in member_data if m.get('user_id')]
-                if user_ids:
-                    user_data = execute_kw(
-                        'res.users', 'read',
-                        [user_ids],
-                        {'fields': ['name', 'login']}
-                    )
-                    processed_team['members'] = user_data
-
+                
+                for user in user_data:
+                    if 'image_1920' not in user:
+                        user['image_1920'] = None
+                
+                processed_team['members'] = user_data
+            
             processed_teams.append(processed_team)
 
         return {"data": processed_teams}
