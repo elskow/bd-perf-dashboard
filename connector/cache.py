@@ -3,7 +3,7 @@ import time
 from typing import Any, Dict, Optional, Callable
 from config import logger
 
-class SimpleCache:
+class Cache:
     """Simple in-memory cache with TTL support"""
 
     def __init__(self):
@@ -37,8 +37,7 @@ class SimpleCache:
         self._cache.clear()
 
 
-# Create cache instance
-cache = SimpleCache()
+cache = Cache()
 
 
 def cached(ttl: int = 300, key_prefix: str = ''):
@@ -46,20 +45,16 @@ def cached(ttl: int = 300, key_prefix: str = ''):
     def decorator(func: Callable):
         @wraps(func)
         async def wrapper(*args, **kwargs):
-            # Create a cache key from function name and arguments
             key = f"{key_prefix}:{func.__name__}:{str(args)}:{str(kwargs)}"
 
-            # Try to get from cache
             cached_value = cache.get(key)
             if cached_value is not None:
                 logger.debug(f"Cache hit for {key}")
                 return cached_value
 
-            # Not in cache, call the function
             logger.debug(f"Cache miss for {key}")
             result = await func(*args, **kwargs)
 
-            # Store in cache
             cache.set(key, result, ttl)
             return result
 

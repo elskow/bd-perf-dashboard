@@ -7,10 +7,8 @@ import concurrent.futures
 from config import ODOO_URL, ODOO_DB, ODOO_USERNAME, ODOO_PASSWORD, MAX_RETRIES, RETRY_DELAY, logger
 import threading
 
-# Thread-local storage for XML-RPC connections
 local = threading.local()
 
-# Thread pool for async operations
 thread_pool = concurrent.futures.ThreadPoolExecutor(max_workers=10)
 
 def connect_to_odoo():
@@ -46,7 +44,6 @@ def execute_kw(model: str, method: str, args: List, kwargs: Optional[Dict] = Non
     if kwargs is None:
         kwargs = {}
 
-    # Auto-add groupby parameter for read_group calls
     if method == 'read_group' and 'groupby' not in kwargs:
         kwargs = kwargs.copy()  # Create a copy to avoid modifying the original
         kwargs['groupby'] = []  # Empty list if no grouping needed
@@ -57,7 +54,6 @@ def execute_kw(model: str, method: str, args: List, kwargs: Optional[Dict] = Non
         return None
 
     try:
-        # Add timeout for the XML-RPC call
         result = models.execute_kw(ODOO_DB, uid, ODOO_PASSWORD, model, method, args, kwargs)
         return result
     except xmlrpc.client.ProtocolError as e:
@@ -77,7 +73,6 @@ async def execute_kw_async(model: str, method: str, args: List, kwargs: Optional
     if kwargs is None:
         kwargs = {}
 
-    # Auto-add groupby parameter for read_group calls
     if method == 'read_group' and 'groupby' not in kwargs:
         kwargs = kwargs.copy()  # Create a copy to avoid modifying the original
         kwargs['groupby'] = []
@@ -85,14 +80,12 @@ async def execute_kw_async(model: str, method: str, args: List, kwargs: Optional
 
     try:
         loop = asyncio.get_running_loop()
-        # Pass a new function instead of lambda to avoid capturing variables
         result = await loop.run_in_executor(
             thread_pool,
             execute_kw,
             model, method, args, kwargs
         )
 
-        # Add special handling for count methods which should never be None
         if method == 'search_count' and result is None:
             logger.warning(f"Got None for {model}.{method}, returning 0 instead")
             return 0
@@ -100,7 +93,6 @@ async def execute_kw_async(model: str, method: str, args: List, kwargs: Optional
         return result
     except Exception as e:
         logger.error(f"Error in async execution of {model}.{method}: {str(e)}")
-        # Return appropriate defaults based on method
         if method == 'search_count':
             return 0
         elif method == 'read_group':
@@ -117,7 +109,6 @@ def get_field_info(model: str) -> Dict[str, Dict]:
 
 async def batch_execute(calls: List[Tuple[str, str, List, Dict]]) -> List:
     """Execute multiple Odoo calls in parallel with better error handling and rate limiting"""
-    # Split into smaller batches to avoid overwhelming the server
     batch_size = 5  # Process 5 calls at a time
     all_results = []
 
@@ -126,9 +117,7 @@ async def batch_execute(calls: List[Tuple[str, str, List, Dict]]) -> List:
         tasks = []
 
         for model, method, args, kwargs in batch_calls:
-            # Create a new task for each call - the groupby parameter will be added in execute_kw_async
             if method == 'read_group' and 'groupby' not in kwargs:
-                # Make a copy of kwargs to avoid modifying the original
                 modified_kwargs = kwargs.copy()
                 modified_kwargs['groupby'] = []
                 tasks.append(execute_kw_async(model, method, args, modified_kwargs))
@@ -136,15 +125,12 @@ async def batch_execute(calls: List[Tuple[str, str, List, Dict]]) -> List:
                 tasks.append(execute_kw_async(model, method, args, kwargs))
 
         try:
-            # Use gather with return_exceptions=True to prevent one failed task from failing all
             batch_results = await asyncio.gather(*tasks, return_exceptions=True)
 
-            # Process results, replacing exceptions with appropriate defaults
             for j, result in enumerate(batch_results):
                 if isinstance(result, Exception):
                     logger.error(f"Error in batch execution: {str(result)}")
                     model, method, _, _ = batch_calls[j]
-                    # Return appropriate defaults based on method
                     if method == 'search_count':
                         all_results.append(0)
                     elif method == 'read_group':
@@ -156,13 +142,11 @@ async def batch_execute(calls: List[Tuple[str, str, List, Dict]]) -> List:
                 else:
                     all_results.append(result)
 
-            # Add a small delay between batches to avoid overwhelming the server
             if i + batch_size < len(calls):
                 await asyncio.sleep(0.1)
 
         except Exception as e:
             logger.error(f"Failed to execute batch operations: {str(e)}")
-            # Add appropriate number of None values for this batch
             all_results.extend([None] * len(batch_calls))
 
     return all_results

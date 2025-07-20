@@ -1,4 +1,3 @@
-from fastapi import status
 from datetime import datetime
 from odoo_client import connect_to_odoo
 from app import app
@@ -59,7 +58,7 @@ class HealthCheckResponse(BaseModel):
 async def health_check():
     """
     Check if the API is running and can connect to Odoo.
-    
+
     Returns:
         HealthCheckResponse: Object containing health status, Odoo connection status, and timestamp
     """

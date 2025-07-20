@@ -4,7 +4,6 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import JSONResponse
 import time
 
-# Initialize FastAPI app
 app = FastAPI(
     title="Odoo CRM Power BI Connector",
     description="API to connect Odoo CRM data to Power BI dashboards",
@@ -13,10 +12,8 @@ app = FastAPI(
     redoc_url="/api/redoc"
 )
 
-# Add compression middleware
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
-# Configure CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  # Adjust in production
@@ -25,7 +22,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Add request timing middleware
 @app.middleware("http")
 async def add_process_time_header(request: Request, call_next):
     start_time = time.time()
@@ -37,7 +33,6 @@ async def add_process_time_header(request: Request, call_next):
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     from config import logger
-    # Include more detailed error information
     logger.error(f"Unhandled exception for {request.method} {request.url.path}: {str(exc)}", exc_info=True)
     return JSONResponse(
         status_code=500,
