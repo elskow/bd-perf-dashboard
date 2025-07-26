@@ -33,30 +33,9 @@ services:
     restart: always
     command: /setup/entrypoint.sh
 
-  metabase:
-    image: metabase/metabase:latest
-    depends_on:
-      - db
-    ports:
-      - "3000:3000"
-    environment:
-      - MB_DB_TYPE=postgres
-      - MB_DB_DBNAME=postgres
-      - MB_DB_PORT=5432
-      - MB_DB_USER=odoo
-      - MB_DB_PASS=odoo
-      - MB_DB_HOST=db
-      - TZ=Asia/Jakarta
-    volumes:
-      - metabase-data:/metabase-data
-    networks:
-      - odoo-network
-    restart: always
-
 volumes:
   odoo-db-data:
   odoo-web-data:
-  metabase-data:
 
 networks:
   odoo-network:

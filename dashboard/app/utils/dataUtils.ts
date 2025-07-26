@@ -58,25 +58,32 @@ export const getIndustryColor = (industry: string): string => {
 };
 
 export const transformLeadsForTable = (leads: any[]) => {
-  return leads.map((lead) => ({
-    ...lead,
-    formattedRevenue: formatCurrency(lead.expected_revenue),
-    formattedProbability: formatPercentage(lead.probability),
-    stageColor: getStageColor(lead.stage),
-    industryColor: getIndustryColor(lead.industry),
-    first_meeting_date:
-      lead.first_meeting_date && lead.first_meeting_date !== "-"
-        ? lead.first_meeting_date
-        : "-",
-    warm_focus_date:
-      lead.warm_focus_date && lead.warm_focus_date !== "-"
-        ? lead.warm_focus_date
-        : "-",
-    last_activity:
-      lead.last_activity && lead.last_activity !== "-"
-        ? lead.last_activity
-        : "-",
-  }));
+  const transformed = leads.map((lead, index) => {
+    const result = {
+      ...lead,
+      formattedRevenue: formatCurrency(lead.expected_revenue),
+      formattedProbability: formatPercentage(lead.probability),
+      stageColor: getStageColor(lead.stage),
+      industryColor: getIndustryColor(lead.industry),
+      first_meeting_date:
+        lead.first_meeting_date && lead.first_meeting_date !== "-"
+          ? lead.first_meeting_date
+          : "-",
+      warm_focus_date:
+        lead.warm_focus_date && lead.warm_focus_date !== "-"
+          ? lead.warm_focus_date
+          : "-",
+      last_activity:
+        lead.last_activity && lead.last_activity !== "-"
+          ? lead.last_activity
+          : "-",
+      meeting_count: Number(lead.meeting_count || 0), // Ensure meeting_count is always a number
+    };
+
+    return result;
+  });
+
+  return transformed;
 };
 
 export const exportToCSV = (data: any[], filename: string) => {
@@ -133,9 +140,8 @@ export const exportLeadsToCSV = (leads: any[]) => {
 };
 
 export const sortByDate = (a: string, b: string, desc = false) => {
-  if (a === "-" && b === "-") return 0;
-  if (a === "-") return 1;
-  if (b === "-") return -1;
+  // This function should only be called with actual date values
+  // Empty/dash handling should be done in the calling sortingFn
 
   // Parse dates in "DD MMM" format (e.g., "15 MAR", "20 DEC")
   const parseShortDate = (dateStr: string): Date => {
@@ -173,10 +179,12 @@ export const sortByDate = (a: string, b: string, desc = false) => {
   const dateA = parseShortDate(a);
   const dateB = parseShortDate(b);
 
+  // If dates are invalid, return 0 (equal)
+  if (isNaN(dateA.getTime()) && isNaN(dateB.getTime())) return 0;
   if (isNaN(dateA.getTime())) return 1;
   if (isNaN(dateB.getTime())) return -1;
 
-  return desc
-    ? dateB.getTime() - dateA.getTime()
-    : dateA.getTime() - dateB.getTime();
+  // Compare dates - this will be used by table's internal sorting
+  // Table will handle desc/asc automatically
+  return dateA.getTime() - dateB.getTime();
 };

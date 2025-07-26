@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:7001";
+const API_URL = import.meta.env.VITE_API_URL || "http://192.168.0.164:7001";
 const API_KEY = import.meta.env.VITE_API_KEY || "your-secure-api-key";
 
 export interface TeamMember {

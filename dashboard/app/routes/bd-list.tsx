@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import type { Route } from "./+types/bd-list";
-import { fetchSalesTeams, type SalesTeam} from "~/utils/api";
+import { fetchSalesTeams, type SalesTeam } from "~/utils/api";
 import { Loading } from "~/components/Loading";
 import { Error } from "~/components/Error";
 import { Avatar } from "~/components/Avatar";
@@ -78,7 +78,7 @@ export default function BDList() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-w-0">
         <div className="text-center mb-8 sm:mb-12 lg:mb-16 overflow-hidden">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 truncate">
-            BD Weekly Report
+            BD Performance Report
           </h1>
           <div className="w-16 sm:w-20 lg:w-24 h-1 bg-gradient-to-r from-red-500 to-pink-600 mx-auto rounded-full"></div>
         </div>

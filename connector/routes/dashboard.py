@@ -193,15 +193,78 @@ async def get_dashboard_data(
         )
 
         lead_ids = [lead['id'] for lead in leads_data]
-        meetings = await execute_kw_async(
+
+        # Try multiple ways to find meetings linked to leads
+        meetings = []
+
+        # Method 1: Search by opportunity_id
+        meetings_by_opportunity = await execute_kw_async(
             'calendar.event',
             'search_read',
             [[('opportunity_id', 'in', lead_ids)]],
             {
-                'fields': ['opportunity_id', 'start', 'name'],
+                'fields': ['opportunity_id', 'start', 'name', 'res_id', 'res_model'],
                 'order': 'start asc'
             }
         )
+        if meetings_by_opportunity:
+            meetings.extend(meetings_by_opportunity)
+
+        # Method 2: Search by res_id and res_model (alternative linking method)
+        meetings_by_res = await execute_kw_async(
+            'calendar.event',
+            'search_read',
+            [[('res_model', '=', 'crm.lead'), ('res_id', 'in', lead_ids)]],
+            {
+                'fields': ['opportunity_id', 'start', 'name', 'res_id', 'res_model'],
+                'order': 'start asc'
+            }
+        )
+        if meetings_by_res:
+            meetings.extend(meetings_by_res)
+
+        # Method 3: Search by partner_ids if leads have partners
+        partner_ids_for_meetings = []
+        for lead in leads_data:
+            if lead.get('partner_id'):
+                partner_ids_for_meetings.append(lead['partner_id'][0])
+
+        if partner_ids_for_meetings:
+            meetings_by_partner = await execute_kw_async(
+                'calendar.event',
+                'search_read',
+                [[('partner_ids', 'in', partner_ids_for_meetings)]],
+                {
+                    'fields': ['opportunity_id', 'start', 'name', 'res_id', 'res_model', 'partner_ids'],
+                    'order': 'start asc'
+                }
+            )
+            if meetings_by_partner:
+                meetings.extend(meetings_by_partner)
+
+        # Method 4: Fallback - Search all meetings by user and then filter
+        all_user_meetings = []
+        if not meetings:
+            all_user_meetings = await execute_kw_async(
+                'calendar.event',
+                'search_read',
+                [[('user_id', '=', salesperson_id)]],
+                {
+                    'fields': ['opportunity_id', 'start', 'name', 'res_id', 'res_model', 'partner_ids'],
+                    'order': 'start asc'
+                }
+            )
+            if all_user_meetings:
+                meetings.extend(all_user_meetings)
+
+        # Remove duplicates based on meeting ID
+        seen_meeting_ids = set()
+        unique_meetings = []
+        for meeting in meetings:
+            if meeting['id'] not in seen_meeting_ids:
+                unique_meetings.append(meeting)
+                seen_meeting_ids.add(meeting['id'])
+        meetings = unique_meetings
 
         logger.debug(f"Found {len(meetings) if meetings else 0} meetings for {len(lead_ids)} leads")
         if meetings:
@@ -209,14 +272,39 @@ async def get_dashboard_data(
 
         lead_first_meetings = {}
         lead_meetings = {}
+
+        # Create a mapping of partner_id to lead_id for partner-based meetings
+        partner_to_lead = {}
+        for lead in leads_data:
+            if lead.get('partner_id'):
+                partner_to_lead[lead['partner_id'][0]] = lead['id']
+
         if meetings:
             for meeting in meetings:
+                lead_id = None
+
+                # Method 1: Direct opportunity_id link
                 if meeting.get('opportunity_id'):
                     lead_id = meeting['opportunity_id'][0]
+
+                # Method 2: res_id and res_model link
+                elif meeting.get('res_model') == 'crm.lead' and meeting.get('res_id'):
+                    lead_id = meeting['res_id']
+
+                # Method 3: Partner-based link
+                elif meeting.get('partner_ids'):
+                    for partner_id in meeting['partner_ids']:
+                        if partner_id in partner_to_lead:
+                            lead_id = partner_to_lead[partner_id]
+                            break
+
+                # Only process if we found a valid lead_id and it's in our leads list
+                if lead_id and lead_id in lead_ids:
                     if lead_id not in lead_first_meetings:
                         first_meeting_date = format_date(meeting.get('start'))
                         if first_meeting_date:
                             lead_first_meetings[lead_id] = first_meeting_date
+
                     if lead_id not in lead_meetings:
                         lead_meetings[lead_id] = []
                     lead_meetings[lead_id].append(meeting)
@@ -240,7 +328,7 @@ async def get_dashboard_data(
                     if lead_id not in warm_focus_dates:
                         warm_focus_dates[lead_id] = format_date(msg.get('date'))
 
-        logger.debug(f"Found {len(warm_focus_dates)} warm/focus dates from messages")
+
 
         partner_ids = []
         company_names = set()
@@ -311,12 +399,6 @@ async def get_dashboard_data(
             industry_counts[industry] = industry_counts.get(industry, 0) + 1
 
             first_meeting_date = lead_first_meetings.get(lead['id'])
-            if not first_meeting_date:
-                for date_field in ['create_date', 'date_open']:
-                    if lead.get(date_field):
-                        first_meeting_date = format_date(lead[date_field])
-                        if first_meeting_date:
-                            break
 
             raw_stage = lead['stage_id'][1].upper() if lead.get('stage_id') else 'NEW'
 
@@ -341,7 +423,11 @@ async def get_dashboard_data(
 
             lead_meeting_count = len(lead_meetings.get(lead['id'], []))
 
-            logger.debug(f"Lead {lead['name']}: first_meeting_date={first_meeting_date}, warm_focus_date={warm_focus_date}")
+            # Only set first_meeting_date if there are actual meetings
+            if lead_meeting_count == 0:
+                first_meeting_date = None
+
+            logger.debug(f"Lead {lead['name']}: first_meeting_date={first_meeting_date}, warm_focus_date={warm_focus_date}, meeting_count={lead_meeting_count}")
 
             leads.append(LeadInfo(
                 name=lead['name'],
@@ -356,23 +442,8 @@ async def get_dashboard_data(
                 last_activity=format_date(lead.get('write_date'))
             ))
 
-        meetings_data = await execute_kw_async(
-            'calendar.event',
-            'search_read',
-            [[
-                ('user_id', '=', salesperson_id),
-                ('opportunity_id', 'in', lead_ids)  # Only get meetings linked to leads
-            ]],
-            {
-                'fields': [
-                    'name',
-                    'start',
-                    'stop',
-                    'opportunity_id'
-                ],
-                'order': 'start asc'  # Order by date to ensure proper counting
-            }
-        )
+        # Use the meetings we already found for statistics
+        meetings_data = meetings
 
         meeting_counts = {
             'first': 0,  # Count of leads that have had their first meeting
@@ -381,16 +452,9 @@ async def get_dashboard_data(
             'more': 0     # Count of leads that have had more than 3 meetings
         }
 
-        lead_meetings_stats = {}
-        for meeting in meetings_data:
-            if meeting.get('opportunity_id'):
-                lead_id = meeting['opportunity_id'][0]
-                if lead_id not in lead_meetings_stats:
-                    lead_meetings_stats[lead_id] = []
-                lead_meetings_stats[lead_id].append(meeting)
-
-        for lead_id, meetings in lead_meetings_stats.items():
-            meeting_count = len(meetings)
+        # Use the lead_meetings dictionary we already built
+        for lead_id, meetings_list in lead_meetings.items():
+            meeting_count = len(meetings_list)
             if meeting_count >= 1:
                 meeting_counts['first'] += 1
             if meeting_count >= 2:
@@ -399,6 +463,10 @@ async def get_dashboard_data(
                 meeting_counts['third'] += 1
             if meeting_count >= 4:
                 meeting_counts['more'] += 1
+
+        logger.debug(f"Meeting statistics: {meeting_counts}")
+        logger.debug(f"Total meetings found: {len(meetings_data)}")
+        logger.debug(f"Leads with meetings: {len(lead_meetings)}")
 
         today = datetime.now()
         future_meetings = await execute_kw_async(
