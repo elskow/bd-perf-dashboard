@@ -9,7 +9,8 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import React from "react";
+import React, { useEffect } from "react";
+import { preloadStaticData } from "./utils/api";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -43,6 +44,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  useEffect(() => {
+    // Preload static data when the app starts
+    preloadStaticData().catch(console.warn);
+  }, []);
+
   return <Outlet />;
 }
 

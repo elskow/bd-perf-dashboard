@@ -4,9 +4,15 @@
   "type": "module",
   "scripts": {
     "build": "react-router build",
+    "build:static": "npm run fetch:data && npm run build:spa && npm run postbuild:static",
+    "build:spa": "react-router build",
     "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc"
+    "typecheck": "react-router typegen && tsc",
+    "fetch:data": "node scripts/fetch-data.js",
+    "postbuild:static": "node scripts/postbuild.js",
+    "serve:static": "node scripts/serve-static.js",
+    "preview": "npm run build:static && npm run serve:static"
   },
   "dependencies": {
     "@react-router/node": "^7.5.3",
@@ -28,6 +34,7 @@
     "@types/node": "^20",
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
+    "node-fetch": "^3.3.2",
     "tailwindcss": "^4.1.11",
     "typescript": "^5.8.3",
     "vite": "^6.3.3",
