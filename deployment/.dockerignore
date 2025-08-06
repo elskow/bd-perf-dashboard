@@ -1,0 +1,83 @@
+# Node modules and build artifacts
+**/node_modules
+**/npm-debug.log*
+**/yarn-debug.log*
+**/yarn-error.log*
+**/build
+**/.next
+**/dist
+
+# Python cache and virtual environments
+**/__pycache__
+**/*.pyc
+**/*.pyo
+**/*.pyd
+**/.Python
+**/.venv
+**/venv
+**/env
+**/ENV
+**/.env.local
+**/.env.development.local
+**/.env.test.local
+**/.env.production.local
+
+# IDE and editor files
+**/.vscode
+**/.idea
+**/*.swp
+**/*.swo
+**/*~
+**/.DS_Store
+**/.ropeproject
+
+# Git and version control
+**/.git
+**/.gitignore
+**/.gitattributes
+
+# Documentation and README files
+**/README.md
+**/CHANGELOG.md
+**/LICENSE
+**/docs
+
+# Test files
+**/test
+**/tests
+**/*.test.js
+**/*.test.ts
+**/*.spec.js
+**/*.spec.ts
+**/coverage
+
+# Docker files (except the one we're building)
+**/Dockerfile*
+**/docker-compose*.yml
+**/.dockerignore
+
+# Logs
+**/logs
+**/*.log
+
+# Temporary files
+**/tmp
+**/temp
+**/.tmp
+
+# OS generated files
+**/.DS_Store
+**/.DS_Store?
+**/._*
+**/.Spotlight-V100
+**/.Trashes
+**/ehthumbs.db
+**/Thumbs.db
+
+# Lock files (keep package-lock.json but ignore others)
+**/yarn.lock
+**/pnpm-lock.yaml
+**/bun.lock
+
+# Development only directories
+**/scripts/assets

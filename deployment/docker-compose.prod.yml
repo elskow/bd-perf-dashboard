@@ -1,0 +1,110 @@
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=odoo
+      - POSTGRES_USER=odoo
+      - TZ=Asia/Jakarta
+    volumes:
+      - odoo-db-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U odoo"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Odoo ERP System
+  odoo:
+    image: odoo:18.0
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "8069:8069"
+    environment:
+      - HOST=db
+      - USER=odoo
+      - PASSWORD=odoo
+      - TZ=Asia/Jakarta
+      - LIST_DB=False
+    volumes:
+      - odoo-web-data:/var/lib/odoo
+      - ../custom-addons:/mnt/extra-addons
+      - ../setup:/setup
+    networks:
+      - app-network
+    restart: always
+    command: /setup/entrypoint.sh
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8069/web/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+
+  # Unified Dashboard + Backend Application
+  dashboard:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile
+    depends_on:
+      odoo:
+        condition: service_healthy
+    ports:
+      - "80:80"
+    environment:
+      - NODE_ENV=production
+      - PYTHONPATH=/app
+      - ODOO_URL=http://odoo:8069
+      - ODOO_DB=postgres
+      - ODOO_USERNAME=admin
+      - ODOO_PASSWORD=admin
+      - LOG_LEVEL=info
+    volumes:
+      - dashboard-logs:/var/log
+    networks:
+      - app-network
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Redis Cache (optional, for performance)
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    networks:
+      - app-network
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  odoo-db-data:
+    driver: local
+  odoo-web-data:
+    driver: local
+  dashboard-logs:
+    driver: local
+  redis-data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
