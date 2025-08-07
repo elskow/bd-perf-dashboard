@@ -52,6 +52,8 @@ services:
     build:
       context: ..
       dockerfile: deployment/Dockerfile
+      args:
+        - BUILDKIT_INLINE_CACHE=1
     depends_on:
       odoo:
         condition: service_healthy
@@ -107,4 +109,4 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.20.0.0/16
+        - subnet: 172.25.0.0/16

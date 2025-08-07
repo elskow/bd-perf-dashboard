@@ -1,8 +1,21 @@
-FROM node:20-alpine AS dashboard-build
+# Multi-stage build for unified dashboard and backend deployment
+FROM node:20-slim AS dashboard-build
 
+# Install necessary dependencies for node-gyp and native modules
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Build the React Router dashboard
 WORKDIR /app/dashboard
 COPY dashboard/package*.json ./
-RUN npm ci
+
+# Clear npm cache and reinstall everything to fix Rollup issue
+RUN npm cache clean --force
+RUN rm -rf node_modules package-lock.json
+RUN npm install
 
 COPY dashboard/ ./
 RUN npm run build
@@ -20,6 +33,11 @@ RUN pip install --no-cache-dir uv && \
     uv pip install --system -r pyproject.toml
 
 FROM python:3.11-slim
+
+# Install curl for health checks
+RUN apt-get update && apt-get install -y \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
 RUN apt-get update && apt-get install -y \
     nginx \
